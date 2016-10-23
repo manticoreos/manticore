@@ -1,4 +1,5 @@
 *.o
+/.deps
 /build
 /kernel.elf
 /kernel.iso
