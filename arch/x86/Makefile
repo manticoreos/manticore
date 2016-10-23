@@ -1,6 +1,4 @@
-CFLAGS += -m32
-ASFLAGS += -m32
-LDFLAGS += -m elf_i386
+LDFLAGS += -n
 
 includes += -Iarch/x86/include
 
