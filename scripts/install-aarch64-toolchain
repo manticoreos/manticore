@@ -1,0 +1,3 @@
+#!/bin/sh
+
+dnf install qemu-system-aarch64 gcc-aarch64-linux-gnu gcc-c++-aarch64-linux-gnu binutils-aarch64-linux-gnu
