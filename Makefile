@@ -6,7 +6,7 @@ includes += -Iinclude
 
 objs += kernel/init.o
 
-CFLAGS += -O3 -Wall -ffreestanding $(includes)
+CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 
 all: kernel.elf
