@@ -1,3 +1,4 @@
+CFLAGS += -mno-sse
 LDFLAGS += -n
 
 includes += -Iarch/x86/include
