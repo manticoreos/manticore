@@ -109,4 +109,8 @@ start64:
 	/* Call into the kernel */
 	call	start_kernel
 
-	hlt
+	/* If we ever return from start_kernel(), disable interrupts and
+	   execute `hlt` instruction in an infinite loop. */
+	cli
+halt:	hlt
+	jmp halt
