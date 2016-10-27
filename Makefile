@@ -5,6 +5,7 @@ include arch/$(ARCH)/Makefile
 includes += -Iinclude
 
 objs += kernel/init.o
+objs += kernel/panic.o
 
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
