@@ -2,5 +2,9 @@
 
 void arch_halt_cpu(void)
 {
-	asm ("hlt");
+	asm volatile (
+		"hlt"
+		:
+		:
+		: "memory");
 }
