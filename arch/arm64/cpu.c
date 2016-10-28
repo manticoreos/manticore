@@ -2,5 +2,9 @@
 
 void arch_halt_cpu(void)
 {
-	/* FIXME */
+	asm volatile (
+		"wfi"
+		:
+		:
+		: "memory");
 }
