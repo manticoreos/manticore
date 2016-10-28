@@ -1,7 +1,12 @@
-#ifndef KERNEL_PROCESSOR_H
-#define KERNEL_PROCESSOR_H
+#ifndef X86_PROCESSOR_H
+#define X86_PROCESSOR_H
 
 #include <kernel/const.h>
+
+/*
+ * RFLAGS:
+ */
+#define X86_RFLAGS_IF		_UL_BIT(9)
 
 /*
  * CR0:
