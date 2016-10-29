@@ -46,6 +46,11 @@ init_stack_bottom = .
 . = . + 4096
 init_stack_top = .
 
+.align 16
+.globl boot_idt
+boot_idt:
+	.fill 512, 8, 0
+
 .text
 
 .code32
@@ -60,6 +65,11 @@ init_stack_top = .
 start:
 	/* Disable interrupts */
 	cli
+
+	/* Disable all interrupts on the legacy PIC */
+	mov	$0xff, %al
+	out	%al, $0xa1
+	out	%al, $0x21
 
 	/* Setup GDT */
 	lgdt	boot_gdt_desc
