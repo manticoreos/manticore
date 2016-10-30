@@ -1,11 +1,19 @@
 #include <kernel/interrupts.h>
 #include <arch/interrupts.h>
 #include <kernel/console.h>
+#include <kernel/printf.h>
+#include <stddef.h>
+
+void console_putc(void *unused, char ch)
+{
+	console_write_char(ch);
+}
 
 void start_kernel(void)
 {
 	console_init();
-	console_write("Hello, world!\n");
+	init_printf(NULL, console_putc);
+	printf("Hello, world!\n");
 	arch_init_interrupts();
 	arch_local_interrupt_enable();
 }
