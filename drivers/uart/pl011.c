@@ -21,6 +21,11 @@ void pl011_write_char(int ch)
 	pl011_regs[UARTDR] = ch;
 }
 
+void console_write_char(char ch)
+{
+	pl011_write_char(ch);
+}
+
 void console_write(const char *s)
 {
 	while (*s) {
