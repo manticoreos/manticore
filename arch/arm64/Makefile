@@ -1,5 +1,7 @@
 CROSS_PREFIX ?= aarch64-linux-gnu-
 
+CFLAGS += -mgeneral-regs-only
+
 includes += -Iarch/arm64/include
 
 objs += arch/arm64/cpu.o
