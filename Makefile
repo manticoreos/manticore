@@ -6,6 +6,7 @@ includes += -Iinclude
 
 objs += kernel/init.o
 objs += kernel/panic.o
+objs += kernel/printf.o
 objs += kernel/thread.o
 
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
