@@ -31,16 +31,20 @@
 
 #include <kernel/printf.h>
 
+#include <stdint.h>
+
 typedef void (*putcf) (void *, char);
 static putcf stdout_putf;
 static void *stdout_putp;
 
+#define PRINTF_LONG_SUPPORT 1
+
 #ifdef PRINTF_LONG_SUPPORT
 
-static void uli2a(unsigned long int num, unsigned int base, int uc, char *bf)
+static void uli2a(uint64_t num, unsigned int base, int uc, char *bf)
 {
 	int n = 0;
-	unsigned int d = 1;
+	uint64_t d = 1;
 	while (num / d >= base)
 		d *= base;
 	while (d != 0) {
@@ -55,7 +59,7 @@ static void uli2a(unsigned long int num, unsigned int base, int uc, char *bf)
 	*bf = 0;
 }
 
-static void li2a(long num, char *bf)
+static void li2a(int64_t num, char *bf)
 {
 	if (num < 0) {
 		num = -num;
@@ -66,10 +70,10 @@ static void li2a(long num, char *bf)
 
 #endif
 
-static void ui2a(unsigned int num, unsigned int base, int uc, char *bf)
+static void ui2a(uint32_t num, unsigned int base, int uc, char *bf)
 {
 	int n = 0;
-	unsigned int d = 1;
+	uint32_t d = 1;
 	while (num / d >= base)
 		d *= base;
 	while (d != 0) {
@@ -84,7 +88,7 @@ static void ui2a(unsigned int num, unsigned int base, int uc, char *bf)
 	*bf = 0;
 }
 
-static void i2a(int num, char *bf)
+static void i2a(int32_t num, char *bf)
 {
 	if (num < 0) {
 		num = -num;
@@ -170,11 +174,11 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va)
 #ifdef 	PRINTF_LONG_SUPPORT
 					if (lng)
 						uli2a(va_arg
-						      (va, unsigned long int),
+						      (va, uint64_t),
 						      10, 0, bf);
 					else
 #endif
-						ui2a(va_arg(va, unsigned int),
+						ui2a(va_arg(va, int64_t),
 						     10, 0, bf);
 					putchw(putp, putf, w, lz, bf);
 					break;
@@ -183,11 +187,11 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va)
 #ifdef 	PRINTF_LONG_SUPPORT
 					if (lng)
 						li2a(va_arg
-						     (va, unsigned long int),
+						     (va, int64_t),
 						     bf);
 					else
 #endif
-						i2a(va_arg(va, int), bf);
+						i2a(va_arg(va, int32_t), bf);
 					putchw(putp, putf, w, lz, bf);
 					break;
 				}
@@ -195,11 +199,11 @@ void tfp_format(void *putp, putcf putf, char *fmt, va_list va)
 			case 'X':
 #ifdef 	PRINTF_LONG_SUPPORT
 				if (lng)
-					uli2a(va_arg(va, unsigned long int), 16,
+					uli2a(va_arg(va, uint64_t), 16,
 					      (ch == 'X'), bf);
 				else
 #endif
-					ui2a(va_arg(va, unsigned int), 16,
+					ui2a(va_arg(va, uint32_t), 16,
 					     (ch == 'X'), bf);
 				putchw(putp, putf, w, lz, bf);
 				break;
