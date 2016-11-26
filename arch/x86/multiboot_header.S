@@ -2,19 +2,30 @@
    The Multiboot header is a special block in the OS image that is used
    by boot loaders to load the OS image.
 
-   This header follows the Multiboot 1 format, which is is specified in
-   the "Multiboot Specification":
+   This header follows the Multiboot 2 format, which is is specified in
+   the "The Multiboot Specification version 1.6":
 
-   https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
+   http://nongnu.askapache.com/grub/phcoder/multiboot.pdf
  */
-
-#define MULTIBOOT1_HEADER_MAGIC		0x1BADB002
-#define MULTIBOOT_HEADER_FLAGS		0x00
-#define MULTIBOOT_HEADER_CHECKSUM	-(MULTIBOOT1_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
 .section .multiboot_header, "a"
 
-.align 4
-.long MULTIBOOT1_HEADER_MAGIC
-.long MULTIBOOT_HEADER_FLAGS
-.long MULTIBOOT_HEADER_CHECKSUM
+#define MULTIBOOT2_MAGIC	0xe85250d6
+#define MULTIBOOT_ARCH_I386	0
+#define MULTIBOOT_HEADER_LEN	(multiboot2_header_end - multiboot2_header_start)
+#define MULTIBOOT_CHECKSUM	-(MULTIBOOT2_MAGIC + MULTIBOOT_ARCH_I386 + MULTIBOOT_HEADER_LEN)
+
+#define MULTIBOOT_TAG_END 0
+
+.align 8
+multiboot2_header_start:
+.long MULTIBOOT2_MAGIC
+.long MULTIBOOT_ARCH_I386
+.long MULTIBOOT_HEADER_LEN
+.long MULTIBOOT_CHECKSUM
+
+.align 8
+.short MULTIBOOT_TAG_END
+.short 0
+.long 8
+multiboot2_header_end:
