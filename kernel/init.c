@@ -13,7 +13,7 @@ void start_kernel(void)
 {
 	console_init();
 	init_printf(NULL, console_putc);
-	printf("Hello, world!\n");
+	printf("Booting kernel ...\n");
 	arch_init_interrupts();
 	arch_local_interrupt_enable();
 }
