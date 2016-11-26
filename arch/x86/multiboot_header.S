@@ -16,6 +16,10 @@
 #define MULTIBOOT_CHECKSUM	-(MULTIBOOT2_MAGIC + MULTIBOOT_ARCH_I386 + MULTIBOOT_HEADER_LEN)
 
 #define MULTIBOOT_TAG_END 0
+#define MULTIBOOT_TAG_INFO_REQUEST 1
+#define MULTIBOOT_TAG_INFO_REQUEST_LEN (multiboot2_info_request_end - multiboot2_info_request_start)
+
+#define MULTIBOOT_TAG_MEMORY_MAP 6
 
 .align 8
 multiboot2_header_start:
@@ -23,6 +27,14 @@ multiboot2_header_start:
 .long MULTIBOOT_ARCH_I386
 .long MULTIBOOT_HEADER_LEN
 .long MULTIBOOT_CHECKSUM
+
+.align 8
+multiboot2_info_request_start:
+.short MULTIBOOT_TAG_INFO_REQUEST
+.short 0
+.long MULTIBOOT_TAG_INFO_REQUEST_LEN
+.long MULTIBOOT_TAG_MEMORY_MAP
+multiboot2_info_request_end:
 
 .align 8
 .short MULTIBOOT_TAG_END

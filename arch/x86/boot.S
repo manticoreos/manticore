@@ -51,6 +51,11 @@ init_stack_top = .
 boot_idt:
 	.fill 512, 8, 0
 
+.align 8
+.globl boot_data
+boot_data:
+	.fill 1, 8, 0
+
 .text
 
 .code32
@@ -65,6 +70,9 @@ boot_idt:
 start:
 	/* Disable interrupts */
 	cli
+
+	/* Store Multiboot data pointer */
+	mov	%ebx, boot_data
 
 	/* Disable all interrupts on the legacy PIC */
 	mov	$0xff, %al
