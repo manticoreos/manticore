@@ -38,6 +38,14 @@ struct memory_map_entry {
 	uint32_t reserved;
 };
 
+enum {
+	MEMORY_TYPE_AVAILABLE = 1,
+	MEMORY_TYPE_RESERVED = 2,
+	MEMORY_TYPE_ACPI_RECLAIMABLE = 3,
+	MEMORY_TYPE_NVS = 4,
+	MEMORY_TYPE_BADRAM = 5,
+};
+
 static void parse_boot_loader_name(struct tag *tag, void *data)
 {
 	const char *boot_loader_name = data + sizeof(*tag);
@@ -54,14 +62,16 @@ static void parse_memory_map(struct tag *tag, void *data)
 
 	printf("Memory map:\n");
 
-	while (offset < tag->size) {
+	for (; offset < tag->size; offset += sizeof(struct memory_map_entry)) {
 		struct memory_map_entry *entry = data + offset;
+		if (entry->type != MEMORY_TYPE_AVAILABLE) {
+			continue;
+		}
 		if (entry->length < 1024*1024) {
 			printf("  %016lx [%d KiB]\n", entry->base_addr, entry->length / 1024);
 		} else {
 			printf("  %016lx [%d MiB]\n", entry->base_addr, entry->length / 1024 / 1024);
 		}
-		offset += sizeof(*entry);
 	}
 }
 
