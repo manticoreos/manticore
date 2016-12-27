@@ -1,4 +1,4 @@
-ARCH ?= $(shell uname -m | sed -e "s/x86_64/x86/g")
+ARCH ?= $(shell uname -m)
 
 include arch/$(ARCH)/Makefile
 

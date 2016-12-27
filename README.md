@@ -2,26 +2,26 @@
 
 ## Features
 
-* Runs on [arm64](http://www.arm.com/products/processors/armv8-architecture.php) and [x86](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html) architectures
+* Runs on [aarch64](http://www.arm.com/products/processors/armv8-architecture.php) and [x86_64](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html) architectures
 
 ## Getting Started
 
-Install the arm64 cross compiling toolchain:
+Install the aarch64 cross compiling toolchain:
 
 ```console
 $ ./scripts/install-aarch64-toolchain
 ```
 
-Build the arm64 kernel image:
+Build the aarch64 kernel image:
 
 ```console
-$ make ARCH=arm64
+$ make ARCH=aarch64
 ```
 
-Alternatively, you can build the x86 kernel image:
+Alternatively, you can build the x86_64 kernel image:
 
 ```console
-$ make ARCH=x86
+$ make ARCH=x86_64
 ```
 
 Run the kernel image under QEMU:
