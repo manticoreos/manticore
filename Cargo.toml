@@ -1,0 +1,20 @@
+[package]
+name = "kernel"
+version = "0.1.0"
+
+[lib]
+name = "kernel"
+path = "kernel/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies.intrusive-collections]
+version = "0.4.1"
+default-features = false
+features = [ "nightly" ]
+
+[dependencies.rlibc]
+version = "1.0.0"
+
+[dependencies.compiler_builtins]
+git = "https://github.com/rust-lang-nursery/compiler-builtins"
+features = ["c"]

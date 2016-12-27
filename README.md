@@ -6,7 +6,23 @@
 
 ## Getting Started
 
-Install the aarch64 cross compiling toolchain:
+First, install Rust toolchain via [`rustup`](https://rustup.rs/).
+
+Then, install a nightly build of Rust:
+
+```console
+$ rustup install nightly
+$ rustup default nightly
+$ rustup component add rust-src
+```
+
+Finally, install `xargo`:
+
+```
+$ cargo install xargo
+```
+
+To install the aarch64 cross compiling toolchain, run:
 
 ```console
 $ ./scripts/install-aarch64-toolchain
