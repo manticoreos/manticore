@@ -2,7 +2,7 @@ ARCH ?= $(shell uname -m)
 
 include arch/$(ARCH)/Makefile
 
-includes += -Iinclude
+includes += -include include/kernel/kernel.h -Iinclude
 
 objs += kernel/init.o
 objs += kernel/panic.o
