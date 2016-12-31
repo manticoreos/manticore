@@ -46,6 +46,14 @@ enum {
 	MEMORY_TYPE_BADRAM = 5,
 };
 
+static const char *memory_types[] = {
+	[MEMORY_TYPE_AVAILABLE]		= "available",
+	[MEMORY_TYPE_RESERVED]		= "reserved",
+	[MEMORY_TYPE_ACPI_RECLAIMABLE]	= "ACPI reclaimable",
+	[MEMORY_TYPE_NVS]		= "NVS",
+	[MEMORY_TYPE_BADRAM]		= "bad RAM",
+};
+
 static void parse_boot_loader_name(struct tag *tag, void *data)
 {
 	const char *boot_loader_name = data + sizeof(*tag);
@@ -67,10 +75,14 @@ static void parse_memory_map(struct tag *tag, void *data)
 		if (entry->type != MEMORY_TYPE_AVAILABLE) {
 			continue;
 		}
+		const char *memory_type = "unknown";
+		if (entry->type < ARRAY_SIZE(memory_types)) {
+			memory_type = memory_types[entry->type];
+		}
 		if (entry->length < 1024*1024) {
-			printf("  %016lx [%d KiB]\n", entry->base_addr, entry->length / 1024);
+			printf("  %016lx %d KiB [%s]\n", entry->base_addr, entry->length / 1024, memory_type);
 		} else {
-			printf("  %016lx [%d MiB]\n", entry->base_addr, entry->length / 1024 / 1024);
+			printf("  %016lx %d MiB [%s]\n", entry->base_addr, entry->length / 1024 / 1024, memory_type);
 		}
 	}
 }
