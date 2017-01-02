@@ -1,6 +1,7 @@
 *.o
 /.deps
 /build
+/kernel.bin
 /kernel.elf
 /kernel.iso
 /target
