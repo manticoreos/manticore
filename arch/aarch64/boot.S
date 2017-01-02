@@ -1,5 +1,9 @@
 .global start
 start:
+	/* Save device tree address */
+	adrp	x1, dtb
+	str	x0, [x1, #:lo12:dtb]
+
         adrp    x0, init_stack_top
         mov     sp, x0
 
