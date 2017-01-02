@@ -31,7 +31,7 @@ void init_memory_map(void)
 		panic("Bad size cells property");
 	}
 	int size;
-	uint32_t *reg_prop = fdt_getprop(fdt, memory_node, "reg", &size);
+	const uint32_t *reg_prop = fdt_getprop(fdt, memory_node, "reg", &size);
 	if (!reg_prop) {
 		panic("No reg property found");
 	}
