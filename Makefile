@@ -1,6 +1,7 @@
 ARCH ?= $(shell uname -m)
 
 include arch/$(ARCH)/Makefile
+include lib/libc/Makefile
 
 includes += -include include/kernel/kernel.h -Iinclude
 
