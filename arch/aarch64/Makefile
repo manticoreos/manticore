@@ -10,3 +10,5 @@ objs += arch/aarch64/interrupts.o
 objs += arch/aarch64/memory.o
 objs += arch/aarch64/thread.o
 objs += drivers/uart/pl011.o
+
+include lib/libfdt/Makefile
