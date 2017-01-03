@@ -5,6 +5,7 @@
   "dynamic-linking": false,
   "env": "gnu",
   "executables": false,
+  "features": "-fp-armv8,-neon",
   "has-elf-tls": true,
   "has-rpath": false,
   "llvm-target": "aarch64-unknown-none",
