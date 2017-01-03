@@ -11,6 +11,10 @@ objs += kernel/printf.o
 objs += kernel/thread.o
 objs += lib/compiler-rt-stubs.o
 
+rust_src += kernel/panic.rs
+rust_src += kernel/print.rs
+rust_src += kernel/lib.rs
+
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 
@@ -29,7 +33,7 @@ kernel.bin: kernel.elf
 kernel.elf: $(objs) $(LIBKERNEL)
 	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $^ -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
 
-$(LIBKERNEL):
+$(LIBKERNEL): $(rust_src)
 	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
 
 %.o: %.c
