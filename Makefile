@@ -9,6 +9,7 @@ objs += kernel/init.o
 objs += kernel/panic.o
 objs += kernel/printf.o
 objs += kernel/thread.o
+objs += lib/compiler-rt-stubs.o
 
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
