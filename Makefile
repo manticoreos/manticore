@@ -9,7 +9,6 @@ objs += kernel/init.o
 objs += kernel/panic.o
 objs += kernel/printf.o
 objs += kernel/thread.o
-objs += lib/compiler-rt-stubs.o
 
 rust_src += kernel/panic.rs
 rust_src += kernel/print.rs
@@ -17,6 +16,7 @@ rust_src += kernel/lib.rs
 
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
+LDFLAGS += --gc-sections
 
 LIBKERNEL=target/$(ARCH)-unknown-none/release/libkernel.a
 
