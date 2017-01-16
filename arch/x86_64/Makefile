@@ -11,3 +11,8 @@ objs += arch/x86_64/memory.o
 objs += arch/x86_64/multiboot_header.o
 objs += arch/x86_64/thread.o
 objs += drivers/uart/8250.o
+
+all: kernel.iso
+
+kernel.iso: kernel.elf
+	./scripts/build-iso

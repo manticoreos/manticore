@@ -12,3 +12,8 @@ objs += arch/aarch64/thread.o
 objs += drivers/uart/pl011.o
 
 include lib/libfdt/Makefile
+
+all: kernel.bin
+
+kernel.bin: kernel.elf
+	$(CROSS_PREFIX)objcopy -O binary kernel.elf kernel.bin

@@ -20,15 +20,10 @@ LDFLAGS += --gc-sections
 
 LIBKERNEL=target/$(ARCH)-unknown-none/release/libkernel.a
 
-all: kernel.bin
-
 DEPS=.deps
 $(objs): | $(DEPS)
 $(DEPS):
 	mkdir -p $(DEPS)
-
-kernel.bin: kernel.elf
-	$(CROSS_PREFIX)objcopy -O binary kernel.elf kernel.bin
 
 kernel.elf: $(objs) $(LIBKERNEL)
 	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $^ -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
