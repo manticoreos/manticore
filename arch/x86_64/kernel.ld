@@ -3,7 +3,7 @@ SECTIONS
 {
     . = 0x100000;
     .boot : {
-        *(.multiboot_header)
+        KEEP(*(.multiboot_header))
         *(.boot)
     }
     .text : { *(.text) }
