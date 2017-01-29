@@ -13,6 +13,7 @@ objs += kernel/thread.o
 rust_src += kernel/panic.rs
 rust_src += kernel/print.rs
 rust_src += kernel/lib.rs
+rust_src += kernel/memory.rs
 
 CFLAGS += -O3 -g -Wall -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
