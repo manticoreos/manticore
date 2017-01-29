@@ -72,17 +72,14 @@ static void parse_memory_map(struct tag *tag, void *data)
 
 	for (; offset < tag->size; offset += sizeof(struct memory_map_entry)) {
 		struct memory_map_entry *entry = data + offset;
-		if (entry->type != MEMORY_TYPE_AVAILABLE) {
-			continue;
-		}
 		const char *memory_type = "unknown";
 		if (entry->type < ARRAY_SIZE(memory_types)) {
 			memory_type = memory_types[entry->type];
 		}
 		if (entry->length < 1024*1024) {
-			printf("  %016lx %d KiB [%s]\n", entry->base_addr, entry->length / 1024, memory_type);
+			printf("  %016lx-%016lx %4d KiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024, memory_type);
 		} else {
-			printf("  %016lx %d MiB [%s]\n", entry->base_addr, entry->length / 1024 / 1024, memory_type);
+			printf("  %016lx-%016lx %4d MiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024 / 1024, memory_type);
 		}
 	}
 }
