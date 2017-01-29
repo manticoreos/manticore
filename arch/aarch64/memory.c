@@ -44,6 +44,6 @@ void init_memory_map(void)
 		memory_size = (memory_size << 32) | fdt32_to_cpu(*reg_prop++);
 	}
 	printf("Memory map:\n");
-	printf("  %016lx %d MiB\n", memory_addr, memory_size / 1024 / 1024);
+	printf("  %016lx-%016lx %4d MiB [available]\n", memory_addr, memory_addr + memory_size, memory_size / 1024 / 1024);
 
 }
