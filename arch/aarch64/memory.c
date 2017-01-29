@@ -1,6 +1,8 @@
 #include <kernel/memory.h>
 
+#include <kernel/page-alloc.h>
 #include <kernel/printf.h>
+#include <kernel/align.h>
 #include <kernel/panic.h>
 
 #include <stdbool.h>
@@ -46,4 +48,14 @@ void init_memory_map(void)
 	printf("Memory map:\n");
 	printf("  %016lx-%016lx %4d MiB [available]\n", memory_addr, memory_addr + memory_size, memory_size / 1024 / 1024);
 
+	extern char _kernel_end;
+	uint64_t kernel_end = (uint64_t) &_kernel_end;
+
+	if (memory_addr < kernel_end) {
+		memory_size -= kernel_end - memory_addr;
+		memory_addr = kernel_end;
+	}
+	memory_addr = align_up(memory_addr, PAGE_SIZE_2M);
+	memory_size = align_down(memory_size, PAGE_SIZE_2M);
+	memory_add_span(memory_addr, memory_size);
 }

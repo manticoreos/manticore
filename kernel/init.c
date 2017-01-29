@@ -1,4 +1,5 @@
 #include <kernel/interrupts.h>
+#include <kernel/page-alloc.h>
 #include <arch/interrupts.h>
 #include <kernel/console.h>
 #include <kernel/memory.h>
@@ -15,6 +16,7 @@ void start_kernel(void)
 	console_init();
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");
+	page_alloc_init();
 	init_memory_map();
 	arch_init_interrupts();
 	arch_local_interrupt_enable();

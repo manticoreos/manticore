@@ -1,5 +1,6 @@
 #include <kernel/memory.h>
 
+#include <kernel/page-alloc.h>
 #include <kernel/printf.h>
 #include <kernel/align.h>
 
@@ -81,6 +82,23 @@ static void parse_memory_map(struct tag *tag, void *data)
 		} else {
 			printf("  %016lx-%016lx %4d MiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024 / 1024, memory_type);
 		}
+		if (entry->type != MEMORY_TYPE_AVAILABLE) {
+			continue;
+		}
+		extern char _kernel_end;
+		uint64_t kernel_end = (uint64_t) &_kernel_end;
+		uint64_t base_addr = entry->base_addr;
+		uint64_t length = entry->length;
+		if (base_addr + length < kernel_end) {
+			continue;
+		}
+		if (base_addr < kernel_end) {
+			length -= kernel_end - base_addr;
+			base_addr = kernel_end;
+		}
+		base_addr = align_up(base_addr, PAGE_SIZE_2M);
+		length = align_down(length, PAGE_SIZE_2M);
+		memory_add_span(base_addr, length);
 	}
 }
 
