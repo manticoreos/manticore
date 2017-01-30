@@ -168,10 +168,6 @@ fn align_up(value: u64, align: u64) -> u64 {
     align_down(value + align - 1, align)
 }
 
-fn is_aligned(value: u64, align: u64) -> bool {
-    value % align == 0
-}
-
 fn memory_add_span_small(start: u64, end: u64) {
     unsafe {
         let mut seg : &mut MemorySegment = transmute(start);
