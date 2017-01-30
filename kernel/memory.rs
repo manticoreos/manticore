@@ -9,7 +9,7 @@
 //! the Slab Allocator to Many CPUs and Arbitrary Resources." USENIX
 //! Annual Technical Conference, General Track. 2001.
 
-use intrusive_collections::{Bound, IntrusiveRef, LinkedList, LinkedListLink, RBTree, RBTreeLink, TreeAdaptor};
+use intrusive_collections::{Bound, IntrusiveRef, RBTree, RBTreeLink, TreeAdaptor};
 use core::intrinsics::transmute;
 use print;
 
@@ -24,13 +24,9 @@ struct MemorySegment {
     pub base: u64,
     /// Size of the memory segment.
     pub size: u64,
-    /// Link in freelist.
-    pub freelist_link: LinkedListLink,
     /// Link in segments red-black tree.
     pub segments_link: RBTreeLink,
 }
-
-intrusive_adaptor!(FreelistAdaptor = MemorySegment { freelist_link: LinkedListLink });
 
 intrusive_adaptor!(SegmentsAdaptor = MemorySegment { segments_link: RBTreeLink });
 
@@ -47,7 +43,6 @@ impl MemorySegment {
         MemorySegment {
             base: base,
             size: size,
-            freelist_link: LinkedListLink::new(),
             segments_link: RBTreeLink::new(),
         }
     }
@@ -68,26 +63,25 @@ impl MemorySegment {
 ///
 /// A memory arena is a collection of memory segments.
 struct MemoryArena {
-    /// Freelist of memory segments.
-    freelist: LinkedList<FreelistAdaptor>,
     /// Memory segments, ordered by base address.
     segments: RBTree<SegmentsAdaptor>,
 }
 
 impl MemoryArena {
     unsafe fn alloc(&mut self, size: u64) -> *mut u8 {
-        match self.freelist.pop_front() {
-            Some(seg_ref) => {
-                let seg = seg_ref.as_ref();
-                self.segments.find_mut(&seg.base).remove();
+        let mut cur = self.segments.front_mut();
+        match cur.get() {
+            Some(seg) => {
                 if seg.size < size {
-                    self.add_to_freelist(seg);
                     return transmute(0u64);
                 }
                 let ret = seg.base;
                 if seg.size > size {
                     let new_seg = seg.split(size);
-                    self.add_to_freelist(new_seg);
+                    let reference = IntrusiveRef::from_raw(new_seg);
+                    cur.replace_with(reference.clone());
+                } else {
+                    cur.remove();
                 }
                 return transmute(ret);
             }
@@ -103,7 +97,6 @@ impl MemoryArena {
             if let Some(next) = cursor.get() {
                 if addr + size == next.base {
                     cursor.remove();
-                    self.freelist.cursor_mut_from_ptr(next).remove();
                     size += next.size;
                 }
             }
@@ -114,7 +107,6 @@ impl MemoryArena {
             if let Some(prev) = cursor.get() {
                 if prev.base + prev.size == addr {
                     cursor.remove();
-                    self.freelist.cursor_mut_from_ptr(prev).remove();
                     addr = prev.base;
                     size += prev.size;
                 }
@@ -127,16 +119,11 @@ impl MemoryArena {
 
     unsafe fn add_to_freelist(&mut self, seg: &MemorySegment) {
         let reference = IntrusiveRef::from_raw(seg);
-        self.freelist.push_back(reference.clone());
         self.segments.insert(reference.clone());
     }
 
     #[allow(dead_code)]
     fn dump(&self) {
-        println!("Freelist:");
-        for seg in self.freelist.iter() {
-            println!("  segment: start={}, size={}", seg.base, seg.size);
-        }
         println!("Segments:");
         for seg in self.segments.iter() {
             println!("  segment: start={}, size={}", seg.base, seg.size);
@@ -146,7 +133,6 @@ impl MemoryArena {
 
 /// The kernel memory arena.
 static mut KERNEL_ARENA: MemoryArena = MemoryArena {
-    freelist: LinkedList::new(FreelistAdaptor),
     segments: RBTree::new(SegmentsAdaptor),
 };
 
