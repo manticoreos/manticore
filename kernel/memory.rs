@@ -144,19 +144,17 @@ static mut KERNEL_LARGE_PAGE_ARENA: MemoryArena =
 /// Register a memory span to the kernel arena.
 #[no_mangle]
 pub extern "C" fn memory_add_span(start: u64, size: u64) {
-    unsafe {
-        let end = start + size;
-        let large_start = align_up(start, PAGE_SIZE_2M);
-        let large_end = align_down(end, PAGE_SIZE_2M);
-        if start != large_start {
-            memory_add_span_small(start, large_start);
-        }
-        if large_start != large_end {
-            memory_add_span_large(large_start, large_end);
-        }
-        if end != large_end {
-            memory_add_span_small(large_end, end);
-        }
+    let end = start + size;
+    let large_start = align_up(start, PAGE_SIZE_2M);
+    let large_end = align_down(end, PAGE_SIZE_2M);
+    if start != large_start {
+        memory_add_span_small(start, large_start);
+    }
+    if large_start != large_end {
+        memory_add_span_large(large_start, large_end);
+    }
+    if end != large_end {
+        memory_add_span_small(large_end, end);
     }
 }
 
