@@ -9,6 +9,7 @@ objs += kernel/init.o
 objs += kernel/panic.o
 objs += kernel/printf.o
 objs += kernel/thread.o
+objs += mm/kmem.o
 
 rust_src += kernel/panic.rs
 rust_src += kernel/print.rs

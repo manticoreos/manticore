@@ -4,6 +4,8 @@
 #include <kernel/console.h>
 #include <kernel/memory.h>
 #include <kernel/printf.h>
+#include <kernel/kmem.h>
+
 #include <stddef.h>
 
 void console_putc(void *unused, char ch)
@@ -18,6 +20,7 @@ void start_kernel(void)
 	printf("Booting kernel ...\n");
 	page_alloc_init();
 	init_memory_map();
+	kmem_init();
 	arch_init_interrupts();
 	arch_local_interrupt_enable();
 }
