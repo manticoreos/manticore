@@ -45,9 +45,3 @@ Run the kernel image under QEMU:
 ```console
 $ ./scripts/run.sh
 ```
-
-To build a bootable ISO image `kernel.iso`:
-
-```console
-$ ./scripts/build-iso
-```
