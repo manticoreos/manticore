@@ -13,7 +13,10 @@ use intrusive_collections::{Bound, IntrusiveRef, RBTree, RBTreeLink, TreeAdaptor
 use core::intrinsics::transmute;
 use print;
 
+const KIB: u64 = 1 << 10;
 const MIB: u64 = 1 << 20;
+
+const PAGE_SIZE_4K: u64 = 4 * KIB;
 const PAGE_SIZE_2M: u64 = 2 * MIB;
 
 /// Memory segment.
@@ -131,18 +134,57 @@ impl MemoryArena {
     }
 }
 
-/// The kernel memory arena.
-static mut KERNEL_ARENA: MemoryArena = MemoryArena {
-    segments: RBTree::new(SegmentsAdaptor),
-};
+/// The kernel small page arena.
+static mut KERNEL_SMALL_PAGE_ARENA: MemoryArena =
+    MemoryArena { segments: RBTree::new(SegmentsAdaptor) };
+
+static mut KERNEL_LARGE_PAGE_ARENA: MemoryArena =
+    MemoryArena { segments: RBTree::new(SegmentsAdaptor) };
 
 /// Register a memory span to the kernel arena.
 #[no_mangle]
 pub extern "C" fn memory_add_span(start: u64, size: u64) {
     unsafe {
+        let end = start + size;
+        let large_start = align_up(start, PAGE_SIZE_2M);
+        let large_end = align_down(end, PAGE_SIZE_2M);
+        if start != large_start {
+            memory_add_span_small(start, large_start);
+        }
+        if large_start != large_end {
+            memory_add_span_large(large_start, large_end);
+        }
+        if end != large_end {
+            memory_add_span_small(large_end, end);
+        }
+    }
+}
+
+fn align_down(value: u64, align: u64) -> u64 {
+    value & !(align - 1)
+}
+
+fn align_up(value: u64, align: u64) -> u64 {
+    align_down(value + align - 1, align)
+}
+
+fn is_aligned(value: u64, align: u64) -> bool {
+    value % align == 0
+}
+
+fn memory_add_span_small(start: u64, end: u64) {
+    unsafe {
         let mut seg : &mut MemorySegment = transmute(start);
-        *seg = MemorySegment::new(start, size);
-        KERNEL_ARENA.add_to_freelist(seg);
+        *seg = MemorySegment::new(start, end-start);
+        KERNEL_SMALL_PAGE_ARENA.add_to_freelist(seg);
+    }
+}
+
+fn memory_add_span_large(start: u64, end: u64) {
+    unsafe {
+        let mut seg : &mut MemorySegment = transmute(start);
+        *seg = MemorySegment::new(start, end-start);
+        KERNEL_LARGE_PAGE_ARENA.add_to_freelist(seg);
     }
 }
 
@@ -150,18 +192,34 @@ pub extern "C" fn memory_add_span(start: u64, size: u64) {
 #[no_mangle]
 pub extern "C" fn page_alloc_init() {}
 
-/// Allocate a page.
+/// Allocate a small page.
 #[no_mangle]
-pub extern "C" fn page_alloc() -> *mut u8 {
+pub extern "C" fn page_alloc_small() -> *mut u8 {
     unsafe {
-        return KERNEL_ARENA.alloc(PAGE_SIZE_2M);
+        return KERNEL_SMALL_PAGE_ARENA.alloc(PAGE_SIZE_4K);
     }
 }
 
-/// Free a page.
+/// Free a small page.
 #[no_mangle]
-pub extern "C" fn page_free(addr: *mut u8) {
+pub extern "C" fn page_free_small(addr: *mut u8) {
     unsafe {
-        return KERNEL_ARENA.free(addr, PAGE_SIZE_2M);
+        return KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_4K);
+    }
+}
+
+/// Allocate a large page.
+#[no_mangle]
+pub extern "C" fn page_alloc_large() -> *mut u8 {
+    unsafe {
+        return KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_2M);
+    }
+}
+
+/// Free a large page.
+#[no_mangle]
+pub extern "C" fn page_free_large(addr: *mut u8) {
+    unsafe {
+        return KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_2M);
     }
 }

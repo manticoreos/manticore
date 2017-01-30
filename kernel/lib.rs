@@ -18,5 +18,7 @@ mod memory;
 
 pub use memory::memory_add_span;
 pub use memory::page_alloc_init;
-pub use memory::page_alloc;
-pub use memory::page_free;
+pub use memory::page_alloc_small;
+pub use memory::page_free_small;
+pub use memory::page_alloc_large;
+pub use memory::page_free_large;

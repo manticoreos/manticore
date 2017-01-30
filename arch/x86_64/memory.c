@@ -96,8 +96,8 @@ static void parse_memory_map(struct tag *tag, void *data)
 			length -= kernel_end - base_addr;
 			base_addr = kernel_end;
 		}
-		base_addr = align_up(base_addr, PAGE_SIZE_2M);
-		length = align_down(length, PAGE_SIZE_2M);
+		base_addr = align_up(base_addr, PAGE_SIZE_4K);
+		length = align_down(length, PAGE_SIZE_4K);
 		memory_add_span(base_addr, length);
 	}
 }
