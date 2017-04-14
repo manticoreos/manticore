@@ -41,7 +41,7 @@ $(LIBKERNEL): $(rust_src)
 	$(CROSS_PREFIX)gcc $(ASFLAGS) -MD -c $< -o $@ -MF $(DEPS)/$(notdir $*).d
 
 %.ld: %.ld.S
-	$(CROSS_PREFIX)cpp -P $< $@
+	$(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
 clean:
 	rm -f kernel.elf $(objs)
