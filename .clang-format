@@ -1,0 +1,10 @@
+BasedOnStyle: LLVM
+IndentWidth: 8
+UseTab: Always
+AlignTrailingComments: true
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BinPackParameters: true
+BreakBeforeBraces: Linux
+IndentCaseLabels: false
