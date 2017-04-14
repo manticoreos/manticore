@@ -1,4 +1,5 @@
 #include <arch/processor.h>
+#include <arch/vmem-defs.h>
 #include <arch/segment.h>
 #include <arch/mmu.h>
 #include <arch/msr.h>
@@ -26,7 +27,7 @@ boot_gdt_desc32:
 .align 8
 boot_gdt_desc64:
 	.short boot_gdt_end - boot_gdt - 1
-	.quad boot_gdt
+	.quad boot_gdt + KERNEL_VMA
 
 /*
  * Identity page mapping for first 1 GiB of physical memory.
