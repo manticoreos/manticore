@@ -9,5 +9,9 @@ SECTIONS
     .text : { *(.text) }
     .data : { *(.data) }
     .bss  : { *(.bss)  }
+    /DISCARD/ : {
+         *(.comment)
+         *(.debug*)
+    }
     _kernel_end = .;
 }
