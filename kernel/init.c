@@ -15,13 +15,13 @@ void console_putc(void *unused, char ch)
 
 void start_kernel(void)
 {
+	arch_init_interrupts();
 	console_init();
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");
 	page_alloc_init();
 	init_memory_map();
 	kmem_init();
-	arch_init_interrupts();
 	arch_local_interrupt_enable();
 #ifdef HAVE_TEST
 	test_page_alloc();
