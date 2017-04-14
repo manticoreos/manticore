@@ -56,8 +56,6 @@ boot_idt:
 boot_data:
 	.fill 1, 8, 0
 
-.text
-
 .code32
 
 /*
