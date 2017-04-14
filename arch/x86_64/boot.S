@@ -34,10 +34,13 @@ boot_gdt_desc64:
 .align 4096
 boot_pml4e:
 	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
-	.fill 511, 8, 0
+	.fill 510, 8, 0
+	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
 boot_pdpte:
 	.quad boot_pde + (X86_PE_RW | X86_PE_P)
-	.fill 511, 8, 0
+	.fill 509, 8, 0
+	.quad boot_pde + (X86_PE_RW | X86_PE_P)
+	.quad 0
 boot_pde:
 	pfn = 0
 	.rept 512
