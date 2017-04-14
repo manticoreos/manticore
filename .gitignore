@@ -1,5 +1,7 @@
 *.o
 /.deps
+/arch/aarch64/kernel.ld
+/arch/x86_64/kernel.ld
 /build
 /kernel.bin
 /kernel.elf
