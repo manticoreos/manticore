@@ -19,8 +19,12 @@ boot_gdt:
 	.long X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB
 boot_gdt_end:
 
+boot_gdt_desc32:
+	.short boot_gdt_end - boot_gdt - 1
+	.long boot_gdt
+
 .align 8
-boot_gdt_desc:
+boot_gdt_desc64:
 	.short boot_gdt_end - boot_gdt - 1
 	.quad boot_gdt
 
@@ -77,8 +81,8 @@ start:
 	out	%al, $0xa1
 	out	%al, $0x21
 
-	/* Setup GDT */
-	lgdt	boot_gdt_desc
+	/* Setup 32-bit GDT */
+	lgdt	boot_gdt_desc32
 
         /* Disable paging */
 	mov	%cr0, %eax
@@ -111,6 +115,9 @@ start:
 .code64
 
 start64:
+	/* Setup 64-bit GDT */
+	lgdt	boot_gdt_desc64
+
 	/* Initialize the remaining segment registers */
 	mov	$X86_KERNEL_DS, %eax
 	mov	%eax, %ds
