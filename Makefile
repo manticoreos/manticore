@@ -17,7 +17,7 @@ rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
-CFLAGS += -O3 -g $(WARNINGS) -ffreestanding $(includes)
+CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 LDFLAGS += --gc-sections
 
