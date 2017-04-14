@@ -204,8 +204,8 @@ static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t p
 /// \param flags MMU flags for the mapped address range.
 ///
 /// \return 0 if successful
-//          -EINVAL if passed parameters are invalid
-//          -ENOMEM if out of memory
+///         -EINVAL if passed parameters are invalid
+///         -ENOMEM if out of memory
 int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 {
 	if (!is_aligned(vaddr, PAGE_SIZE_4K)) {
