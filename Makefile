@@ -28,8 +28,8 @@ $(objs): | $(DEPS)
 $(DEPS):
 	mkdir -p $(DEPS)
 
-kernel.elf: $(objs) $(LIBKERNEL)
-	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $^ -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
+kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL)
+	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
 
 $(LIBKERNEL): $(rust_src)
 	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
