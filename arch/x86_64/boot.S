@@ -50,11 +50,6 @@ boot_pde:
 	.endr
 
 .align 16
-init_stack_bottom = .
-. = . + 4096
-init_stack_top = .
-
-.align 16
 .globl boot_idt
 boot_idt:
 	.fill 512, 8, 0
@@ -141,3 +136,10 @@ start64:
 	cli
 halt:	hlt
 	jmp halt
+
+.bss
+
+.align 16
+init_stack_bottom = .
+. = . + 4096
+init_stack_top = .
