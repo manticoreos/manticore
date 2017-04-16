@@ -5,12 +5,11 @@
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
 
+#include <arch/vmem.h>
 #include <arch/mmu.h>
 
 #include <string.h>
 
-// Virtual address to physical address mapping:
-#define PAGE_SHIFT 0
 // Entries in paging structure:
 #define NR_PG_ENTRIES 512
 // Bits used for translation per level:
@@ -165,24 +164,6 @@ static void x86_write_cr3(uint64_t value)
 void mmu_invalidate_tlb(void)
 {
 	x86_write_cr3(x86_read_cr3());
-}
-
-/// Converts a virtual address to a physical address.
-static phys_t virt_to_phys(virt_t addr)
-{
-	return addr >> PAGE_SHIFT;
-}
-
-/// Converts a virtual address pointer to physical address.
-static phys_t ptr_to_paddr(void *page)
-{
-	return virt_to_phys((virt_t)page);
-}
-
-/// Converts a physical address to a virtual address pointer.
-static void *paddr_to_ptr(phys_t paddr)
-{
-	return (void *)(paddr << PAGE_SHIFT);
 }
 
 /// Converts paging structure indices to a virtual address.
