@@ -1,3 +1,5 @@
+#include <arch/vmem-defs.h>
+
 ENTRY(start)
 SECTIONS
 {
@@ -6,7 +8,8 @@ SECTIONS
         KEEP(*(.multiboot_header))
         *(.boot)
     }
-    .text : { *(.text) }
+    . += KERNEL_VMA;
+    .text : AT(ADDR(.text) - KERNEL_VMA) { *(.text) }
     .rodata : { *(.rodata*) }
     .data : { *(.data) }
     .bss  : { *(.bss)  }
