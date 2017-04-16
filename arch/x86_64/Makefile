@@ -1,4 +1,4 @@
-CFLAGS += -mno-sse -mno-red-zone
+CFLAGS += -mno-sse -mno-red-zone -mcmodel=kernel
 LDFLAGS += -n
 
 includes += -Iarch/x86_64/include
