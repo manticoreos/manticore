@@ -1,4 +1,4 @@
-CFLAGS += -mno-sse
+CFLAGS += -mno-sse -mno-red-zone
 LDFLAGS += -n
 
 includes += -Iarch/x86_64/include
