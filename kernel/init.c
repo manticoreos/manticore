@@ -23,4 +23,7 @@ void start_kernel(void)
 	kmem_init();
 	arch_init_interrupts();
 	arch_local_interrupt_enable();
+#ifdef HAVE_TEST
+	test_page_alloc();
+#endif
 }

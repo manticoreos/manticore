@@ -16,6 +16,11 @@ rust_src += kernel/print.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
 
+ifdef TEST
+CFLAGS += -DHAVE_TEST
+tests += tests/tst-page-alloc.o
+endif
+
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
@@ -28,8 +33,8 @@ $(objs): | $(DEPS)
 $(DEPS):
 	mkdir -p $(DEPS)
 
-kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL)
-	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
+kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests)
+	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
 
 $(LIBKERNEL): $(rust_src)
 	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
