@@ -120,7 +120,7 @@ start64:
 	mov	%eax, %ss
 
 	/* Initialize stack pointer */
-	mov	$init_stack_top, %esp
+	mov	$init_stack_top, %rsp
 
 	/* Call into the kernel */
 	call	start_kernel
