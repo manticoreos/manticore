@@ -1,7 +1,10 @@
 #include <kernel/interrupts.h>
 
+#include <kernel/printf.h>
 #include <kernel/panic.h>
+
 #include <arch/segment.h>
+#include <arch/cpu.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -89,6 +92,37 @@ struct exception_frame {
 	uint64_t	ss;
 };
 
+enum {
+	REG_RAX	= 0,
+	REG_RBX = 1,
+	REG_RCX = 2,
+	REG_RDX = 3,
+	REG_RBP = 4,
+	REG_RSI = 5,
+	REG_RDI	= 6,
+	REG_R8	= 7,
+	REG_R9	= 8,
+	REG_R10	= 9,
+	REG_R11	= 10,
+	REG_R12	= 11,
+	REG_R13	= 12,
+	REG_R14 = 13,
+	REG_R15	= 14,
+};
+
+static void dump_exception_frame(struct exception_frame *ef)
+{
+	printf("Registers:\n");
+	printf("  RIP=%016lx CS=%016lx RFLAGS=%016lx RSP=%016lx SS=%016lx\n",
+		ef->rip, ef->cs, ef->rflags, ef->rsp, ef->ss);
+	printf("  RAX=%016lx RBX=%016lx RCX=%016lx RDX=%016lx RBP=%016lx\n",
+		ef->regs[REG_RAX], ef->regs[REG_RBX], ef->regs[REG_RCX], ef->regs[REG_RDX], ef->regs[REG_RBP]);
+	printf("  RSI=%016lx RDI=%016lx R8=%016lx  R9=%016lx  R10=%016lx\n",
+		ef->regs[REG_RSI], ef->regs[REG_RDI], ef->regs[REG_R8], ef->regs[REG_R9], ef->regs[REG_R10]);
+	printf("  R11=%016lx R12=%016lx R13=%016lx R14=%016lx R15=%016lx\n",
+		ef->regs[REG_R11], ef->regs[REG_R12], ef->regs[REG_R13], ef->regs[REG_R14], ef->regs[REG_R15]);
+}
+
 extern void x86_divide_error_exception(void);
 extern void x86_debug_exception(void);
 extern void x86_nmi_interrupt(void);
@@ -111,97 +145,136 @@ extern void x86_virtualization_exception(void);
 
 void do_x86_divide_error_exception(struct exception_frame *ef)
 {
-	panic("Divide error exception");
+	printf("Divide error exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_debug_exception(struct exception_frame *ef)
 {
-	panic("Debug exception");
+	printf("Debug exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_nmi_interrupt(struct exception_frame *ef)
 {
-	panic("NMI interrupt");
+	printf("NMI interrupt\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_breakpoint_exception(struct exception_frame *ef)
 {
-	panic("Breakpoint exception");
+	printf("Breakpoint exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_overflow_exception(struct exception_frame *ef)
 {
-	panic("Overflow exception");
+	printf("Overflow exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_bound_range_exceeded_exception(struct exception_frame *ef)
 {
-	panic("BOUND range exceeded exception");
+	printf("BOUND range exceeded exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_invalid_opcode_exception(struct exception_frame *ef)
 {
-	panic("Invalid opcode exception");
+	printf("Invalid opcode exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_device_not_available_exception(struct exception_frame *ef)
 {
-	panic("Device not available exception");
+	printf("Device not available exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_double_fault_exception(struct exception_frame *ef)
 {
-	panic("Double fault exception");
+	printf("Double fault exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_invalid_tss_exception(struct exception_frame *ef)
 {
-	panic("Invalid TSS exception");
+	printf("Invalid TSS exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_segment_not_present(struct exception_frame *ef)
 {
-	panic("Segment not present");
+	printf("Segment not present\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_stack_fault_exception(struct exception_frame *ef)
 {
-	panic("Stack fault exception");
+	printf("Stack fault exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_general_protection_exception(struct exception_frame *ef)
 {
-	panic("General protection exception");
+	printf("General protection exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_page_fault_exception(struct exception_frame *ef)
 {
-	panic("Page fault exception");
+	uint64_t addr = x86_read_cr2();
+	printf("Page fault at address %016lx\n", addr);
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_x87_fpu_floating_point_error(struct exception_frame *ef)
 {
-	panic("x87 FPU floating-point error");
+	printf("x87 FPU floating-point error\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_alignment_check_exception(struct exception_frame *ef)
 {
-	panic("Alignment check exception");
+	printf("Alignment check exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_machine_check_exception(struct exception_frame *ef)
 {
-	panic("Machine-check exception");
+	printf("Machine-check exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_simd_floating_point_exception(struct exception_frame *ef)
 {
-	panic("SIMD floating-point exception");
+	printf("SIMD floating-point exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void do_x86_virtualization_exception(struct exception_frame *ef)
 {
-	panic("Virtualization exception");
+	printf("Virtualization exception\n");
+	dump_exception_frame(ef);
+	panic("Halted");
 }
 
 void arch_init_interrupts(void)
