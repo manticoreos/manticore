@@ -53,6 +53,7 @@ void init_idt_entry(struct idt_entry *id, uint8_t type, void *offset)
 	id->offset_2 = IDT_ENTRY_OFFSET_2((uint64_t) offset);
 	id->offset_3 = IDT_ENTRY_OFFSET_3((uint64_t) offset);
 	id->selector = X86_KERNEL_CS;
+	id->ist = 0;
 	id->zero = 0;
 	id->type = type;
 	id->dpl = 0;
