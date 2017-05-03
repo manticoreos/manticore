@@ -9,6 +9,7 @@
   "features": "-mmx,-sse,-sse2,-sse3,-ssse3,-sse4.1,-sse4.2,-avx,-avx2,+soft-float",
   "has-elf-tls": true,
   "has-rpath": false,
+  "linker-flavor": "ld",
   "llvm-target": "x86_64-unknown-none",
   "max-atomic-width": 64,
   "os": "none",
