@@ -4,6 +4,8 @@
 #include <kernel/printf.h>
 #include <kernel/align.h>
 
+#include <arch/vmem-defs.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -87,7 +89,7 @@ static void parse_memory_map(struct tag *tag, void *data)
 		}
 		extern char _kernel_end;
 		uint64_t kernel_end = (uint64_t) &_kernel_end;
-		uint64_t base_addr = entry->base_addr;
+		uint64_t base_addr = entry->base_addr + KERNEL_VMA;
 		uint64_t length = entry->length;
 		if (base_addr + length < kernel_end) {
 			continue;
