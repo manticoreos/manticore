@@ -50,6 +50,7 @@ $(LIBKERNEL): $(rust_src)
 
 clean:
 	rm -f kernel.elf $(objs)
+	rm -f arch/$(ARCH)/kernel.ld
 	rm -rf target
 	rm -rf $(DEPS)
 
