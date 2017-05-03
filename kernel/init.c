@@ -5,6 +5,7 @@
 #include <kernel/memory.h>
 #include <kernel/printf.h>
 #include <kernel/kmem.h>
+#include <kernel/cpu.h>
 
 #include <stddef.h>
 
