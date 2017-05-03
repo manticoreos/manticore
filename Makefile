@@ -37,7 +37,7 @@ kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests)
 	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
 
 $(LIBKERNEL): $(rust_src)
-	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
+	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
 
 %.o: %.c
 	$(CROSS_PREFIX)gcc $(CFLAGS) -MD -c -o $@ $< -MF $(DEPS)/$(notdir $*).d
