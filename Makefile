@@ -49,7 +49,7 @@ $(LIBKERNEL): $(rust_src)
 	$(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
 clean:
-	rm -f kernel.elf $(objs)
+	rm -f kernel.elf $(objs) $(tests)
 	rm -f arch/$(ARCH)/kernel.ld
 	rm -rf target
 	rm -rf $(DEPS)
