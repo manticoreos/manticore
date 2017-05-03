@@ -10,6 +10,7 @@ objs += arch/x86_64/exceptions.o
 objs += arch/x86_64/memory.o
 objs += arch/x86_64/mmu.o
 objs += arch/x86_64/multiboot_header.o
+objs += arch/x86_64/setup.o
 objs += arch/x86_64/thread.o
 objs += drivers/uart/8250.o
 
