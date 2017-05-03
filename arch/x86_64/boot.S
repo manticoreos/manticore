@@ -49,11 +49,6 @@ boot_pde:
 		pfn = pfn + 1
 	.endr
 
-.align 16
-.globl boot_idt
-boot_idt:
-	.fill 512, 8, 0
-
 .align 8
 .globl boot_data
 boot_data:

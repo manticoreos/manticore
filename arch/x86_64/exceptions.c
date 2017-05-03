@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #define X86_INTERRUPT_DE	0	/* Divide Error Exception */
 #define X86_INTERRUPT_DB	1	/* Debug Exception*/
@@ -79,8 +80,8 @@ static void load_idt(struct idt_ptr *idtp)
                 );
 }
 
-extern struct idt_entry *boot_idt; /* boot.S */
-struct idt_ptr idtp;
+static struct idt_entry idt[256];
+static struct idt_ptr idtp;
 
 struct exception_frame {
 	uint64_t	regs[15];
@@ -279,27 +280,28 @@ void do_x86_virtualization_exception(struct exception_frame *ef)
 
 void arch_init_interrupts(void)
 {
-	init_idt_entry(boot_idt + X86_INTERRUPT_DE, X86_TRAP_GATE, x86_divide_error_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_DB, X86_TRAP_GATE, x86_debug_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_NMI, X86_INTERRUPT_GATE, x86_nmi_interrupt);
-	init_idt_entry(boot_idt + X86_INTERRUPT_BP, X86_TRAP_GATE, x86_breakpoint_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_OF, X86_TRAP_GATE, x86_overflow_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_BR, X86_TRAP_GATE, x86_bound_range_exceeded_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_UD, X86_TRAP_GATE, x86_invalid_opcode_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_NM, X86_TRAP_GATE, x86_device_not_available_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_DF, X86_TRAP_GATE, x86_double_fault_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_TS, X86_TRAP_GATE, x86_invalid_tss_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_NP, X86_TRAP_GATE, x86_segment_not_present);
-	init_idt_entry(boot_idt + X86_INTERRUPT_SS, X86_TRAP_GATE, x86_stack_fault_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_GP, X86_TRAP_GATE, x86_general_protection_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_PF, X86_TRAP_GATE, x86_page_fault_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_MF, X86_TRAP_GATE, x86_x87_fpu_floating_point_error);
-	init_idt_entry(boot_idt + X86_INTERRUPT_AC, X86_TRAP_GATE, x86_alignment_check_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_MC, X86_TRAP_GATE, x86_machine_check_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_XM, X86_TRAP_GATE, x86_simd_floating_point_exception);
-	init_idt_entry(boot_idt + X86_INTERRUPT_VE, X86_TRAP_GATE, x86_virtualization_exception);
+	memset(idt, 0, sizeof(idt));
+	init_idt_entry(idt + X86_INTERRUPT_DE, X86_TRAP_GATE, x86_divide_error_exception);
+	init_idt_entry(idt + X86_INTERRUPT_DB, X86_TRAP_GATE, x86_debug_exception);
+	init_idt_entry(idt + X86_INTERRUPT_NMI, X86_INTERRUPT_GATE, x86_nmi_interrupt);
+	init_idt_entry(idt + X86_INTERRUPT_BP, X86_TRAP_GATE, x86_breakpoint_exception);
+	init_idt_entry(idt + X86_INTERRUPT_OF, X86_TRAP_GATE, x86_overflow_exception);
+	init_idt_entry(idt + X86_INTERRUPT_BR, X86_TRAP_GATE, x86_bound_range_exceeded_exception);
+	init_idt_entry(idt + X86_INTERRUPT_UD, X86_TRAP_GATE, x86_invalid_opcode_exception);
+	init_idt_entry(idt + X86_INTERRUPT_NM, X86_TRAP_GATE, x86_device_not_available_exception);
+	init_idt_entry(idt + X86_INTERRUPT_DF, X86_TRAP_GATE, x86_double_fault_exception);
+	init_idt_entry(idt + X86_INTERRUPT_TS, X86_TRAP_GATE, x86_invalid_tss_exception);
+	init_idt_entry(idt + X86_INTERRUPT_NP, X86_TRAP_GATE, x86_segment_not_present);
+	init_idt_entry(idt + X86_INTERRUPT_SS, X86_TRAP_GATE, x86_stack_fault_exception);
+	init_idt_entry(idt + X86_INTERRUPT_GP, X86_TRAP_GATE, x86_general_protection_exception);
+	init_idt_entry(idt + X86_INTERRUPT_PF, X86_TRAP_GATE, x86_page_fault_exception);
+	init_idt_entry(idt + X86_INTERRUPT_MF, X86_TRAP_GATE, x86_x87_fpu_floating_point_error);
+	init_idt_entry(idt + X86_INTERRUPT_AC, X86_TRAP_GATE, x86_alignment_check_exception);
+	init_idt_entry(idt + X86_INTERRUPT_MC, X86_TRAP_GATE, x86_machine_check_exception);
+	init_idt_entry(idt + X86_INTERRUPT_XM, X86_TRAP_GATE, x86_simd_floating_point_exception);
+	init_idt_entry(idt + X86_INTERRUPT_VE, X86_TRAP_GATE, x86_virtualization_exception);
 
 	idtp.limit = (sizeof(struct idt_entry) * X86_NR_INTERRUPTS) - 1;
-	idtp.base = (uint64_t) boot_idt;
+	idtp.base = (uint64_t) idt;
 	load_idt(&idtp);
 }
