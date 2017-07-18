@@ -8,7 +8,7 @@ path = "kernel/lib.rs"
 crate-type = ["staticlib"]
 
 [dependencies.intrusive-collections]
-version = "0.4.1"
+version = "0.6.4"
 default-features = false
 features = [ "nightly" ]
 

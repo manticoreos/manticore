@@ -9,7 +9,7 @@
 //! the Slab Allocator to Many CPUs and Arbitrary Resources." USENIX
 //! Annual Technical Conference, General Track. 2001.
 
-use intrusive_collections::{Bound, IntrusiveRef, RBTree, RBTreeLink, TreeAdaptor};
+use intrusive_collections::{Bound, UnsafeRef, RBTree, RBTreeLink, KeyAdapter};
 use core::intrinsics::transmute;
 use print;
 
@@ -31,9 +31,9 @@ struct MemorySegment {
     pub segments_link: RBTreeLink,
 }
 
-intrusive_adaptor!(SegmentsAdaptor = MemorySegment { segments_link: RBTreeLink });
+intrusive_adapter!(SegmentsAdaptor = UnsafeRef<MemorySegment>: MemorySegment { segments_link: RBTreeLink });
 
-impl<'a> TreeAdaptor<'a> for SegmentsAdaptor {
+impl<'a> KeyAdapter<'a> for SegmentsAdaptor {
     type Key = u64;
     fn get_key(&self, x: &'a MemorySegment) -> u64 {
         x.base
@@ -71,6 +71,10 @@ struct MemoryArena {
 }
 
 impl MemoryArena {
+    const fn new() -> Self {
+        MemoryArena { segments: RBTree::new(SegmentsAdaptor::new()) }
+    }
+
     unsafe fn alloc(&mut self, size: u64) -> *mut u8 {
         let mut cur = self.segments.front_mut();
         match cur.get() {
@@ -81,7 +85,7 @@ impl MemoryArena {
                 let ret = seg.base;
                 if seg.size > size {
                     let new_seg = seg.split(size);
-                    let reference = IntrusiveRef::from_raw(new_seg);
+                    let reference = UnsafeRef::from_raw(new_seg);
                     cur.replace_with(reference.clone());
                 } else {
                     cur.remove();
@@ -121,7 +125,7 @@ impl MemoryArena {
     }
 
     unsafe fn add_to_freelist(&mut self, seg: &MemorySegment) {
-        let reference = IntrusiveRef::from_raw(seg);
+        let reference = UnsafeRef::from_raw(seg);
         self.segments.insert(reference.clone());
     }
 
@@ -135,11 +139,9 @@ impl MemoryArena {
 }
 
 /// The kernel small page arena.
-static mut KERNEL_SMALL_PAGE_ARENA: MemoryArena =
-    MemoryArena { segments: RBTree::new(SegmentsAdaptor) };
+static mut KERNEL_SMALL_PAGE_ARENA: MemoryArena = MemoryArena::new();
 
-static mut KERNEL_LARGE_PAGE_ARENA: MemoryArena =
-    MemoryArena { segments: RBTree::new(SegmentsAdaptor) };
+static mut KERNEL_LARGE_PAGE_ARENA: MemoryArena = MemoryArena::new();
 
 /// Register a memory span to the kernel arena.
 #[no_mangle]

@@ -2,6 +2,7 @@
 //! Kernel services.
 //!
 
+#![feature(drop_types_in_const)]
 #![feature(lang_items)]
 #![feature(const_fn)]
 #![no_std]
