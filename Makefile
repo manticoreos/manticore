@@ -3,6 +3,8 @@ ARCH ?= $(shell uname -m)
 include arch/$(ARCH)/Makefile
 include lib/libc/Makefile
 
+LD := ld.bfd
+
 includes += -include include/kernel/kernel.h -Iinclude
 
 objs += kernel/init.o
@@ -34,7 +36,7 @@ $(DEPS):
 	mkdir -p $(DEPS)
 
 kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests)
-	$(CROSS_PREFIX)ld $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
+	$(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
 
 $(LIBKERNEL): $(rust_src)
 	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
