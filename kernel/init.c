@@ -1,4 +1,3 @@
-#include <kernel/interrupts.h>
 #include <kernel/page-alloc.h>
 #include <kernel/console.h>
 #include <kernel/memory.h>
@@ -19,7 +18,6 @@ void console_putc(void *unused, char ch)
 void start_kernel(void)
 {
 	arch_setup();
-	arch_init_interrupts();
 	console_init();
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");

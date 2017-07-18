@@ -1,5 +1,6 @@
 #include <arch/setup.h>
 
+#include <arch/exceptions.h>
 #include <arch/segment.h>
 
 #include <stdint.h>
@@ -24,11 +25,17 @@ static struct gdt_desc gdt_desc = {
 	.base	= gdt,
 };
 
-void arch_setup(void)
+static void init_gdt(void)
 {
 	asm volatile(
 		"lgdt %0\n"
 		:
 		: "m"(gdt_desc)
 		: "memory");
+}
+
+void arch_setup(void)
+{
+	init_gdt();
+	init_idt();
 }

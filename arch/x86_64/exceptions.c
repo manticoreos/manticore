@@ -1,4 +1,4 @@
-#include <kernel/interrupts.h>
+#include <arch/exceptions.h>
 
 #include <kernel/printf.h>
 #include <kernel/panic.h>
@@ -278,7 +278,7 @@ void do_x86_virtualization_exception(struct exception_frame *ef)
 	panic("Halted");
 }
 
-void arch_init_interrupts(void)
+void init_idt(void)
 {
 	memset(idt, 0, sizeof(idt));
 	init_idt_entry(idt + X86_INTERRUPT_DE, X86_TRAP_GATE, x86_divide_error_exception);
