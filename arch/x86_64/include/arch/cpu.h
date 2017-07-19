@@ -12,4 +12,24 @@ static inline uint64_t x86_read_cr2(void)
 	return ret;
 }
 
+static inline uint64_t rdmsr(uint32_t idx)
+{
+	uint32_t high, low;
+	asm volatile(
+		"rdmsr"
+		: "=a"(low), "=d"(high)
+		: "c"(idx));
+	return ((uint64_t) high << 32) | low;
+}
+
+static inline void wrmsr(uint32_t idx, uint64_t data)
+{
+	uint32_t high = data >> 32;
+	uint32_t low = data;
+	asm volatile(
+		"wrmsr"
+		:
+		: "c"(idx), "a"(low), "d"(high));
+}
+
 #endif

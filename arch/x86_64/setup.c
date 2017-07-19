@@ -1,6 +1,7 @@
 #include <arch/setup.h>
 
 #include <arch/exceptions.h>
+#include <arch/syscall.h>
 #include <arch/segment.h>
 
 #include <stdint.h>
@@ -38,4 +39,5 @@ void arch_setup(void)
 {
 	init_gdt();
 	init_idt();
+	init_syscall();
 }

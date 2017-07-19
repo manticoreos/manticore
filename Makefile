@@ -10,6 +10,7 @@ includes += -include include/kernel/kernel.h -Iinclude
 objs += kernel/init.o
 objs += kernel/panic.o
 objs += kernel/printf.o
+objs += kernel/syscall.o
 objs += kernel/thread.o
 objs += mm/kmem.o
 
