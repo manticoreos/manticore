@@ -6,6 +6,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+enum {
+	MMU_USER_PAGE = 1UL << 0,
+};
+
 void mmu_invalidate_tlb(void);
 int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags);
 int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags);

@@ -228,6 +228,10 @@ int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 
 int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 {
+	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
+	if (flags & MMU_USER_PAGE) {
+		hw_flags |= X86_PE_US;
+	}
 	pml4e_t *pml4_table = paddr_to_ptr(x86_read_cr3());
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
@@ -237,7 +241,7 @@ int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 			return -ENOMEM;
 		}
 		memset(pdp_page, 0, PAGE_SIZE_4K);
-		pml4e = make_pml4e(ptr_to_paddr(pdp_page), X86_PE_RW | X86_PE_P);
+		pml4e = make_pml4e(ptr_to_paddr(pdp_page), hw_flags);
 		pml4_table[pml4_idx] = pml4e;
 	}
 	pdpte_t *pdp_table = paddr_to_ptr(pml4e_paddr(pml4e));
@@ -249,7 +253,7 @@ int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 			return -ENOMEM;
 		}
 		memset(pd_page, 0, PAGE_SIZE_4K);
-		pdpte = make_pdpte(ptr_to_paddr(pd_page), X86_PE_RW | X86_PE_P);
+		pdpte = make_pdpte(ptr_to_paddr(pd_page), hw_flags);
 		pdp_table[pdpt_idx] = pdpte;
 	}
 	pde_t *pd = paddr_to_ptr(pdpte_paddr(pdpte));
@@ -261,7 +265,7 @@ int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 			return -ENOMEM;
 		}
 		memset(pt_page, 0, PAGE_SIZE_4K);
-		pde = make_pde(ptr_to_paddr(pt_page), X86_PE_RW | X86_PE_P);
+		pde = make_pde(ptr_to_paddr(pt_page), hw_flags);
 		pd[pd_idx] = pde;
 	}
 	if (pde_is_large(pde)) {
@@ -270,12 +274,16 @@ int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 	}
 	pte_t *pt = paddr_to_ptr(pde_paddr(pde));
 	uint64_t pt_idx = (vaddr >> PT_INDEX_SHIFT) & PT_INDEX_MASK;
-	pt[pt_idx] = make_pte(paddr, X86_PE_RW | X86_PE_P);
+	pt[pt_idx] = make_pte(paddr, hw_flags);
 	return 0;
 }
 
 int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 {
+	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
+	if (flags & MMU_USER_PAGE) {
+		hw_flags |= X86_PE_US;
+	}
 	pml4e_t *pml4_table = paddr_to_ptr(x86_read_cr3());
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
@@ -285,7 +293,7 @@ int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 			return -ENOMEM;
 		}
 		memset(pdp_page, 0, PAGE_SIZE_4K);
-		pml4e = make_pml4e(ptr_to_paddr(pdp_page), X86_PE_RW | X86_PE_P);
+		pml4e = make_pml4e(ptr_to_paddr(pdp_page), hw_flags);
 		pml4_table[pml4_idx] = pml4e;
 	}
 	pdpte_t *pdp_table = paddr_to_ptr(pml4e_paddr(pml4e));
@@ -297,7 +305,7 @@ int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 			return -ENOMEM;
 		}
 		memset(pd_page, 0, PAGE_SIZE_4K);
-		pdpte = make_pdpte(ptr_to_paddr(pd_page), X86_PE_RW | X86_PE_P);
+		pdpte = make_pdpte(ptr_to_paddr(pd_page), hw_flags);
 		pdp_table[pdpt_idx] = pdpte;
 	}
 	pde_t *pd = paddr_to_ptr(pdpte_paddr(pdpte));
@@ -307,7 +315,7 @@ int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 		/* PDE is already mapped as a page table. */
 		return -EINVAL;
 	}
-	pd[pd_idx] = make_pde(paddr, X86_PE_RW | X86_PE_PS | X86_PE_P);
+	pd[pd_idx] = make_pde(paddr, hw_flags | X86_PE_PS);
 	return 0;
 }
 
