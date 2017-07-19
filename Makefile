@@ -18,6 +18,7 @@ rust_src += kernel/panic.rs
 rust_src += kernel/print.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
+rust_src += kernel/elf.rs
 
 ifdef TEST
 CFLAGS += -DHAVE_TEST
