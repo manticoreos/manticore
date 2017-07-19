@@ -19,6 +19,11 @@ static uint64_t gdt[] __attribute__ ((aligned (8))) = {
 	GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L),
 	/* Kernel data segment: */
 	GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB),
+
+	/* Userspace data segment: */
+	GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_DB),
+	/* Userspace code segment: */
+	GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_L),
 };
 
 static struct gdt_desc gdt_desc = {
