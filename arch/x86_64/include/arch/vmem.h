@@ -12,10 +12,7 @@ typedef uint64_t phys_t;
 typedef uint64_t virt_t;
 
 /// Converts a virtual address to a physical address.
-static inline phys_t virt_to_phys(virt_t addr)
-{
-	return addr - KERNEL_VMA;
-}
+phys_t virt_to_phys(virt_t addr);
 
 /// Converts a virtual address pointer to physical address.
 static inline phys_t ptr_to_paddr(void *page)
