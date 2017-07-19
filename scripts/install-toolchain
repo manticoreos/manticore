@@ -1,0 +1,7 @@
+#!/bin/sh
+
+version=nightly-2017-07-17
+
+rustup install $version
+rustup default $version
+rustup component add rust-src

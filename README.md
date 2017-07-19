@@ -7,14 +7,12 @@ A prototype OS for network intensive, single-board multicore systems that aims t
 
 ## Getting Started
 
-First, install Rust toolchain via [`rustup`](https://rustup.rs/).
+First, install Rust toolchain installer, [`rustup`](https://rustup.rs/).
 
-Then, install a nightly build of Rust:
+Then, install the toolchain:
 
 ```console
-$ rustup install nightly
-$ rustup default nightly
-$ rustup component add rust-src
+$ ./scripts/install-toolchain
 ```
 
 Finally, install `xargo`:
