@@ -3,17 +3,13 @@
 #include <arch/exceptions.h>
 #include <arch/syscall.h>
 #include <arch/segment.h>
+#include <arch/gdt.h>
 
 #include <stdint.h>
 
-struct gdt_desc {
-	uint16_t	limit;
-	void		*base;
-} __attribute__ ((packed));
-
 #define GDT_ENTRY(value) (((uint64_t) value) << 32)
 
-static uint64_t gdt[] __attribute__ ((aligned (8))) = {
+uint64_t gdt[] __attribute__ ((aligned (8))) = {
 	0,
 	/* Kernel code segment: */
 	GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L),
@@ -24,11 +20,15 @@ static uint64_t gdt[] __attribute__ ((aligned (8))) = {
 	GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_DB),
 	/* Userspace code segment: */
 	GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_L),
+
+	/* TSS: */
+	0,
+	0,
 };
 
-static struct gdt_desc gdt_desc = {
+struct gdt_desc64 gdt_desc = {
 	.limit	= ARRAY_SIZE(gdt) * sizeof(uint64_t) - 1,
-	.base	= gdt,
+	.base	= (uint64_t) gdt,
 };
 
 static void init_gdt(void)
@@ -44,5 +44,6 @@ void arch_setup(void)
 {
 	init_gdt();
 	init_idt();
+	init_task();
 	init_syscall();
 }

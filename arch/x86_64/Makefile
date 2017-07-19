@@ -13,6 +13,7 @@ objs += arch/x86_64/multiboot_header.o
 objs += arch/x86_64/setup.o
 objs += arch/x86_64/syscall.o
 objs += arch/x86_64/thread.o
+objs += arch/x86_64/task.o
 objs += drivers/uart/8250.o
 
 all: kernel.iso

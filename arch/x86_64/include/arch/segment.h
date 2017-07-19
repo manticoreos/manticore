@@ -5,6 +5,7 @@
 #define X86_KERNEL_DS		0x10
 #define X86_USER_CS		0x23
 #define X86_USER_DS		0x1b
+#define X86_GDT_TSS_IDX		5
 
 #define X86_GDT_TYPE_DATA	(2 << 8)
 #define X86_GDT_TYPE_CODE	(8 << 8)
