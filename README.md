@@ -2,9 +2,8 @@
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/kernel/kernel)
 
-## Features
 
-* Runs on [aarch64](http://www.arm.com/products/processors/armv8-architecture.php) and [x86_64](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html) architectures
+A prototype OS for network intensive, single-board multicore systems that aims to offer secure, fast, and energy-efficient communication and computation.
 
 ## Getting Started
 
