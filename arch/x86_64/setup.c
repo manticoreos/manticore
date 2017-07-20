@@ -42,6 +42,7 @@ static void init_gdt(void)
 
 void arch_setup(void)
 {
+	i8259_remap();
 	init_gdt();
 	init_idt();
 	init_task();
