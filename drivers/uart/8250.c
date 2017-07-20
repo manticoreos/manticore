@@ -50,27 +50,27 @@ void console_init(void)
 	/*
 	 * Disable device interrupts:
 	 */
-	outb(uart_8250_ioport + UART_IER, 0x00);
+	outb(0x00, uart_8250_ioport + UART_IER);
 
 	/*
 	 * Set baud rate to 38400:
 	 */
-	outb(uart_8250_ioport + UART_LCR, 0x80);
-	outb(uart_8250_ioport + UART_DLL, 0x03);
-	outb(uart_8250_ioport + UART_DLH, 0x00);
+	outb(0x80, uart_8250_ioport + UART_LCR);
+	outb(0x03, uart_8250_ioport + UART_DLL);
+	outb(0x00, uart_8250_ioport + UART_DLH);
 
 	/*
 	 * 8 bits, no parity, one stop bit:
 	 */
-	outb(uart_8250_ioport + UART_LCR, 0x03);
+	outb(0x03, uart_8250_ioport + UART_LCR);
 
 	/*
 	 * Enable FIFO, clear them, interrupt trigger at 14-byte threshold:
 	 */
-	outb(uart_8250_ioport + UART_FCR, 0xC7);
+	outb(0xC7, uart_8250_ioport + UART_FCR);
 
 	/*
 	 * Enable IRQs, set RTS and DSR:
 	 */
-	outb(uart_8250_ioport + UART_MCR, 0x0B);
+	outb(0x0B, uart_8250_ioport + UART_MCR);
 }
