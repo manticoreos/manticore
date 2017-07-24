@@ -24,4 +24,46 @@ static inline void outb(uint8_t v, uint16_t port)
 		);
 }
 
+static inline uint16_t inw(uint16_t port)
+{
+	uint16_t v;
+
+	asm volatile (
+		"inw %1, %0"
+		:"=a" (v)
+		:"dN"(port)
+		);
+	return v;
+}
+
+static inline void outw(uint16_t v, uint16_t port)
+{
+	asm volatile (
+		"outw %0, %1"
+		:
+		:"a" (v), "dN"(port)
+		);
+}
+
+static inline uint32_t inl(uint16_t port)
+{
+	uint32_t v;
+
+	asm volatile (
+		"inl %1, %0"
+		:"=a" (v)
+		:"dN"(port)
+		);
+	return v;
+}
+
+static inline void outl(uint32_t v, uint16_t port)
+{
+	asm volatile (
+		"outl %0, %1"
+		:
+		:"a" (v), "dN"(port)
+		);
+}
+
 #endif
