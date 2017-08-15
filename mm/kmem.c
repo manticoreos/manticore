@@ -150,8 +150,11 @@ void kmem_cache_free(struct kmem_cache *cache, void *obj)
 {
 	kmem_slab_free_object(cache->slab, obj);
 
-	if (kmem_slab_is_full(cache->slab)) {
-		struct kmem_slab *slab = cache->slab;
+	if (!kmem_slab_is_full(cache->slab)) {
+		return;
+	}
+	struct kmem_slab *slab = cache->slab;
+	if (slab->next) {
 		cache->slab = slab->next;
 		kmem_slab_destroy(slab);
 	}
