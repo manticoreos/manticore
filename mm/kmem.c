@@ -125,7 +125,7 @@ void kmem_cache_destroy(struct kmem_cache *cache)
 		if (!next) {
 			break;
 		}
-		next = slab;
+		slab = next;
 	}
 	kmem_cache_free(&kmem_cache_cache, cache);
 }
