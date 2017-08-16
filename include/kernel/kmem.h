@@ -24,13 +24,16 @@ struct kmem_slab {
 	uint32_t		capacity;
 };
 
+/// Maximum cache name length.
+#define KMEM_NAME_MAX_LEN	32
+
 /// An object cache.
 struct kmem_cache {
 	size_t			bufctl;		// Bufctl offset
 	size_t			size;		// Object size
 	size_t			align;		// Object alignment
 	struct kmem_slab	*slab;		// Slab
-	const char		*name;		// Cache name
+	char			name[KMEM_NAME_MAX_LEN]; // Cache name
 };
 
 /// Create an object cache.

@@ -14,6 +14,7 @@
 #include <kernel/align.h>
 
 #include <stdbool.h>
+#include <string.h>
 
 static struct kmem_cache kmem_cache_cache;
 static struct kmem_cache kmem_slab_cache;
@@ -100,7 +101,7 @@ static void kmem_slab_free_object(struct kmem_slab *slab, void *obj)
 
 static void kmem_cache_init(struct kmem_cache *cache, const char *name, size_t size, size_t align)
 {
-	cache->name = name;
+	strlcpy(cache->name, name, KMEM_NAME_MAX_LEN);
 	cache->size = size;
 	cache->align = align;
 	cache->bufctl = align_up(size, align) - sizeof(struct kmem_bufctl);
