@@ -48,6 +48,12 @@ void *kmem_cache_alloc(struct kmem_cache *cache);
 /// Free an object to \cache object cache.
 void kmem_cache_free(struct kmem_cache *cache, void *obj);
 
+/// Allocate an object of size \size.
+void *kmem_alloc(size_t size);
+
+/// Free an object \ptr of size \size.
+void kmem_free(void *ptr, size_t size);
+
 /// Initialize the kernel memory allocator.
 void kmem_init(void);
 
