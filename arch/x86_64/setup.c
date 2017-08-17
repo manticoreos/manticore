@@ -47,4 +47,5 @@ void arch_setup(void)
 	init_idt();
 	init_task();
 	init_syscall();
+	init_memory_map();
 }

@@ -20,9 +20,8 @@ void start_kernel(void)
 	console_init();
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");
-	arch_setup();
 	page_alloc_init();
-	init_memory_map();
+	arch_setup();
 	kmem_init();
 	arch_local_interrupt_enable();
 #ifdef HAVE_TEST
