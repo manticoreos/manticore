@@ -16,6 +16,7 @@
     "-nostdlib",
     "-static"
   ],
+  "linker-flavor": "ld",
   "target-endian": "little",
   "target-pointer-width": "64",
   "vendor": "unknown"

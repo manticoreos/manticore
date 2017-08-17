@@ -6,7 +6,6 @@ includes += -Iarch/aarch64/include
 
 objs += arch/aarch64/cpu.o
 objs += arch/aarch64/boot.o
-objs += arch/aarch64/interrupts.o
 objs += arch/aarch64/memory.o
 objs += arch/aarch64/thread.o
 objs += arch/aarch64/setup.o
