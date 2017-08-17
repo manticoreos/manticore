@@ -1,9 +1,8 @@
-# Kernel
+# Manticore
 
-[![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/kernel/kernel)
+[![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/manticore/manticore)
 
-
-A prototype OS for network intensive, single-board multicore systems that aims to offer secure, fast, and energy-efficient communication and computation.
+Manticore is an OS for network intensive, single-board multicore systems that aims to offer secure, fast, and energy-efficient communication and computation.
 
 ## Getting Started
 
