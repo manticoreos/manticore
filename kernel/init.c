@@ -25,6 +25,7 @@ void start_kernel(void)
 	kmem_init();
 	arch_local_interrupt_enable();
 #ifdef HAVE_TEST
+	test_kmem();
 	test_page_alloc();
 #endif
 	printf("Halted.\n");

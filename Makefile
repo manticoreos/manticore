@@ -22,6 +22,7 @@ rust_src += kernel/elf.rs
 
 ifdef TEST
 CFLAGS += -DHAVE_TEST
+tests += tests/tst-kmem.o
 tests += tests/tst-page-alloc.o
 endif
 
