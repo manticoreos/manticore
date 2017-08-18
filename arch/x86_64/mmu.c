@@ -176,6 +176,11 @@ mmu_map_t mmu_current_map(void)
 	return x86_read_cr3();
 }
 
+void mmu_load_map(mmu_map_t map)
+{
+	x86_write_cr3(map);
+}
+
 /// Converts paging structure indices to a virtual address.
 static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t pd_idx,
 				uint64_t pt_idx)
