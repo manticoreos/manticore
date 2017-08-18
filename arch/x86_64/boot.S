@@ -30,7 +30,9 @@ boot_gdt_desc64:
 	.quad boot_gdt + KERNEL_VMA
 
 /*
- * Identity page mapping for first 1 GiB of physical memory.
+ * Boot page mapping has two mappings: (1) identity mapping for first 1
+ * GB of physical memory for bootstrap and (2) higher-half kernel
+ * mapping once the kernel is up and running.
  */
 .align 4096
 boot_pml4e:
