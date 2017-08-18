@@ -5,10 +5,13 @@ use rlibc::memcpy;
 use core::slice;
 use memory;
 
+type MMUMap = usize;
+
 const MMU_USER_PAGE : u64 = 1 << 0;
 
 extern "C" {
-    pub fn mmu_map_range(vaddr: u64, paddr: u64, sz: u64, flags: u64) -> i32;
+    pub fn mmu_current_map() -> MMUMap;
+    pub fn mmu_map_range(map: MMUMap, vaddr: u64, paddr: u64, sz: u64, flags: u64) -> i32;
     pub fn mmu_invalidate_tlb();
     pub fn virt_to_phys(addr: u64) -> u64;
 }
@@ -29,7 +32,9 @@ pub extern "C" fn parse_elf(start: u64, end: u64) -> u64 {
                 memcpy(transmute(paddr),
                        transmute(start + phdr.offset()),
                        phdr.mem_size() as usize);
-                let err = mmu_map_range(phdr.virtual_addr(),
+                let map = mmu_current_map();
+                let err = mmu_map_range(map,
+                                        phdr.virtual_addr(),
                                         virt_to_phys(transmute(paddr)),
                                         phdr.mem_size(),
                                         MMU_USER_PAGE);

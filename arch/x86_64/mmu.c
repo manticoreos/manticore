@@ -171,6 +171,11 @@ void mmu_invalidate_tlb(void)
 	x86_write_cr3(x86_read_cr3());
 }
 
+mmu_map_t mmu_current_map(void)
+{
+	return x86_read_cr3();
+}
+
 /// Converts paging structure indices to a virtual address.
 static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t pd_idx,
 				uint64_t pt_idx)
@@ -184,6 +189,7 @@ static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t p
 /// This function does not invalidate TLB. Callers are expected to do that by calling
 /// mmu_invalidate_tlb().
 //
+/// \param map MMU translation map.
 /// \param vaddr Start of virtual address range to map from.
 /// \param paddr Start of physical address range to map to.
 /// \param size Size of the address range to map.
@@ -192,7 +198,7 @@ static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t p
 /// \return 0 if successful
 ///         -EINVAL if passed parameters are invalid
 ///         -ENOMEM if out of memory
-int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
+int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 {
 	if (!is_aligned(vaddr, PAGE_SIZE_4K)) {
 		return -EINVAL;
@@ -203,7 +209,7 @@ int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 	virt_t large_end = align_down(vaddr + size, PAGE_SIZE_2M);
 	if (start != large_start) {
 		for (virt_t offset = start; offset < large_start; offset += PAGE_SIZE_4K) {
-			int err = mmu_map_small_page(offset, paddr, flags);
+			int err = mmu_map_small_page(map, offset, paddr, flags);
 			if (err) {
 				return err;
 			}
@@ -212,7 +218,7 @@ int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 	}
 	if (large_start != large_end) {
 		for (virt_t offset = large_start; offset < large_end; offset += PAGE_SIZE_2M) {
-			int err = mmu_map_large_page(offset, paddr, flags);
+			int err = mmu_map_large_page(map, offset, paddr, flags);
 			if (err) {
 				return err;
 			}
@@ -221,7 +227,7 @@ int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 	}
 	if (large_end != end) {
 		for (virt_t offset = large_end; offset < end; offset += PAGE_SIZE_4K) {
-			int err = mmu_map_small_page(offset, paddr, flags);
+			int err = mmu_map_small_page(map, offset, paddr, flags);
 			if (err) {
 				return err;
 			}
@@ -231,13 +237,13 @@ int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
 	return 0;
 }
 
-int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
+int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags)
 {
 	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
 	if (flags & MMU_USER_PAGE) {
 		hw_flags |= X86_PE_US;
 	}
-	pml4e_t *pml4_table = paddr_to_ptr(x86_read_cr3());
+	pml4e_t *pml4_table = paddr_to_ptr(map);
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
 	if (pml4e_is_none(pml4e)) {
@@ -283,13 +289,13 @@ int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags)
 	return 0;
 }
 
-int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags)
+int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags)
 {
 	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
 	if (flags & MMU_USER_PAGE) {
 		hw_flags |= X86_PE_US;
 	}
-	pml4e_t *pml4_table = paddr_to_ptr(x86_read_cr3());
+	pml4e_t *pml4_table = paddr_to_ptr(map);
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
 	if (pml4e_is_none(pml4e)) {
@@ -374,9 +380,9 @@ static void mmu_dump_pml4e(unsigned pml4_idx, pml4e_t pml4e)
 	}
 }
 
-void mmu_dump_pgtable(void)
+void mmu_map_dump(mmu_map_t map)
 {
-	pml4e_t *pml4_table = paddr_to_ptr(x86_read_cr3());
+	pml4e_t *pml4_table = paddr_to_ptr(map);
 	printf("PML4 table: %016x\n", pml4_table);
 
 	for (unsigned pml4_idx = 0; pml4_idx < NR_PG_ENTRIES; pml4_idx++) {

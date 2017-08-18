@@ -10,10 +10,14 @@ enum {
 	MMU_USER_PAGE = 1UL << 0,
 };
 
+/// MMU translation map
+typedef uintptr_t mmu_map_t;
+
 void mmu_invalidate_tlb(void);
-int mmu_map_range(virt_t vaddr, phys_t paddr, size_t size, uint64_t flags);
-int mmu_map_small_page(virt_t vaddr, phys_t paddr, uint64_t flags);
-int mmu_map_large_page(virt_t vaddr, phys_t paddr, uint64_t flags);
-void mmu_dump_pgtable(void);
+mmu_map_t mmu_current_map(void);
+int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, uint64_t flags);
+int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags);
+int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags);
+void mmu_map_dump(mmu_map_t map);
 
 #endif
