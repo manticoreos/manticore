@@ -1,5 +1,9 @@
 #include <arch/setup.h>
 
+#include <kernel/page-alloc.h>
+#include <kernel/memory.h>
+#include <kernel/mmu.h>
+
 #include <arch/exceptions.h>
 #include <arch/syscall.h>
 #include <arch/segment.h>
@@ -40,6 +44,25 @@ static void init_gdt(void)
 		: "memory");
 }
 
+void init_mmu_map(void)
+{
+	void *page = page_alloc_small();
+	if (!page) {
+		panic("Unable to allocate kernel MMU map");
+	}
+	memset(page, 0, PAGE_SIZE_4K);
+	mmu_map_t mmu_map = virt_to_phys(page);
+	for (unsigned i = 0; i < nr_mem_regions; i++) {
+		struct memory_region *mem_region = &mem_regions[i];
+		int err = mmu_map_range(mmu_map, mem_region->base + KERNEL_VMA, mem_region->base, mem_region->len, 0);
+		if (err) {
+			panic("Unable to setup kernel MMU map");
+		}
+	}
+	mmu_load_map(mmu_map);
+	mmu_invalidate_tlb();
+}
+
 void arch_setup(void)
 {
 	i8259_remap();
@@ -48,4 +71,5 @@ void arch_setup(void)
 	init_task();
 	init_syscall();
 	init_memory_map();
+	init_mmu_map();
 }
