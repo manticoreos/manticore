@@ -14,7 +14,7 @@ features = [ "nightly", "alloc" ]
 version = "1.0.0"
 
 [dependencies.xmas-elf]
-version = "0.5"
+version = "0.6"
 
 [dependencies.bitflags]
 version = "0.9"

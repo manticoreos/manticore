@@ -31,6 +31,7 @@ rust_src += drivers/pci/ioport.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
 rust_src += kernel/print.rs
+rust_src += kernel/process.rs
 rust_src += kernel/vm.rs
 rust_src += manticore.rs
 
