@@ -22,6 +22,7 @@ pub mod errno;
 pub mod print;
 pub mod memory;
 pub mod mmu;
+pub mod vm;
 
 pub use memory::memory_add_span;
 pub use memory::page_alloc_init;
