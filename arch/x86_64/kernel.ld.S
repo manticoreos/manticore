@@ -15,7 +15,6 @@ SECTIONS
     .bss  : { *(.bss)  }
     /DISCARD/ : {
          *(.comment)
-         *(.debug*)
     }
     _kernel_end = .;
 }
