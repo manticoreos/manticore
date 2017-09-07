@@ -9,6 +9,7 @@ objs += arch/x86_64/entry.o
 objs += arch/x86_64/exceptions.o
 objs += arch/x86_64/i8259.o
 objs += arch/x86_64/ioport.o
+objs += arch/x86_64/ioremap.o
 objs += arch/x86_64/memory.o
 objs += arch/x86_64/mmu.o
 objs += arch/x86_64/multiboot_header.o
