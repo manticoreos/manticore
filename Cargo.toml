@@ -1,19 +1,11 @@
 [package]
-name = "kernel"
+name = "manticore"
 version = "0.1.0"
 
 [lib]
-name = "kernel"
-path = "kernel/lib.rs"
+name = "manticore"
+path = "manticore.rs"
 crate-type = ["staticlib"]
 
-[dependencies.intrusive-collections]
-version = "0.6.4"
-default-features = false
-features = [ "nightly", "alloc" ]
-
-[dependencies.rlibc]
-version = "1.0.0"
-
-[dependencies.xmas-elf]
-version = "0.5"
+[dependencies]
+kernel = { path = "kernel" }

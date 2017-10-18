@@ -1,5 +1,15 @@
+//!
+//! Manticore kernel.
+//!
+
+#![feature(lang_items)]
+#![no_std]
+
+#[macro_use]
+extern crate kernel;
+
 use core::fmt::Arguments;
-use print;
+use kernel::print;
 
 extern "C" {
     pub fn panic(msg: *const u8);

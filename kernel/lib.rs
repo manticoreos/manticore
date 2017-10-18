@@ -6,7 +6,6 @@
 #![feature(global_allocator)]
 #![feature(allocator_api)]
 #![feature(box_syntax)]
-#![feature(lang_items)]
 #![feature(const_fn)]
 #![feature(alloc)]
 #![feature(asm)]
@@ -19,8 +18,7 @@ extern crate alloc;
 extern crate rlibc;
 
 #[macro_use]
-mod print;
-mod panic;
+pub mod print;
 mod memory;
 mod elf;
 

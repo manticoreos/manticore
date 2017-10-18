@@ -14,11 +14,11 @@ objs += kernel/syscall.o
 objs += kernel/thread.o
 objs += mm/kmem.o
 
-rust_src += kernel/panic.rs
-rust_src += kernel/print.rs
+rust_src += kernel/elf.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
-rust_src += kernel/elf.rs
+rust_src += kernel/print.rs
+rust_src += manticore.rs
 
 ifdef TEST
 CFLAGS += -DHAVE_TEST
@@ -31,17 +31,17 @@ CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes)
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 LDFLAGS += --gc-sections
 
-LIBKERNEL=target/$(ARCH)-unknown-none/release/libkernel.a
+LIBMANTICORE=target/$(ARCH)-unknown-none/release/libmanticore.a
 
 DEPS=.deps
 $(objs): | $(DEPS)
 $(DEPS):
 	mkdir -p $(DEPS)
 
-kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests)
-	$(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBKERNEL) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lkernel
+kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
+	$(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
 
-$(LIBKERNEL): $(rust_src)
+$(LIBMANTICORE): $(rust_src)
 	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
 
 %.o: %.c
