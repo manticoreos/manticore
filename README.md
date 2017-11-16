@@ -20,6 +20,12 @@ Finally, install `xargo`:
 $ cargo install xargo
 ```
 
+and `xorriso`:
+
+```
+$ dnf install xorriso
+```
+
 To install the aarch64 cross compiling toolchain, run:
 
 ```console
