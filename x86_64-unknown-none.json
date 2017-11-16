@@ -22,5 +22,6 @@
   ],
   "target-endian": "little",
   "target-pointer-width": "64",
+  "target-c-int-width": "8",
   "vendor": "unknown"
 }

@@ -6,7 +6,7 @@ version = "0.1.0"
 path = "lib.rs"
 
 [dependencies.intrusive-collections]
-version = "0.6.4"
+version = "0.7"
 default-features = false
 features = [ "nightly", "alloc" ]
 

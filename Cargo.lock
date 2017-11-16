@@ -1,22 +1,22 @@
-[root]
-name = "manticore"
-version = "0.1.0"
-dependencies = [
- "kernel 0.1.0",
-]
-
 [[package]]
 name = "intrusive-collections"
-version = "0.6.4"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "kernel"
 version = "0.1.0"
 dependencies = [
- "intrusive-collections 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "xmas-elf 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "manticore"
+version = "0.1.0"
+dependencies = [
+ "kernel 0.1.0",
 ]
 
 [[package]]
@@ -38,7 +38,7 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
-"checksum intrusive-collections 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)" = "df6519c847d42af6ac8caa08f152618cf219d4eee9b900f636fc04fdcba95895"
+"checksum intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cca7ca9335705198e07e52fda501e6742f0290b7cb5cd4de924dde20f0ff2229"
 "checksum rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fc874b127765f014d792f16763a81245ab80500e2ad921ed4ee9e82481ee08fe"
 "checksum xmas-elf 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bf6df3e954c02fbf93434f641e1e0916bbb94517ac6d3e55e67932e6cdbc18e2"
 "checksum zero 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "5f1bc8a6b2005884962297587045002d8cfb8dcec9db332f4ca216ddc5de82c5"

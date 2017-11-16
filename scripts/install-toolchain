@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version=nightly-2017-07-17
+version=nightly-2017-11-16
 
 rustup install $version
 rustup default $version
