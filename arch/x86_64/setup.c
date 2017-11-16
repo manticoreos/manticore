@@ -2,6 +2,7 @@
 
 #include <kernel/page-alloc.h>
 #include <kernel/memory.h>
+#include <kernel/panic.h>
 #include <kernel/mmu.h>
 
 #include <arch/exceptions.h>
@@ -9,6 +10,7 @@
 #include <arch/segment.h>
 #include <arch/gdt.h>
 
+#include <string.h>
 #include <stdint.h>
 
 #define GDT_ENTRY(value) (((uint64_t) value) << 32)
