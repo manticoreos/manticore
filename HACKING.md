@@ -27,4 +27,4 @@ Once QEMU is running, use the following script to start a GDB session:
 
 The GDB session has a hardware breakpoint at `start_kernel`, which is where your debugging session begins.
 
-When setting your own breakpoints, remember to use the `hbreak`, which uses hardware breakpoints and works more reliabily with OS running under QEMU/KVM.
+When setting your own breakpoints, remember to use the `hbreak`, which uses hardware breakpoints and works more reliably with OS running under QEMU/KVM.
