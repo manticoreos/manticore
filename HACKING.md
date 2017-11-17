@@ -1,5 +1,13 @@
 # Manticore Hacking Guide
 
+## Running kernel test suite
+
+The kernel has an internal test suite that runs in kernel space. The test suite is not compiled by default, but it built and run using the following commands:
+
+```
+make TEST=1 && ./scripts/run.sh
+```
+
 ## Debugging with GDB
 
 You can debug Manticore using GDB when the OS is running under QEMU/KVM.
