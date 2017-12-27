@@ -21,8 +21,9 @@ void start_kernel(void)
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");
 	page_alloc_init();
-	arch_setup();
+	arch_early_setup();
 	kmem_init();
+	arch_late_setup();
 	arch_local_interrupt_enable();
 #ifdef HAVE_TEST
 	test_kmem();

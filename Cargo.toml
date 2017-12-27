@@ -9,3 +9,6 @@ crate-type = ["staticlib"]
 
 [dependencies]
 kernel = { path = "kernel" }
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+pci = { path = "drivers/pci" }

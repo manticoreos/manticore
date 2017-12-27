@@ -17,6 +17,14 @@ name = "manticore"
 version = "0.1.0"
 dependencies = [
  "kernel 0.1.0",
+ "pci 0.1.0",
+]
+
+[[package]]
+name = "pci"
+version = "0.1.0"
+dependencies = [
+ "kernel 0.1.0",
 ]
 
 [[package]]

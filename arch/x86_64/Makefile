@@ -13,6 +13,7 @@ objs += arch/x86_64/ioremap.o
 objs += arch/x86_64/memory.o
 objs += arch/x86_64/mmu.o
 objs += arch/x86_64/multiboot_header.o
+objs += arch/x86_64/pci.o
 objs += arch/x86_64/setup.o
 objs += arch/x86_64/syscall.o
 objs += arch/x86_64/thread.o

@@ -65,7 +65,7 @@ void init_mmu_map(void)
 	mmu_invalidate_tlb();
 }
 
-void arch_setup(void)
+void arch_early_setup(void)
 {
 	i8259_remap();
 	init_gdt();
@@ -74,4 +74,9 @@ void arch_setup(void)
 	init_syscall();
 	init_memory_map();
 	init_mmu_map();
+}
+
+void arch_late_setup(void)
+{
+	pci_probe();
 }

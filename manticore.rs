@@ -7,6 +7,8 @@
 
 #[macro_use]
 extern crate kernel;
+#[cfg(target_arch = "x86_64")]
+extern crate pci;
 
 use core::fmt::Arguments;
 use kernel::print;
@@ -29,3 +31,6 @@ pub extern "C" fn panic_fmt(fmt: Arguments, file: &str, line: u32) {
 #[cfg(not(test))]
 #[lang = "eh_personality"]
 pub extern "C" fn eh_personality() {}
+
+#[cfg(target_arch = "x86_64")]
+pub use pci::pci_probe;

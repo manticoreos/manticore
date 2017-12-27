@@ -1,0 +1,10 @@
+[package]
+name = "pci"
+version = "0.1.0"
+
+[lib]
+name = "pci"
+path = "lib.rs"
+
+[dependencies]
+kernel = { path = "../../kernel" }
