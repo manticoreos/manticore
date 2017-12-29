@@ -1,9 +1,17 @@
-#!/bin/sh
+#!/bin/bash
+
+usage() {
+	echo "usage: $0 FILE"
+	exit 1
+}
+
+if [[ $# -eq 0 ]] ; then
+	usage
+fi
 
 mkdir -p build/iso/boot/grub
 
 cp arch/x86_64/usr/boot/grub/grub.cfg build/iso/boot/grub
 cp kernel.elf build/iso/boot
 
-grub2-mkrescue -o kernel.iso build/iso
-
+grub2-mkrescue -o $1 build/iso
