@@ -1,5 +1,16 @@
 ARCH ?= $(shell uname -m)
 
+# Make the build silent by default
+V =
+ifeq ($(strip $(V)),)
+	E = @echo
+	Q = @
+else
+	E = @\#
+	Q =
+endif
+export E Q
+
 include arch/$(ARCH)/Makefile
 include lib/libc/Makefile
 
@@ -37,28 +48,33 @@ LIBMANTICORE=target/$(ARCH)-unknown-none/release/libmanticore.a
 DEPS=.deps
 $(objs): | $(DEPS)
 $(DEPS):
-	mkdir -p $(DEPS)
+	$(Q) mkdir -p $(DEPS)
 
 kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
 	$(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
 
 $(LIBMANTICORE): $(rust_src)
-	CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
+	$(E) "  XARGO"
+	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
 
 %.o: %.c
-	$(CROSS_PREFIX)gcc $(CFLAGS) -MD -c -o $@ $< -MF $(DEPS)/$(notdir $*).d
+	$(E) "  CC      " $@
+	$(Q) $(CROSS_PREFIX)gcc $(CFLAGS) -MD -c -o $@ $< -MF $(DEPS)/$(notdir $*).d
 
 %.o: %.S
-	$(CROSS_PREFIX)gcc $(ASFLAGS) -MD -c $< -o $@ -MF $(DEPS)/$(notdir $*).d
+	$(E) "  AS      " $@
+	$(Q) $(CROSS_PREFIX)gcc $(ASFLAGS) -MD -c $< -o $@ -MF $(DEPS)/$(notdir $*).d
 
 %.ld: %.ld.S
-	$(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
+	$(E) "  CPP     " $@
+	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
 clean:
-	rm -f kernel.elf $(objs) $(tests)
-	rm -f arch/$(ARCH)/kernel.ld
-	rm -rf target
-	rm -rf $(DEPS)
+	$(E) "  CLEAN"
+	$(Q) rm -f kernel.elf $(objs) $(tests)
+	$(Q) rm -f arch/$(ARCH)/kernel.ld
+	$(Q) rm -rf target
+	$(Q) rm -rf $(DEPS)
 
 .PHONY: all clean
 

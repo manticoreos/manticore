@@ -23,4 +23,5 @@ objs += drivers/uart/8250.o
 all: kernel.iso
 
 kernel.iso: kernel.elf
-	./scripts/mkiso $@
+	$(E) "  MKISO   " $@
+	$(Q) ./scripts/mkiso $@
