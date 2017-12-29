@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 usage() {
 	echo "usage: $0 FILE"
 	exit 1
