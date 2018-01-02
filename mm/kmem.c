@@ -169,6 +169,7 @@ static size_t kmem_alloc_sizes[] = {
 	64,
 	128,
 	256,
+	512,
 	1024,
 };
 
