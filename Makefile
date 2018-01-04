@@ -56,7 +56,7 @@ kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
 
 $(LIBMANTICORE): $(rust_src)
 	$(E) "  XARGO"
-	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --verbose --target $(ARCH)-unknown-none
+	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
 
 %.o: %.c
 	$(E) "  CC      " $@
