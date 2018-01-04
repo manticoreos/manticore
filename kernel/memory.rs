@@ -231,7 +231,7 @@ impl KAllocator {
 }
 
 extern "C" {
-    pub fn kmem_alloc(size: usize) -> u64;
+    pub fn kmem_alloc(size: usize) -> usize;
     pub fn kmem_free(ptr: *mut u8, size: usize);
 }
 
