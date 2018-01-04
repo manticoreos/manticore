@@ -57,7 +57,7 @@ impl MemorySegment {
     /// Note! The `self` memory segment is invalid after a call to the `split` function.
     fn split(&self, size: u64) -> &MemorySegment {
         unsafe {
-            let mut seg : &mut MemorySegment = transmute(self.base + size);
+            let seg : &mut MemorySegment = transmute(self.base + size);
             *seg = MemorySegment::new(self.base + size, self.size - size);
             return seg;
         }
@@ -121,7 +121,7 @@ impl MemoryArena {
                 }
             }
         }
-        let mut seg : &mut MemorySegment = transmute(addr);
+        let seg : &mut MemorySegment = transmute(addr);
         *seg = MemorySegment::new(addr, size);
         self.add_to_freelist(seg);
     }
@@ -172,7 +172,7 @@ fn align_up(value: u64, align: u64) -> u64 {
 
 fn memory_add_span_small(start: u64, end: u64) {
     unsafe {
-        let mut seg : &mut MemorySegment = transmute(start);
+        let seg : &mut MemorySegment = transmute(start);
         *seg = MemorySegment::new(start, end-start);
         KERNEL_SMALL_PAGE_ARENA.add_to_freelist(seg);
     }
@@ -180,7 +180,7 @@ fn memory_add_span_small(start: u64, end: u64) {
 
 fn memory_add_span_large(start: u64, end: u64) {
     unsafe {
-        let mut seg : &mut MemorySegment = transmute(start);
+        let seg : &mut MemorySegment = transmute(start);
         *seg = MemorySegment::new(start, end-start);
         KERNEL_LARGE_PAGE_ARENA.add_to_freelist(seg);
     }
