@@ -10,9 +10,9 @@
 
 #include <kernel/kmem.h>
 
+#include <kernel/align.h>
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
-#include <kernel/align.h>
 
 #include <stdbool.h>
 #include <string.h>
@@ -163,32 +163,33 @@ void kmem_cache_free(struct kmem_cache *cache, void *obj)
 }
 
 static size_t kmem_alloc_sizes[] = {
-	8,
-	16,
-	32,
-	64,
-	128,
-	256,
-	512,
-	1024,
-	2048,
-	4096,
+    8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
 };
 
 static struct kmem_cache kmalloc_caches[ARRAY_SIZE(kmem_alloc_sizes)];
 
 static inline size_t kmem_cache_index(size_t size)
 {
-	if (size <= 8) return 0;
-        if (size <= 16) return 1;
-        if (size <= 32) return 2;
-        if (size <= 64) return 3;
-        if (size <= 128) return 4;
-        if (size <= 256) return 5;
-        if (size <= 512) return 6;
-        if (size <= 1024) return 7;
-	if (size <= 2048) return 8;
-	if (size <= 4096) return 9;
+	if (size <= 8)
+		return 0;
+	if (size <= 16)
+		return 1;
+	if (size <= 32)
+		return 2;
+	if (size <= 64)
+		return 3;
+	if (size <= 128)
+		return 4;
+	if (size <= 256)
+		return 5;
+	if (size <= 512)
+		return 6;
+	if (size <= 1024)
+		return 7;
+	if (size <= 2048)
+		return 8;
+	if (size <= 4096)
+		return 9;
 	return ~0ULL;
 }
 
