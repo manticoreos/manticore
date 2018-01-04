@@ -4,10 +4,13 @@
 #include <kernel/memory.h>
 #include <kernel/panic.h>
 #include <kernel/mmu.h>
+#include <kernel/pci.h>
 
 #include <arch/exceptions.h>
 #include <arch/syscall.h>
 #include <arch/segment.h>
+#include <arch/i8259.h>
+#include <arch/task.h>
 #include <arch/gdt.h>
 
 #include <string.h>
