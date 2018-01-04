@@ -51,6 +51,9 @@ void kmem_cache_free(struct kmem_cache *cache, void *obj);
 /// Allocate an object of size \size.
 void *kmem_alloc(size_t size);
 
+/// Allocate an object of size \size and fill the memory with zeros.
+void *kmem_zalloc(size_t size);
+
 /// Free an object \ptr of size \size.
 void kmem_free(void *ptr, size_t size);
 

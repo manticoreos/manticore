@@ -211,6 +211,16 @@ void *kmem_alloc(size_t size)
 	return kmem_cache_alloc(cache);
 }
 
+void *kmem_zalloc(size_t size)
+{
+	void *p = kmem_alloc(size);
+	if (!p) {
+		return NULL;
+	}
+	memset(p, 0, size);
+	return p;
+}
+
 void kmem_free(void *ptr, size_t size)
 {
 	struct kmem_cache *cache = kmem_size_to_cache(size);
