@@ -2,7 +2,6 @@
 //! Kernel services.
 //!
 
-#![feature(drop_types_in_const)]
 #![feature(global_allocator)]
 #![feature(allocator_api)]
 #![feature(box_syntax)]
