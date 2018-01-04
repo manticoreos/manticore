@@ -31,10 +31,10 @@ static struct kmem_slab *kmem_slab_create(struct kmem_cache *cache)
 	if (!base) {
 		return NULL;
 	}
-	size_t slab_size = PAGE_SIZE_4K;
+	size_t slab_size = PAGE_SIZE_SMALL;
 	struct kmem_slab *slab;
-	if (cache->size < PAGE_SIZE_4K / 8) {
-		slab = base + PAGE_SIZE_4K - sizeof(*slab);
+	if (cache->size < PAGE_SIZE_SMALL / 8) {
+		slab = base + PAGE_SIZE_SMALL - sizeof(*slab);
 		slab_size -= sizeof(*slab);
 	} else {
 		slab = kmem_cache_alloc(&kmem_slab_cache);

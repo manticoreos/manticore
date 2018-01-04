@@ -55,7 +55,7 @@ void init_memory_map(void)
 		memory_size -= kernel_end - memory_addr;
 		memory_addr = kernel_end;
 	}
-	memory_addr = align_up(memory_addr, PAGE_SIZE_4K);
-	memory_size = align_down(memory_size, PAGE_SIZE_4K);
+	memory_addr = align_up(memory_addr, PAGE_SIZE_SMALL);
+	memory_size = align_down(memory_size, PAGE_SIZE_SMALL);
 	memory_add_span(memory_addr, memory_size);
 }

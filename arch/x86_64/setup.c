@@ -55,7 +55,7 @@ void init_mmu_map(void)
 	if (!page) {
 		panic("Unable to allocate kernel MMU map");
 	}
-	memset(page, 0, PAGE_SIZE_4K);
+	memset(page, 0, PAGE_SIZE_SMALL);
 	mmu_map_t mmu_map = ptr_to_paddr(page);
 	for (unsigned i = 0; i < nr_mem_regions; i++) {
 		struct memory_region *mem_region = &mem_regions[i];

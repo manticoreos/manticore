@@ -18,7 +18,7 @@ static void test_page_alloc_small(void)
 			printf("out of memory\n");
 			break;
 		}
-		memset(page, 0xfe, PAGE_SIZE_4K);
+		memset(page, 0xfe, PAGE_SIZE_SMALL);
 	}
 }
 
@@ -38,7 +38,7 @@ static void test_page_alloc_large(void)
 			printf("out of memory\n");
 			break;
 		}
-		memset(page, 0xfe, PAGE_SIZE_2M);
+		memset(page, 0xfe, PAGE_SIZE_LARGE);
 	}
 }
 

@@ -92,7 +92,7 @@ static void parse_memory_map(struct tag *tag, void *data)
 		}
 		struct memory_region *mem_region = &mem_regions[nr_mem_regions++];
 		mem_region->base = entry->base_addr;
-		mem_region->len = align_down(entry->length, PAGE_SIZE_4K);
+		mem_region->len = align_down(entry->length, PAGE_SIZE_SMALL);
 		extern char _kernel_end;
 		uint64_t kernel_end = (uint64_t) &_kernel_end;
 		uint64_t base_addr = entry->base_addr + KERNEL_VMA;
@@ -104,8 +104,8 @@ static void parse_memory_map(struct tag *tag, void *data)
 			length -= kernel_end - base_addr;
 			base_addr = kernel_end;
 		}
-		base_addr = align_up(base_addr, PAGE_SIZE_4K);
-		length = align_down(length, PAGE_SIZE_4K);
+		base_addr = align_up(base_addr, PAGE_SIZE_SMALL);
+		length = align_down(length, PAGE_SIZE_SMALL);
 		memory_add_span(base_addr, length);
 	}
 }

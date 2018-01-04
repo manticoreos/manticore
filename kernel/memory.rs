@@ -18,8 +18,8 @@ use print;
 const KIB: u64 = 1 << 10;
 const MIB: u64 = 1 << 20;
 
-const PAGE_SIZE_4K: u64 = 4 * KIB;
-const PAGE_SIZE_2M: u64 = 2 * MIB;
+const PAGE_SIZE_SMALL: u64 = 4 * KIB;
+const PAGE_SIZE_LARGE: u64 = 2 * MIB;
 
 /// Memory segment.
 ///
@@ -149,8 +149,8 @@ static mut KERNEL_LARGE_PAGE_ARENA: MemoryArena = MemoryArena::new();
 #[no_mangle]
 pub extern "C" fn memory_add_span(start: u64, size: u64) {
     let end = start + size;
-    let large_start = align_up(start, PAGE_SIZE_2M);
-    let large_end = align_down(end, PAGE_SIZE_2M);
+    let large_start = align_up(start, PAGE_SIZE_LARGE);
+    let large_end = align_down(end, PAGE_SIZE_LARGE);
     if start != large_start {
         memory_add_span_small(start, large_start);
     }
@@ -194,7 +194,7 @@ pub extern "C" fn page_alloc_init() {}
 #[no_mangle]
 pub extern "C" fn page_alloc_small() -> *mut u8 {
     unsafe {
-        return KERNEL_SMALL_PAGE_ARENA.alloc(PAGE_SIZE_4K);
+        return KERNEL_SMALL_PAGE_ARENA.alloc(PAGE_SIZE_SMALL);
     }
 }
 
@@ -202,7 +202,7 @@ pub extern "C" fn page_alloc_small() -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn page_free_small(addr: *mut u8) {
     unsafe {
-        return KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_4K);
+        return KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_SMALL);
     }
 }
 
@@ -210,7 +210,7 @@ pub extern "C" fn page_free_small(addr: *mut u8) {
 #[no_mangle]
 pub extern "C" fn page_alloc_large() -> *mut u8 {
     unsafe {
-        return KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_2M);
+        return KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_LARGE);
     }
 }
 
@@ -218,7 +218,7 @@ pub extern "C" fn page_alloc_large() -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn page_free_large(addr: *mut u8) {
     unsafe {
-        return KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_2M);
+        return KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_LARGE);
     }
 }
 
