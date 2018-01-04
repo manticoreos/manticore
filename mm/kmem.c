@@ -171,6 +171,8 @@ static size_t kmem_alloc_sizes[] = {
 	256,
 	512,
 	1024,
+	2048,
+	4096,
 };
 
 static struct kmem_cache kmalloc_caches[ARRAY_SIZE(kmem_alloc_sizes)];
@@ -185,6 +187,8 @@ static inline size_t kmem_cache_index(size_t size)
         if (size <= 256) return 5;
         if (size <= 512) return 6;
         if (size <= 1024) return 7;
+	if (size <= 2048) return 8;
+	if (size <= 4096) return 9;
 	return ~0ULL;
 }
 
