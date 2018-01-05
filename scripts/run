@@ -56,6 +56,11 @@ class Qemu:
     def __init__(self):
         self.opts = ["-enable-kvm", "-nographic"]
 
+    def configure_cpus(self, cpus):
+        self.cpus = cpus
+
+        self.opts += ["-smp", "cpus=%d" % (cpus)]
+
     def configure_image(self, image):
         self.image = image
 
@@ -98,11 +103,16 @@ class Qemu:
             print(" Ports: none")
         print(FOOTER)
         cmdline = ["qemu-system-x86_64"] + self.opts
-        subprocess.call(cmdline)
+        if dry_run:
+            print(" ".join(cmdline))
+        else:
+            subprocess.call(cmdline)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("image", help="OS image to run in a virtual machine")
+    parser.add_argument("-c", "--cpus", type=int, default=1,
+                        help="number of CPUs in the virtual machine")
     parser.add_argument("-n", "--network", type=str, default="none",
                         help="enable networking. Supported values: 'user' and 'none'.")
     parser.add_argument("-p", "--publish", type=str, default=[], action="append",
@@ -110,6 +120,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     qemu = Qemu()
+    qemu.configure_cpus(args.cpus)
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
     qemu.configure_net(args.network)
