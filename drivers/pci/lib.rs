@@ -224,36 +224,6 @@ fn pci_probe_slot(bus: u16, slot: u16) -> bool {
             device_id,
             dev.dev_id.revision_id
         );
-        for bar_opt in dev.bars.into_iter() {
-            match bar_opt {
-                &Some(BAR::Memory {
-                          base_addr,
-                          size,
-                          prefetchable,
-                          ref locatable,
-                      }) => {
-                    let bit_width = match locatable {
-                        &Locatable::Bits32 => "32-bit",
-                        &Locatable::Bits64 => "64-bit",
-                    };
-                    let prefetch = match prefetchable {
-                        true => "prefetchable",
-                        false => "non-prefetchable",
-                    };
-                    println!(
-                        "\tMemory at {:x} ({}, {}) [size={}K]",
-                        base_addr,
-                        bit_width,
-                        prefetch,
-                        size / 1024
-                    );
-                }
-                &Some(BAR::IO { iobase, size }) => {
-                    println!("\tI/O ports at {:x} [size={}]", iobase, size);
-                }
-                _ => (),
-            }
-        }
     }
     return result;
 }
