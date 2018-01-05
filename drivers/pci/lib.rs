@@ -58,7 +58,7 @@ pub enum BAR {
 }
 
 impl BAR {
-    unsafe fn remap(&self) -> IOPort {
+    pub unsafe fn remap(&self) -> IOPort {
         match self {
             &BAR::Memory { base_addr, size, .. } => {
                 let addr = ioremap(base_addr as usize, size as usize);
