@@ -16,4 +16,4 @@ mkdir -p build/iso/boot/grub
 cp arch/x86_64/usr/boot/grub/grub.cfg build/iso/boot/grub
 cp kernel.elf build/iso/boot
 
-grub2-mkrescue -o $1 build/iso
+grub2-mkrescue -o $1 build/iso &> /dev/null
