@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+
+import subprocess
+import argparse
+
+HEADER = """
+                          __   _,--="=--,_   __
+                         /  \."    .-.    "./  \\
+                        /  ,/  _   : :   _  \/` \\
+                        \  `| /o\  :_:  /o\ |\__/
+                         `-'| :="~` _ `~"=: |
+                            \`     (_)     `/
+                     .-"-.   \      |      /   .-"-.
+.-------------------{     }--|  /,.-'-.,\  |--{     }------------------.
+|                   (_)_)_)  \_/`~-===-~`\_/  (_(_(_)                  |
+|                                                                      |
+:                          Launching a VM ...                          :
+                                                                        """
+
+FOOTER = ""
+
+
+class Publish:
+
+    @staticmethod
+    def parse(publish):
+        ports_and_protocol = publish.split('/')
+
+        ports = ports_and_protocol.pop(0)
+
+        host_and_guest_ports = ports.split(':')
+        host_port = host_and_guest_ports.pop(0)
+
+        # If guest port is not defined, default to host port.
+        if host_and_guest_ports:
+            guest_port = host_and_guest_ports.pop(0)
+        else:
+            guest_port = host_port
+
+        # If protocol is not specified, default to TCP:
+        if ports_and_protocol:
+            protocol = ports_and_protocol.pop(0)
+        else:
+            protocol = "tcp"
+
+        return Publish(protocol, host_port, guest_port)
+
+    def __init__(self, protocol, host_port, guest_port):
+        self.protocol = protocol
+        self.host_port = host_port
+        self.guest_port = guest_port
+
+
+class Qemu:
+
+    def __init__(self):
+        self.opts = ["-enable-kvm", "-nographic"]
+
+    def configure_image(self, image):
+        self.image = image
+
+        self.opts += ["-cdrom", image]
+
+    def configure_publish(self, publish_list):
+        self.publish = []
+        for publish in publish_list:
+            self.publish += [Publish.parse(publish)]
+
+    def configure_net(self, network):
+        self.network = network
+        if network == "user":
+            hostfwds = []
+            for publish in self.publish:
+                hostfwds += ["%s::%s-:%s" %
+                             (publish.protocol, publish.host_port, publish.guest_port)]
+
+            net = "user,id=net0"
+            if hostfwds:
+                net += ",hostfwd=" + ",hostfwd=".join(hostfwds)
+
+            device = "virtio-net-pci,netdev=net0,disable-modern=off,disable-legacy=on"
+
+            self.opts += ["-netdev", net]
+            self.opts += ["-device", device]
+
+    def run(self):
+        print(HEADER)
+        print(" Image: '%s'" % (self.image))
+        print(" Network: %s" % (self.network))
+        if self.publish:
+            print(" Ports:")
+            print("  %-5s %10s %10s" % ("proto", "host", "guest"))
+            print("  %-5s %10s %10s" % ("-----", "----", "-----"))
+            for publish in self.publish:
+                print("  %-5s %10s %10s" % (publish.protocol,
+                                            str(publish.host_port), str(publish.guest_port)))
+        else:
+            print(" Ports: none")
+        print(FOOTER)
+        cmdline = ["qemu-system-x86_64"] + self.opts
+        subprocess.call(cmdline)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("image", help="OS image to run in a virtual machine")
+    parser.add_argument("-n", "--network", type=str, default="none",
+                        help="enable networking. Supported values: 'user' and 'none'.")
+    parser.add_argument("-p", "--publish", type=str, default=[], action="append",
+                        help="publish VM ports to the host. Format: <host port>:<guest port>/<protocol>")
+    args = parser.parse_args()
+
+    qemu = Qemu()
+    qemu.configure_image(args.image)
+    qemu.configure_publish(args.publish)
+    qemu.configure_net(args.network)
+    qemu.run()

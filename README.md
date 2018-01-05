@@ -14,44 +14,54 @@ First, install Rust toolchain installer, [`rustup`](https://rustup.rs/).
 
 Then, install the toolchain:
 
-```console
-$ ./scripts/install-toolchain
+```
+./scripts/install-toolchain
 ```
 
 Finally, install `xargo`:
 
 ```
-$ cargo install xargo
+cargo install xargo
 ```
 
 and `xorriso`:
 
 ```
-$ dnf install xorriso
+dnf install xorriso
 ```
 
-To install the aarch64 cross compiling toolchain, run:
+After all prerequisites are installed, you can build Manticore with:
 
-```console
-$ ./scripts/install-aarch64-toolchain
+```
+make
 ```
 
-Build the aarch64 kernel image:
+The command builds a bootable `kernel.iso` image.
 
-```console
-$ make ARCH=aarch64
+To launch the image under a VM, run the following command:
+
+```
+$ ./scripts/run kernel.iso
 ```
 
-Alternatively, you can build the x86_64 kernel image:
+### Cross Compiling to AArch64
 
-```console
-$ make ARCH=x86_64
+You can install the AArch64 cross compiling toolchain with:
+
+```
+./scripts/install-aarch64-toolchain
 ```
 
-Run the kernel image under QEMU:
+To build an AArch64 kernel image, use:
 
-```console
-$ ./scripts/run.sh
+```
+make ARCH=aarch64
+```
+
+To run the AArch64 kernel image under QEMU:
+
+```
+./scripts/run-aarch64
 ```
 
 ## References
