@@ -88,7 +88,7 @@ class Qemu:
             self.opts += ["-netdev", net]
             self.opts += ["-device", device]
 
-    def run(self):
+    def run(self, dry_run=False):
         print(HEADER)
         print(" Image: '%s'" % (self.image))
         print(" Network: %s" % (self.network))
@@ -117,6 +117,8 @@ if __name__ == "__main__":
                         help="enable networking. Supported values: 'user' and 'none'.")
     parser.add_argument("-p", "--publish", type=str, default=[], action="append",
                         help="publish VM ports to the host. Format: <host port>:<guest port>/<protocol>")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="display actions without running them")
     args = parser.parse_args()
 
     qemu = Qemu()
@@ -124,4 +126,4 @@ if __name__ == "__main__":
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
     qemu.configure_net(args.network)
-    qemu.run()
+    qemu.run(args.dry_run)
