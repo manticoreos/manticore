@@ -10,9 +10,11 @@
 #![feature(asm)]
 #![no_std]
 
+extern crate alloc;
+#[macro_use]
+extern crate bitflags;
 #[macro_use]
 extern crate intrusive_collections;
-extern crate alloc;
 extern crate rlibc;
 
 #[macro_use]

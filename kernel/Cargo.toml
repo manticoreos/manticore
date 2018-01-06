@@ -15,3 +15,6 @@ version = "1.0.0"
 
 [dependencies.xmas-elf]
 version = "0.5"
+
+[dependencies.bitflags]
+version = "0.9"

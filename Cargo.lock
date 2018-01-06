@@ -1,4 +1,9 @@
 [[package]]
+name = "bitflags"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "intrusive-collections"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7,6 +12,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "kernel"
 version = "0.1.0"
 dependencies = [
+ "bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "xmas-elf 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -46,6 +52,7 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
+"checksum bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
 "checksum intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cca7ca9335705198e07e52fda501e6742f0290b7cb5cd4de924dde20f0ff2229"
 "checksum rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fc874b127765f014d792f16763a81245ab80500e2ad921ed4ee9e82481ee08fe"
 "checksum xmas-elf 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bf6df3e954c02fbf93434f641e1e0916bbb94517ac6d3e55e67932e6cdbc18e2"
