@@ -11,88 +11,88 @@ pub enum IOPort {
 impl IOPort {
     pub unsafe fn read8(&self, offset: usize) -> u8 {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u8 = transmute(base_addr + offset);
                 return *addr;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 return inb(iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn write8(&self, value: u8, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u8 = transmute(base_addr + offset);
                 *addr = value;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 outb(value, iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn read16(&self, offset: usize) -> u16 {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u16 = transmute(base_addr + offset);
                 return *addr;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 return inw(iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn write16(&self, value: u16, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u16 = transmute(base_addr + offset);
                 *addr = value;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 outw(value, iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn read32(&self, offset: usize) -> u32 {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u32 = transmute(base_addr + offset);
                 return *addr;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 return inl(iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn write32(&self, value: u32, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u32 = transmute(base_addr + offset);
                 *addr = value;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { iobase, .. } => {
                 outl(value, iobase + (offset as u16));
             }
         }
     }
     pub unsafe fn read64(&self, offset: usize) -> u64 {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u64 = transmute(base_addr + offset);
                 return *addr;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { .. } => {
                 unimplemented!();
             }
         }
     }
     pub unsafe fn write64(&self, value: u64, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, size } => {
+            &IOPort::Memory { base_addr, .. } => {
                 let mut addr: *mut u64 = transmute(base_addr + offset);
                 *addr = value;
             }
-            &IOPort::IO { iobase, size } => {
+            &IOPort::IO { .. } => {
                 unimplemented!();
             }
         }
