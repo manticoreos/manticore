@@ -2,11 +2,32 @@
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/manticore/manticore)
 
-Manticore is an experimental OS for edge computing that has the following, sometimes conflicting, goals:
+Manticore is an experimental OS for edge computing.
+
+## Introduction
+
+Manticore is an OS that has the following, sometimes conflicting, goals:
 
 * **Security** - The OS provides a foundation for secure computing. It's critical that the OS leverages hardware protection capabilities, provides minimal and safe system call interface to minimize attack surface, and is itself implemented in high-level language to minimize exploitable bugs.
 * **Low latency** - One of the main motivations of edge computing is to provide lower latency than an equivalent cloud-based service would have. It's important that the OS itself has low overheads and provides interfaces that support low-latency applications.
 * **Energy efficiency** - Communications technology is forecast to consume around 20% of global electricity by 2030, or as much as 50% in the worst case (Andrae and Edler, 2015)! It's therefore important that the OS provides interfaces that enable energy efficient computing.
+
+## Status
+
+The kernel boots on QEMU/KVM platform on x86-64. The port to ARM64 boots under QEMU emulation but lacks most of the functionality of the x86-64 port.
+
+## Features and Roadmap
+
+ * [x] Kernel bootstrapping and initialization
+ * [x] UART device drivers: 16550 and PL011
+ * [x] Memory management: MMU support, physical memory allocator, and slab allocator
+ * [x] PCI support
+ * [ ] Process support: ELF executables and CPU scheduling
+ * [ ] Virtio network device driver
+ * [ ] Kernel-bypass networking userspace interface
+ * [ ] Interrupt support
+ * [ ] Clock and timer support
+ * [ ] Multicore support using the multikernel model (Baumann _et al_., 2009)
 
 ## Getting Started
 
@@ -67,3 +88,5 @@ To run the AArch64 kernel image under QEMU:
 ## References
 
 Anders S. G. Andrae and Tomas Edler. 2015. On Global Electricity Usage of Communication Technology: Trends to 2030. In _Challenges_, 6(1):117–157, 2015. DOI: http://dx.doi.org/10.3390/challe6010117
+
+Andrew Baumann, Paul Barham, Pierre-Evariste Dagand, Tim Harris, Rebecca Isaacs, Simon Peter, Timothy Roscoe, Adrian Schüpbach, and Akhilesh Singhania. 2009. The multikernel: a new OS architecture for scalable multicore systems. In _Proceedings of the ACM SIGOPS 22nd symposium on Operating systems principles_ (SOSP '09). ACM, New York, NY, USA, 29-44. DOI: http://dx.doi.org/10.1145/1629575.1629579
