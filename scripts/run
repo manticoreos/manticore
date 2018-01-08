@@ -2,6 +2,7 @@
 
 import subprocess
 import argparse
+import sys
 
 HEADER = """
                           __   _,--="=--,_   __
@@ -106,7 +107,9 @@ class Qemu:
         if dry_run:
             print(" ".join(cmdline))
         else:
-            subprocess.call(cmdline)
+            ret = subprocess.call(cmdline)
+            if ret != 0:
+                sys.exit("qemu failed")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
