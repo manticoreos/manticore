@@ -1,0 +1,5 @@
+project(init)
+set(CMAKE_C_FLAGS "-Wall -O3 -g -ffreestanding")
+set(CMAKE_EXE_LINKER_FLAGS "-static --entry=main -Wl,--gc-sections -nostdlib")
+add_executable(init init.c)
+target_link_libraries(init manticore)
