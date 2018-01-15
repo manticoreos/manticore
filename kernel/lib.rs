@@ -17,6 +17,7 @@ extern crate bitflags;
 extern crate intrusive_collections;
 extern crate rlibc;
 
+pub mod errno;
 #[macro_use]
 pub mod print;
 pub mod memory;
