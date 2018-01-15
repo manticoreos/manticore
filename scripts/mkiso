@@ -1,19 +1,60 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-set -e
+import subprocess
+import argparse
+import shutil
+import os
 
-usage() {
-	echo "usage: $0 FILE"
-	exit 1
+
+class GrubConfig:
+
+    def __init__(self, kernel):
+        self.kernel = kernel
+
+    def __str__(self):
+        return """
+set timeout=0
+set default="0"
+menuentry "kernel" {
+    multiboot2 %s
 }
+""" % self.kernel
 
-if [[ $# -eq 0 ]] ; then
-	usage
-fi
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("image", help="OS image to build")
+    parser.add_argument("-d", "--build-directory",
+                        type=str, default="build/iso")
+    parser.add_argument("-k", "--kernel", type=str,
+                        default="kernel.elf", help="kernel image")
+    args = parser.parse_args()
 
-mkdir -p build/iso/boot/grub
+    # Grub directory on build directory:
+    build_grub_dir = os.path.join(args.build_directory, "boot/grub")
 
-cp arch/x86_64/usr/boot/grub/grub.cfg build/iso/boot/grub
-cp kernel.elf build/iso/boot
+    # Grub configuration filename on build directory:
+    build_grub_cfg = os.path.join(build_grub_dir, "grub.cfg")
 
-grub2-mkrescue -o $1 build/iso &> /dev/null
+    # Boot directory on build directory:
+    build_boot_dir = os.path.join(args.build_directory, "boot")
+
+    # Kernel filename on the bootable image filesystem:
+    image_kernel = os.path.join("/boot", args.kernel)
+
+    grub_cfg = GrubConfig(image_kernel)
+
+    # Make directories on bootable image:
+    os.makedirs(build_grub_dir, exist_ok=True)
+    os.makedirs(build_boot_dir, exist_ok=True)
+
+    # Copy files to the bootable image build directory:
+    with open(build_grub_cfg, "w") as f:
+        f.write(str(grub_cfg))
+    shutil.copy(args.kernel, build_boot_dir)
+
+    # Build the bootable image:
+    devnull = open(os.devnull, 'wb')
+    ret = subprocess.call(["grub2-mkrescue", "-o", args.image,
+                           args.build_directory], stdout=devnull, stderr=devnull)
+    if ret != 0:
+        sys.exit("grub2-mkrescue failed")
