@@ -17,3 +17,8 @@ all: kernel.bin
 
 kernel.bin: kernel.elf
 	$(CROSS_PREFIX)objcopy -O binary kernel.elf kernel.bin
+
+archclean:
+	$(Q) rm -f kernel.bin
+
+.PHONY: archclean

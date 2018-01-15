@@ -71,7 +71,7 @@ $(LIBMANTICORE): $(rust_src)
 	$(E) "  CPP     " $@
 	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
-clean:
+clean: archclean
 	$(E) "  CLEAN"
 	$(Q) rm -f kernel.elf $(objs) $(tests)
 	$(Q) rm -f arch/$(ARCH)/kernel.ld

@@ -25,3 +25,8 @@ all: kernel.iso
 kernel.iso: kernel.elf
 	$(E) "  MKISO   " $@
 	$(Q) ./scripts/mkiso $@
+
+archclean:
+	$(Q) rm -f kernel.iso
+
+.PHONY: archclean
