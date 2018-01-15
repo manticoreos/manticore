@@ -1,6 +1,10 @@
 #ifndef KERNEL_SYSCALL_H
 #define KERNEL_SYSCALL_H
 
-int syscall(int nr);
+enum {
+	SYS_exit	= 1,
+};
+
+int syscall(int nr, ...);
 
 #endif
