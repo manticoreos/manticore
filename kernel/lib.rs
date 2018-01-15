@@ -19,6 +19,7 @@ extern crate rlibc;
 #[macro_use]
 pub mod print;
 pub mod memory;
+pub mod mmu;
 mod elf;
 
 pub use memory::memory_add_span;
