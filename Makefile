@@ -27,7 +27,6 @@ objs += mm/kmem.o
 
 rust_src += drivers/pci/lib.rs
 rust_src += drivers/pci/ioport.rs
-rust_src += kernel/elf.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
 rust_src += kernel/print.rs
