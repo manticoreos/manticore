@@ -61,7 +61,8 @@ void init_mmu_map(void)
 	mmu_map_t mmu_map = ptr_to_paddr(page);
 	for (unsigned i = 0; i < nr_mem_regions; i++) {
 		struct memory_region *mem_region = &mem_regions[i];
-		int err = mmu_map_range(mmu_map, mem_region->base + KERNEL_VMA, mem_region->base, mem_region->len, 0);
+		int err = mmu_map_range(mmu_map, mem_region->base + KERNEL_VMA, mem_region->base, mem_region->len,
+					MMU_PROT_READ | MMU_PROT_WRITE | MMU_PROT_EXEC, 0);
 		if (err) {
 			panic("Unable to setup kernel MMU map");
 		}
