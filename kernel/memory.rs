@@ -24,6 +24,7 @@ const PAGE_SIZE_LARGE: u64 = 2 * MIB;
 /// Memory segment.
 ///
 /// A memory segment is a contiguous span of memory.
+#[derive(Debug)]
 struct MemorySegment {
     /// Base address of the memory segment.
     pub base: u64,
@@ -88,7 +89,7 @@ impl MemoryArena {
                 if seg.size > size {
                     let new_seg = seg.split(size);
                     let reference = UnsafeRef::from_raw(new_seg);
-                    cur.replace_with(reference.clone());
+                    cur.replace_with(reference.clone()).expect("memory segment replacement failed");
                 } else {
                     cur.remove();
                 }
