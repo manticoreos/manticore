@@ -11,7 +11,9 @@
 #include <arch/segment.h>
 #include <arch/i8259.h>
 #include <arch/task.h>
+#include <arch/cpu.h>
 #include <arch/gdt.h>
+#include <arch/msr.h>
 
 #include <string.h>
 #include <stdint.h>
@@ -68,6 +70,11 @@ void init_mmu_map(void)
 	mmu_invalidate_tlb();
 }
 
+static void setup_nxe(void)
+{
+	wrmsr(X86_IA32_EFER, rdmsr(X86_IA32_EFER) | X86_IA32_EFER_NXE);
+}
+
 void arch_early_setup(void)
 {
 	i8259_remap();
@@ -77,6 +84,7 @@ void arch_early_setup(void)
 	init_syscall();
 	init_memory_map();
 	init_mmu_map();
+	setup_nxe();
 }
 
 void arch_late_setup(void)
