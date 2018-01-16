@@ -203,7 +203,7 @@ static virt_t pg_index_to_vaddr(uint64_t pml4_idx, uint64_t pdpt_idx, uint64_t p
 /// \return 0 if successful
 ///         -EINVAL if passed parameters are invalid
 ///         -ENOMEM if out of memory
-int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, uint64_t flags)
+int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, mmu_flags_t flags)
 {
 	if (!is_aligned(vaddr, PAGE_SIZE_SMALL)) {
 		return -EINVAL;
@@ -242,7 +242,7 @@ int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, uint64
 	return 0;
 }
 
-int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags)
+int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_flags_t flags)
 {
 	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
 	if (flags & MMU_USER_PAGE) {
@@ -294,7 +294,7 @@ int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags
 	return 0;
 }
 
-int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, uint64_t flags)
+int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_flags_t flags)
 {
 	uint64_t hw_flags = X86_PE_RW | X86_PE_P;
 	if (flags & MMU_USER_PAGE) {
