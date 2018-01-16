@@ -18,8 +18,8 @@ use print;
 const KIB: u64 = 1 << 10;
 const MIB: u64 = 1 << 20;
 
-const PAGE_SIZE_SMALL: u64 = 4 * KIB;
-const PAGE_SIZE_LARGE: u64 = 2 * MIB;
+pub const PAGE_SIZE_SMALL: u64 = 4 * KIB;
+pub const PAGE_SIZE_LARGE: u64 = 2 * MIB;
 
 /// Memory segment.
 ///
@@ -163,11 +163,11 @@ pub extern "C" fn memory_add_span(start: u64, size: u64) {
     }
 }
 
-fn align_down(value: u64, align: u64) -> u64 {
+pub fn align_down(value: u64, align: u64) -> u64 {
     value & !(align - 1)
 }
 
-fn align_up(value: u64, align: u64) -> u64 {
+pub fn align_up(value: u64, align: u64) -> u64 {
     align_down(value + align - 1, align)
 }
 
