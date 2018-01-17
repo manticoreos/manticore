@@ -1,5 +1,6 @@
 #include <kernel/page-alloc.h>
 #include <kernel/console.h>
+#include <kernel/initrd.h>
 #include <kernel/memory.h>
 #include <kernel/printf.h>
 #include <kernel/kmem.h>
@@ -25,6 +26,7 @@ void start_kernel(void)
 	kmem_init();
 	arch_late_setup();
 	arch_local_interrupt_enable();
+	initrd_load();
 #ifdef HAVE_TEST
 	test_kmem();
 	test_page_alloc();

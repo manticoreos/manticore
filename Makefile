@@ -19,6 +19,7 @@ LD := ld.bfd
 includes += -include include/kernel/kernel.h -Iinclude
 
 objs += kernel/init.o
+objs += kernel/initrd.o
 objs += kernel/panic.o
 objs += kernel/printf.o
 objs += kernel/syscall.o

@@ -2,9 +2,11 @@
 
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
+#include <kernel/initrd.h>
 #include <kernel/align.h>
 
 #include <arch/vmem-defs.h>
+#include <arch/vmem.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -27,6 +29,12 @@ struct header {
 struct tag {
 	uint32_t tag;
 	uint32_t size;
+};
+
+struct module {
+	uint32_t mod_start;
+	uint32_t mod_end;
+	const char string[0];
 };
 
 struct memory_map {
@@ -67,6 +75,16 @@ static void parse_boot_loader_name(struct tag *tag, void *data)
 	printf("Boot loader: '%s'\n", boot_loader_name);
 }
 
+static void parse_module(struct tag *tag, void *data)
+{
+	struct module *mod = data + sizeof(*tag);
+
+	printf("Module: %08lx-%08lx %s\n", mod->mod_start, mod->mod_end, mod->string);
+
+	initrd_start = paddr_to_ptr(mod->mod_start);
+	initrd_end = paddr_to_ptr(mod->mod_end);
+}
+
 static void parse_memory_map(struct tag *tag, void *data)
 {
 	size_t offset = sizeof(*tag);
@@ -100,9 +118,16 @@ static void parse_memory_map(struct tag *tag, void *data)
 		if (base_addr + length < kernel_end) {
 			continue;
 		}
+		if (base_addr + length < (uint64_t) initrd_end) {
+			continue;
+		}
 		if (base_addr < kernel_end) {
 			length -= kernel_end - base_addr;
 			base_addr = kernel_end;
+		}
+		if (base_addr < (uint64_t) initrd_end) {
+			length -= (uint64_t) initrd_end - base_addr;
+			base_addr = (uint64_t) initrd_end;
 		}
 		base_addr = align_up(base_addr, PAGE_SIZE_SMALL);
 		length = align_down(length, PAGE_SIZE_SMALL);
@@ -128,6 +153,9 @@ void init_memory_map(void)
 		switch (tag->tag) {
 		case BOOT_LOADER_NAME_TAG:
 			parse_boot_loader_name(tag, data + offset);
+			break;
+		case MODULES_TAG:
+			parse_module(tag, data + offset);
 			break;
 		case MEMORY_MAP_TAG:
 			parse_memory_map(tag, data + offset);
