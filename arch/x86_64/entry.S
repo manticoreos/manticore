@@ -1,3 +1,5 @@
+#include <arch/segment.h>
+
 .macro EXCEPTION_ENTRY name, has_error_code
 .globl \name
 .type \name, @function
@@ -115,3 +117,19 @@ syscall_entry:
 	popq	%r15
 
 	sysretq
+
+.align 16
+.globl switch_to_userspace
+.type switch_to_userspace, @function
+switch_to_userspace:
+	movq $X86_USER_DS, %rax
+	mov %ax, %ds
+	mov %ax, %es
+
+	push %rax # %ss
+	push %rsi # %rsp
+	pushf
+	pushq $X86_USER_CS # %cs
+	push %rdi # rip
+
+	iretq
