@@ -8,11 +8,22 @@ import os
 
 class GrubConfig:
 
-    def __init__(self, kernel):
+    def __init__(self, kernel, initrd):
         self.kernel = kernel
+        self.initrd = initrd
 
     def __str__(self):
-        return """
+        if self.initrd:
+            return """
+set timeout=0
+set default="0"
+menuentry "kernel" {
+    multiboot2 %s
+    module2 %s
+}
+""" % (self.kernel, self.initrd)
+        else:
+            return """
 set timeout=0
 set default="0"
 menuentry "kernel" {
@@ -27,21 +38,36 @@ if __name__ == "__main__":
                         type=str, default="build/iso")
     parser.add_argument("-k", "--kernel", type=str,
                         default="kernel.elf", help="kernel image")
+    parser.add_argument("-i", "--initrd", type=str,
+                        default=None, help="initrd image")
     args = parser.parse_args()
 
+    boot_dir = "boot"
+
     # Grub directory on build directory:
-    build_grub_dir = os.path.join(args.build_directory, "boot/grub")
+    build_grub_dir = os.path.join(
+        args.build_directory, os.path.join(boot_dir, "grub"))
 
     # Grub configuration filename on build directory:
     build_grub_cfg = os.path.join(build_grub_dir, "grub.cfg")
 
     # Boot directory on build directory:
-    build_boot_dir = os.path.join(args.build_directory, "boot")
+    build_boot_dir = os.path.join(args.build_directory, boot_dir)
+
+    # Boot directory on bootable image filesystem:
+    image_boot_dir = os.path.join("/", boot_dir)
 
     # Kernel filename on the bootable image filesystem:
-    image_kernel = os.path.join("/boot", args.kernel)
+    image_kernel = os.path.join(image_boot_dir, args.kernel)
 
-    grub_cfg = GrubConfig(image_kernel)
+    # Initrd filename on the bootable image filesystem:
+    if args.initrd:
+        image_initrd = os.path.join(
+            image_boot_dir, os.path.basename(args.initrd))
+    else:
+        image_initrd = None
+
+    grub_cfg = GrubConfig(image_kernel, image_initrd)
 
     # Make directories on bootable image:
     os.makedirs(build_grub_dir, exist_ok=True)
@@ -51,6 +77,8 @@ if __name__ == "__main__":
     with open(build_grub_cfg, "w") as f:
         f.write(str(grub_cfg))
     shutil.copy(args.kernel, build_boot_dir)
+    if args.initrd:
+        shutil.copy(args.initrd, build_boot_dir)
 
     # Build the bootable image:
     devnull = open(os.devnull, 'wb')
