@@ -39,19 +39,7 @@ Then, install the toolchain:
 ./scripts/install-toolchain
 ```
 
-Finally, install `xargo`:
-
-```
-cargo install xargo
-```
-
-and `xorriso`:
-
-```
-dnf install xorriso
-```
-
-After all prerequisites are installed, you can build Manticore with:
+You can now build Manticore with:
 
 ```
 make

@@ -1,7 +1,17 @@
 #!/bin/sh
 
+. /etc/os-release
+
+if [ "$ID" = "fedora" ]; then
+    sudo dnf install xorriso
+else
+    echo "Warning: '$ID' is not a supported OS."
+fi
+
 version=nightly-2017-11-16
 
 rustup install $version
 rustup default $version
 rustup component add rust-src
+
+cargo install xargo
