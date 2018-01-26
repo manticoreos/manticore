@@ -1,8 +1,10 @@
-# Manticore
-
-[![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/manticore/manticore)
+# Manticore [![Build Status](https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/badge.svg)](https://semaphoreci.com/manticore/manticore)
 
 Manticore is an experimental OS for edge computing.
+
+<p align="center">
+  <img src="assets/manticore.png">
+</p>
 
 ## Introduction
 
@@ -72,6 +74,10 @@ To run the AArch64 kernel image under QEMU:
 ```
 ./scripts/run-aarch64
 ```
+
+## Acknowledgments
+
+* The [Manticore logo](https://commons.wikimedia.org/wiki/File:DnD_Manticore.png) is designed by Mariana Ruiz Villarreal and distributed under [Creative Commons CC0 1.0 Universal Public Domain Dedication](https://creativecommons.org/publicdomain/zero/1.0/deed.en).
 
 ## References
 
