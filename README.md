@@ -21,15 +21,20 @@ The kernel boots on QEMU/KVM platform on x86-64. The port to ARM64 boots under Q
 ## Features and Roadmap
 
  * [x] Kernel bootstrapping and initialization
- * [x] UART device drivers: 16550 and PL011
  * [x] Memory management: MMU support, physical memory allocator, and slab allocator
- * [x] PCI support
- * [ ] Process support: ELF executables and CPU scheduling
- * [ ] Virtio network device driver
+ * [x] ELF executable support
+ * [ ] Process scheduling
  * [ ] Kernel-bypass networking userspace interface
  * [ ] Interrupt support
  * [ ] Clock and timer support
  * [ ] Multicore support using the multikernel model (Baumann _et al_., 2009)
+
+### Device Drivers
+
+ * [x] PrimeCell® UART (PL011)
+ * [x] 16550 UART
+ * [x] PCI bus
+ * [ ] Virtio network device 
 
 ## Getting Started
 
