@@ -234,7 +234,7 @@ impl KAllocator {
 extern "C" {
     pub fn kmem_alloc(size: usize) -> usize;
     pub fn kmem_zalloc(size: usize) -> usize;
-    pub fn kmem_free(ptr: *mut u8, size: usize);
+    pub fn kmem_free(ptr: usize, size: usize);
 }
 
 unsafe impl<'a> Alloc for &'a KAllocator {
@@ -250,6 +250,6 @@ unsafe impl<'a> Alloc for &'a KAllocator {
     }
 
     unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
-        kmem_free(ptr, layout.size());
+        kmem_free(ptr as usize, layout.size());
     }
 }
