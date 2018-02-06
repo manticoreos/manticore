@@ -8,3 +8,8 @@ path = "lib.rs"
 
 [dependencies]
 kernel = { path = "../../kernel" }
+
+[dependencies.intrusive-collections]
+version = "0.7"
+default-features = false
+features = [ "nightly", "alloc" ]

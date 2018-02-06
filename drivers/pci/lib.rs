@@ -3,14 +3,24 @@
 //!
 
 #![no_std]
+#![feature(alloc)]
+#![feature(const_fn)]
 
+extern crate alloc;
 #[macro_use]
 extern crate kernel;
+#[macro_use]
+extern crate intrusive_collections;
 
 pub mod ioport;
 
-use kernel::print;
+use intrusive_collections::{LinkedList, LinkedListLink, UnsafeRef};
 use ioport::IOPort;
+use kernel::device::{Device, register_device};
+use kernel::print;
+
+pub const PCI_VENDOR_ID_REDHAT: u16 = 0x1af4;
+pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
 
 const PCI_VENDOR_ID: u8 = 0x00;
 const PCI_DEVICE_ID: u8 = 0x02;
@@ -29,7 +39,7 @@ const PCI_HEADER_TYPE_BRIDGE: u8 = 0x01;
 const PCI_HEADER_TYPE_PCCARD: u8 = 0x02;
 
 /// PCI device identification
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DeviceID {
     pub vendor_id: u16,
     pub device_id: u16,
@@ -134,7 +144,7 @@ impl BAR {
 }
 
 #[derive(Debug)]
-struct PCIDevice {
+pub struct PCIDevice {
     pub bus: u16,
     pub slot: u16,
     pub func: u16,
@@ -224,8 +234,48 @@ fn pci_probe_slot(bus: u16, slot: u16) -> bool {
             device_id,
             dev.dev_id.revision_id
         );
+        pci_probe_device(&dev);
     }
     return result;
+}
+
+type PCIProbe = fn(&PCIDevice) -> Device;
+
+pub struct PCIDriver {
+    dev_id: DeviceID,
+    probe: PCIProbe,
+    link: LinkedListLink,
+}
+
+intrusive_adapter!(PCIDriverAdapter = UnsafeRef<PCIDriver>: PCIDriver { link: LinkedListLink });
+
+impl PCIDriver {
+    pub const fn new(dev_id: DeviceID, probe: PCIProbe) -> Self {
+        PCIDriver {
+            dev_id: dev_id,
+            probe: probe,
+            link: LinkedListLink::new(),
+        }
+    }
+}
+
+static mut PCI_DRIVER_LIST: LinkedList<PCIDriverAdapter> = LinkedList::new(PCIDriverAdapter::new());
+
+pub fn pci_register_driver(driver: &PCIDriver) {
+    unsafe {
+        PCI_DRIVER_LIST.push_back(UnsafeRef::from_raw(driver));
+    }
+}
+
+fn pci_probe_device(pci_dev: &PCIDevice) {
+    unsafe {
+        for driver in PCI_DRIVER_LIST.iter() {
+            if driver.dev_id.vendor_id == pci_dev.dev_id.vendor_id {
+                let dev = (driver.probe)(pci_dev);
+                register_device(dev);
+            }
+        }
+    }
 }
 
 extern "C" {
