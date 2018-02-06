@@ -25,6 +25,7 @@ pub mod memory;
 pub mod mmu;
 pub mod vm;
 pub mod process;
+pub mod device;
 
 pub use memory::memory_add_span;
 pub use memory::page_alloc_init;
