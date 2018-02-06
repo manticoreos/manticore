@@ -10,31 +10,35 @@ Manticore is an experimental OS for edge computing.
 
 Manticore is an OS that has the following, sometimes conflicting, goals:
 
-* **Security** - The OS provides a foundation for secure computing. It's critical that the OS leverages hardware protection capabilities, provides minimal and safe system call interface to minimize attack surface, and is itself implemented in high-level language to minimize exploitable bugs.
-* **Low latency** - One of the main motivations of edge computing is to provide lower latency than an equivalent cloud-based service would have. It's important that the OS itself has low overheads and provides interfaces that support low-latency applications.
-* **Energy efficiency** - Communications technology is forecast to consume around 20% of global electricity by 2030, or as much as 50% in the worst case (Andrae and Edler, 2015)! It's therefore important that the OS provides interfaces that enable energy efficient computing.
+* **Security**: The OS provides a foundation for secure computing. It's critical that the OS leverages hardware protection capabilities, provides minimal and safe system call interface to minimize attack surface, and is itself implemented in high-level language to minimize exploitable bugs.
+* **Low latency**: One of the main motivations of edge computing is to provide lower latency than an equivalent cloud-based service would have. It's important that the OS itself has low overheads and provides interfaces that support low-latency applications.
+* **Energy efficiency**: Communications technology is forecast to consume around 20% of global electricity by 2030, or as much as 50% in the worst case (Andrae and Edler, 2015)! It's therefore important that the OS provides interfaces that enable energy efficient computing.
 
 ## Status
 
-The kernel boots on QEMU/KVM platform on x86-64. The port to ARM64 boots under QEMU emulation but lacks most of the functionality of the x86-64 port.
+The kernel boots on QEMU/KVM platform on x86-64. The port to AArch64 boots under QEMU emulation but lacks most of the functionality of the x86-64 port.
 
-## Features and Roadmap
+### Features and Roadmap
 
- * [x] Kernel bootstrapping and initialization
- * [x] Memory management: MMU support, physical memory allocator, and slab allocator
- * [x] ELF executable support
- * [ ] Process scheduling
- * [ ] Kernel-bypass networking userspace interface
- * [ ] Interrupt support
- * [ ] Clock and timer support
- * [ ] Multicore support using the multikernel model (Baumann _et al_., 2009)
+ * [ ] Multikernel architecture (Baumann _et al_., 2009)
+ * [ ] Kernel-bypass networking
+ * [x] Memory management:
+   - [x] Virtual memory
+   - [x] Physical memory allocator
+   - [x] Slab allocator
+ * [x] ELF object file support
 
-### Device Drivers
+### Hardware Requirements
 
- * [x] PrimeCell® UART (PL011)
- * [x] 16550 UART
- * [x] PCI bus
+ * [x] Legacy-free PC with x86-64 processor -or-
+ * [ ] Raspberry Pi 3 with AArch64 processor
+
+### Supported Devices
+
  * [ ] Virtio network device 
+ * [x] PCI bus
+ * [x] 16550 UART
+ * [x] PrimeCell® UART (PL011)
 
 ## Getting Started
 
