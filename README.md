@@ -2,10 +2,6 @@
 
 Manticore is an experimental OS for edge computing.
 
-<p align="center">
-  <img src="assets/manticore.png">
-</p>
-
 ## Introduction
 
 Manticore is an OS that has the following, sometimes conflicting, goals:
