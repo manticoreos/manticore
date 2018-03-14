@@ -3,6 +3,7 @@
 #include <kernel/initrd.h>
 #include <kernel/memory.h>
 #include <kernel/printf.h>
+#include <kernel/panic.h>
 #include <kernel/kmem.h>
 #include <kernel/cpu.h>
 
@@ -18,12 +19,16 @@ void console_putc(void *unused, char ch)
 
 void start_kernel(void)
 {
+	int err;
 	console_init();
 	init_printf(NULL, console_putc);
 	printf("Booting kernel ...\n");
 	page_alloc_init();
 	arch_early_setup();
-	kmem_init();
+	err = kmem_init();
+	if (err) {
+		panic("kmem_init failed");
+	}
 	arch_late_setup();
 	arch_local_interrupt_enable();
 	initrd_load();

@@ -58,6 +58,6 @@ void *kmem_zalloc(size_t size);
 void kmem_free(void *ptr, size_t size);
 
 /// Initialize the kernel memory allocator.
-void kmem_init(void);
+int kmem_init(void);
 
 #endif

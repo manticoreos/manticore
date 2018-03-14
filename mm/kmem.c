@@ -11,6 +11,7 @@
 #include <kernel/kmem.h>
 
 #include <kernel/align.h>
+#include <kernel/errno.h>
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
 
@@ -100,20 +101,27 @@ static void kmem_slab_free_object(struct kmem_slab *slab, void *obj)
 	slab->nr_free++;
 }
 
-static void kmem_cache_init(struct kmem_cache *cache, const char *name, size_t size, size_t align)
+static int kmem_cache_init(struct kmem_cache *cache, const char *name, size_t size, size_t align)
 {
+	if (align_up(size, align) < sizeof(struct kmem_bufctl)) {
+		return -EINVAL;
+	}
 	strlcpy(cache->name, name, KMEM_NAME_MAX_LEN);
 	cache->size = size;
 	cache->align = align;
 	cache->bufctl = align_up(size, align) - sizeof(struct kmem_bufctl);
 	cache->slab = kmem_slab_create(cache);
+	return 0;
 }
 
 struct kmem_cache *kmem_cache_create(const char *name, size_t size, size_t align)
 {
 	struct kmem_cache *cache = kmem_cache_alloc(&kmem_cache_cache);
 	if (cache) {
-		kmem_cache_init(cache, name, size, align);
+		if (kmem_cache_init(cache, name, size, align) < 0) {
+			kmem_cache_free(&kmem_cache_cache, cache);
+			return NULL;
+		}
 	}
 	return cache;
 }
@@ -163,33 +171,29 @@ void kmem_cache_free(struct kmem_cache *cache, void *obj)
 }
 
 static size_t kmem_alloc_sizes[] = {
-    8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
+    32, 64, 128, 256, 512, 1024, 2048, 4096,
 };
 
 static struct kmem_cache kmalloc_caches[ARRAY_SIZE(kmem_alloc_sizes)];
 
 static inline size_t kmem_cache_index(size_t size)
 {
-	if (size <= 8)
-		return 0;
-	if (size <= 16)
-		return 1;
 	if (size <= 32)
-		return 2;
+		return 0;
 	if (size <= 64)
-		return 3;
+		return 1;
 	if (size <= 128)
-		return 4;
+		return 2;
 	if (size <= 256)
-		return 5;
+		return 3;
 	if (size <= 512)
-		return 6;
+		return 4;
 	if (size <= 1024)
-		return 7;
+		return 5;
 	if (size <= 2048)
-		return 8;
+		return 6;
 	if (size <= 4096)
-		return 9;
+		return 7;
 	return ~0ULL;
 }
 
@@ -230,15 +234,25 @@ void kmem_free(void *ptr, size_t size)
 	kmem_cache_free(cache, ptr);
 }
 
-void kmem_init(void)
+int kmem_init(void)
 {
-	kmem_cache_init(&kmem_cache_cache, "kmem_cache_cache", sizeof(struct kmem_cache), KMEM_DEFAULT_ALIGN);
-	kmem_cache_init(&kmem_slab_cache, "kmem_slab_cache", sizeof(struct kmem_slab), KMEM_DEFAULT_ALIGN);
-
+	int err;
+	err = kmem_cache_init(&kmem_cache_cache, "kmem_cache_cache", sizeof(struct kmem_cache), KMEM_DEFAULT_ALIGN);
+	if (err) {
+		return err;
+	}
+	err = kmem_cache_init(&kmem_slab_cache, "kmem_slab_cache", sizeof(struct kmem_slab), KMEM_DEFAULT_ALIGN);
+	if (err) {
+		return err;
+	}
 	for (unsigned int i = 0; i < ARRAY_SIZE(kmem_alloc_sizes); i++) {
 		char cache_name[KMEM_NAME_MAX_LEN];
 		size_t size = kmem_alloc_sizes[i];
 		sprintf(cache_name, "kmalloc-%d", size);
-		kmem_cache_init(&kmalloc_caches[i], cache_name, size, KMEM_DEFAULT_ALIGN);
+		err = kmem_cache_init(&kmalloc_caches[i], cache_name, size, KMEM_DEFAULT_ALIGN);
+		if (err) {
+			return err;
+		}
 	}
+	return 0;
 }
