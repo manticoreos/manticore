@@ -356,11 +356,11 @@ int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t pro
 static void mmu_dump_pde(unsigned pml4_idx, unsigned pdpt_idx, unsigned pd_idx, pde_t pde)
 {
 	if (pde_is_large(pde)) {
-		printf("      PDE: %4d %016lx -> %016lx [%x]\n", pd_idx,
+		printf("      PDE: %4d %016lx -> %016lx [%lx]\n", pd_idx,
 		       pg_index_to_vaddr(pml4_idx, pdpt_idx, pd_idx, 0), pde_paddr(pde),
 		       pde_flags(pde));
 	} else {
-		printf("      PDE: %d @ %016x [%x]\n", pd_idx, pde_paddr(pde), pde_flags(pde));
+		printf("      PDE: %d @ %016lx [%lx]\n", pd_idx, pde_paddr(pde), pde_flags(pde));
 
 		pte_t *pt = paddr_to_ptr(pde_paddr(pde));
 		for (unsigned pt_idx = 0; pt_idx < NR_PG_ENTRIES; pt_idx++) {
@@ -368,7 +368,7 @@ static void mmu_dump_pde(unsigned pml4_idx, unsigned pdpt_idx, unsigned pd_idx, 
 			if (pte_is_none(pte)) {
 				continue;
 			}
-			printf("      PTE: %4d %016x -> %016x [%x]\n", pd_idx,
+			printf("      PTE: %4d %016lx -> %016lx [%lx]\n", pd_idx,
 			       pg_index_to_vaddr(pml4_idx, pdpt_idx, pd_idx, pt_idx),
 			       pte_paddr(pte), pte_flags(pte));
 		}
@@ -377,7 +377,7 @@ static void mmu_dump_pde(unsigned pml4_idx, unsigned pdpt_idx, unsigned pd_idx, 
 
 static void mmu_dump_pdpte(unsigned pml4_idx, unsigned pdpt_idx, pdpte_t pdpte)
 {
-	printf("    PDPTE: %d @ %016x [%x]\n", pdpt_idx, pdpte_paddr(pdpte), pdpte_flags(pdpte));
+	printf("    PDPTE: %d @ %016lx [%lx]\n", pdpt_idx, pdpte_paddr(pdpte), pdpte_flags(pdpte));
 
 	pde_t *pd = paddr_to_ptr(pdpte_paddr(pdpte));
 	for (unsigned pd_idx = 0; pd_idx < NR_PG_ENTRIES; pd_idx++) {
@@ -391,7 +391,7 @@ static void mmu_dump_pdpte(unsigned pml4_idx, unsigned pdpt_idx, pdpte_t pdpte)
 
 static void mmu_dump_pml4e(unsigned pml4_idx, pml4e_t pml4e)
 {
-	printf("  PML4E: %d @ %016x [%x]\n", pml4_idx, pml4e_paddr(pml4e), pml4e_flags(pml4e));
+	printf("  PML4E: %d @ %016lx [%lx]\n", pml4_idx, pml4e_paddr(pml4e), pml4e_flags(pml4e));
 
 	pdpte_t *pdp_table = paddr_to_ptr(pml4e_paddr(pml4e));
 	for (unsigned pdpt_idx = 0; pdpt_idx < NR_PG_ENTRIES; pdpt_idx++) {
@@ -406,7 +406,7 @@ static void mmu_dump_pml4e(unsigned pml4_idx, pml4e_t pml4e)
 void mmu_map_dump(mmu_map_t map)
 {
 	pml4e_t *pml4_table = paddr_to_ptr(map);
-	printf("PML4 table: %016x\n", pml4_table);
+	printf("PML4 table: %p\n", pml4_table);
 
 	for (unsigned pml4_idx = 0; pml4_idx < NR_PG_ENTRIES; pml4_idx++) {
 		pml4e_t pml4e = pml4_table[pml4_idx];

@@ -15,10 +15,6 @@ void test_printf(void)
 	PRINTF("%d", (int)INT_MAX);
 	PRINTF("%d", (int)INT_MIN);
 	PRINTF("%u", (unsigned int)UINT_MAX);
-	PRINTF("%8d", (int)1);
-	PRINTF("%8.8d", (int)1);
-	PRINTF("%-8d", (int)1);
-	PRINTF("%08d", (int)1);
 	PRINTF("%x", (int)INT_MAX);
 	PRINTF("%x", (int)INT_MIN);
 	PRINTF("%x", (unsigned int)UINT_MAX);
@@ -43,6 +39,11 @@ void test_printf(void)
 	PRINTF("%llX", (long long)LLONG_MAX);
 	PRINTF("%llX", (long long)LLONG_MIN);
 	PRINTF("%llX", (unsigned long long)ULLONG_MAX);
+	PRINTF("%8d", (int)1);
+	PRINTF("%8.8d", (int)1);
+	PRINTF("%-8d", (int)1);
+	PRINTF("%08d", (int)1);
+	PRINTF("%8.8X", (int)1);
 
 	char str[1024];
 	sprintf(str, "%s, %s", "hello", "world");
