@@ -17,7 +17,7 @@ void initrd_load(void)
 	}
 	unsigned long initrd_size = initrd_end - initrd_start;
 
-	printf("Found initrd at %x (%d bytes)\n", initrd_start, initrd_size);
+	printf("Found initrd at %p (%lu bytes)\n", initrd_start, initrd_size);
 
 	process_run(initrd_start, initrd_size);
 }
