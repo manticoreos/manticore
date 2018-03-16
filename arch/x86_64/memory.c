@@ -79,7 +79,7 @@ static void parse_module(struct tag *tag, void *data)
 {
 	struct module *mod = data + sizeof(*tag);
 
-	printf("Module: %08lx-%08lx %s\n", mod->mod_start, mod->mod_end, mod->string);
+	printf("Module: %08x-%08x %s\n", mod->mod_start, mod->mod_end, mod->string);
 
 	initrd_start = paddr_to_ptr(mod->mod_start);
 	initrd_end = paddr_to_ptr(mod->mod_end);
@@ -101,9 +101,9 @@ static void parse_memory_map(struct tag *tag, void *data)
 			memory_type = memory_types[entry->type];
 		}
 		if (entry->length < 1024*1024) {
-			printf("  %016lx-%016lx %4d KiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024, memory_type);
+			printf("  %016lx-%016lx %4ld KiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024, memory_type);
 		} else {
-			printf("  %016lx-%016lx %4d MiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024 / 1024, memory_type);
+			printf("  %016lx-%016lx %4ld MiB [%s]\n", entry->base_addr, entry->base_addr + entry->length, entry->length / 1024 / 1024, memory_type);
 		}
 		if (entry->type != MEMORY_TYPE_AVAILABLE) {
 			continue;
