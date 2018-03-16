@@ -248,7 +248,7 @@ int kmem_init(void)
 	for (unsigned int i = 0; i < ARRAY_SIZE(kmem_alloc_sizes); i++) {
 		char cache_name[KMEM_NAME_MAX_LEN];
 		size_t size = kmem_alloc_sizes[i];
-		sprintf(cache_name, "kmalloc-%d", size);
+		snprintf(cache_name, KMEM_NAME_MAX_LEN, "kmalloc-%lu", size);
 		err = kmem_cache_init(&kmalloc_caches[i], cache_name, size, KMEM_DEFAULT_ALIGN);
 		if (err) {
 			return err;
