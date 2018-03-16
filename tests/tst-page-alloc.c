@@ -13,7 +13,7 @@ static void test_page_alloc_small(void)
 	page_free_small(page3);
 	for (;;) {
 		void *page = page_alloc_small();
-		printf("page: %x\n", (uint64_t) page);
+		printf("page: %p\n", page);
 		if (!page) {
 			printf("out of memory\n");
 			break;
@@ -33,7 +33,7 @@ static void test_page_alloc_large(void)
 	page_free_large(page3);
 	for (;;) {
 		void *page = page_alloc_large();
-		printf("page: %x\n", (uint64_t) page);
+		printf("page: %p\n", page);
 		if (!page) {
 			printf("out of memory\n");
 			break;
