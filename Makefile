@@ -40,6 +40,7 @@ ifdef TEST
 CFLAGS += -DHAVE_TEST
 tests += tests/tst-kmem.o
 tests += tests/tst-page-alloc.o
+tests += tests/tst-printf.o
 endif
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter

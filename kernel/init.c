@@ -29,6 +29,7 @@ void start_kernel(void)
 #ifdef HAVE_TEST
 	test_kmem();
 	test_page_alloc();
+	test_printf();
 #endif
 	printf("Halted.\n");
 	arch_halt_cpu();
