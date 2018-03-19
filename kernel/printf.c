@@ -116,7 +116,10 @@ static uint64_t pop_int(va_list ap, struct format_state *fmt)
 
 static const char *format(const char *fmt, va_list ap, fmt_putchar_t putchar, void *priv)
 {
-	struct format_state fmt_state = {};
+	struct format_state fmt_state = {
+		.flags = 0,
+		.width = 0,
+	};
 	for (;;) {
 		int c = *fmt++;
 		switch (c) {
