@@ -80,10 +80,6 @@ To run the AArch64 kernel image under QEMU:
 ./scripts/run-aarch64
 ```
 
-## Acknowledgments
-
-* The [Manticore logo](https://commons.wikimedia.org/wiki/File:DnD_Manticore.png) is designed by Mariana Ruiz Villarreal and distributed under [Creative Commons CC0 1.0 Universal Public Domain Dedication](https://creativecommons.org/publicdomain/zero/1.0/deed.en).
-
 ## References
 
 Anders S. G. Andrae and Tomas Edler. 2015. On Global Electricity Usage of Communication Technology: Trends to 2030. In _Challenges_, 6(1):117–157, 2015. DOI: http://dx.doi.org/10.3390/challe6010117
