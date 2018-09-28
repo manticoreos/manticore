@@ -48,6 +48,7 @@ const PCI_STATUS_CAPABILITIES_LIST: u8 = 1 << 4;
 const PCI_CAP_ID_OFFSET: u8 = 0x00;
 const PCI_CAP_NEXT_OFFSET: u8 = 0x01;
 
+pub const PCI_CAPABILITY_VENDOR: u8 = 0x09;
 const PCI_CAPABILITY_MSIX: u8 = 0x11;
 
 /// PCI device identification

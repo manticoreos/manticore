@@ -1,0 +1,17 @@
+[package]
+name = "virtio"
+version = "0.1.0"
+
+[lib]
+name = "virtio"
+path = "lib.rs"
+
+[dependencies]
+kernel = { path = "../../kernel" }
+pci = { path = "../pci" }
+bitflags = { version = "0.9" }
+
+[dependencies.intrusive-collections]
+version = "0.7"
+default-features = false
+features = [ "nightly", "alloc" ]

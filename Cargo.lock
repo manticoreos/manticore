@@ -24,6 +24,7 @@ version = "0.1.0"
 dependencies = [
  "kernel 0.1.0",
  "pci 0.1.0",
+ "virtio 0.1.0",
 ]
 
 [[package]]
@@ -38,6 +39,16 @@ dependencies = [
 name = "rlibc"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "virtio"
+version = "0.1.0"
+dependencies = [
+ "bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kernel 0.1.0",
+ "pci 0.1.0",
+]
 
 [[package]]
 name = "xmas-elf"

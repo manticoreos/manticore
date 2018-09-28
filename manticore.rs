@@ -9,6 +9,8 @@
 extern crate kernel;
 #[cfg(target_arch = "x86_64")]
 extern crate pci;
+#[cfg(target_arch = "x86_64")]
+extern crate virtio;
 
 use core::fmt::Arguments;
 use kernel::print;
@@ -35,3 +37,6 @@ pub extern "C" fn rust_eh_personality() {}
 
 #[cfg(target_arch = "x86_64")]
 pub use pci::pci_probe;
+
+#[cfg(target_arch = "x86_64")]
+pub use virtio::virtio_register_drivers;
