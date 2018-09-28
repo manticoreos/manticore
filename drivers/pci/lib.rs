@@ -206,6 +206,17 @@ impl PCIDevice {
         }
     }
 
+    pub fn probe(&self) {
+        unsafe {
+            for driver in PCI_DRIVER_LIST.iter() {
+                if driver.dev_id.vendor_id == self.dev_id.vendor_id {
+                    let dev = (driver.probe)(self);
+                    register_device(dev);
+                }
+            }
+        }
+    }
+
     pub fn set_bus_master(&self, master: bool) {
         let mut cmd = self.read_config_u16(PCI_CFG_COMMAND);
         if master {
@@ -275,7 +286,7 @@ fn pci_probe_slot(bus: u16, slot: u16) -> bool {
             dev.dev_id.device_id,
             dev.dev_id.revision_id,
         );
-        pci_probe_device(&dev);
+        dev.probe();
     }
     return result;
 }
@@ -305,17 +316,6 @@ static mut PCI_DRIVER_LIST: LinkedList<PCIDriverAdapter> = LinkedList::new(PCIDr
 pub fn pci_register_driver(driver: &PCIDriver) {
     unsafe {
         PCI_DRIVER_LIST.push_back(UnsafeRef::from_raw(driver));
-    }
-}
-
-fn pci_probe_device(pci_dev: &PCIDevice) {
-    unsafe {
-        for driver in PCI_DRIVER_LIST.iter() {
-            if driver.dev_id.vendor_id == pci_dev.dev_id.vendor_id {
-                let dev = (driver.probe)(pci_dev);
-                register_device(dev);
-            }
-        }
     }
 }
 
