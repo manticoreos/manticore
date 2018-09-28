@@ -103,9 +103,9 @@ impl BAR {
         }
     }
 
-    fn decode(bus: u16, slot: u16, func: u16, bar_idx: usize) -> (Option<BAR>, usize) {
+    fn decode(func: &PCIFunction, bar_idx: usize) -> (Option<BAR>, usize) {
         let offset = PCI_CFG_BARS + (bar_idx << 2) as u8;
-        let raw_bar = unsafe { pci_config_read_u32(bus, slot, func, offset) };
+        let raw_bar = func.read_config_u32(offset);
         if raw_bar == 0 {
             (None, bar_idx + 1)
         } else if raw_bar & 0x01 == 0 {
@@ -117,7 +117,7 @@ impl BAR {
                 }
                 0b10 => {
                     let next_offset = PCI_CFG_BARS + ((bar_idx + 1) << 2) as u8;
-                    let next_bar = unsafe { pci_config_read_u32(bus, slot, func, next_offset) };
+                    let next_bar = func.read_config_u32(next_offset);
                     let base_addr: u64 = ((raw_bar & !0xf) as u64) | ((next_bar as u64) << 32);
                     (Some(base_addr), Some(Locatable::Bits64))
                 }
@@ -125,10 +125,10 @@ impl BAR {
             };
             match (base_addr, locatable) {
                 (Some(base_addr), Some(locatable)) => {
-                    let bar = unsafe {
-                        pci_config_write_u32(bus, slot, func, offset, !0);
-                        let size = !pci_config_read_u32(bus, slot, func, offset) + 1;
-                        pci_config_write_u32(bus, slot, func, offset, raw_bar);
+                    let bar = {
+                        func.write_config_u32(offset, !0);
+                        let size = !func.read_config_u32(offset) + 1;
+                        func.write_config_u32(offset, raw_bar);
                         let prefetchable = raw_bar & 0b1000 != 0;
                         BAR::Memory {
                             base_addr: base_addr,
@@ -146,10 +146,10 @@ impl BAR {
                 _ => (None, bar_idx + 1),
             }
         } else {
-            let bar = unsafe {
-                pci_config_write_u32(bus, slot, func, offset, !0);
-                let size = !pci_config_read_u32(bus, slot, func, offset) + 1;
-                pci_config_write_u32(bus, slot, func, offset, raw_bar);
+            let bar = {
+                func.write_config_u32(offset, !0);
+                let size = !func.read_config_u32(offset) + 1;
+                func.write_config_u32(offset, raw_bar);
                 BAR::IO {
                     iobase: (raw_bar & !0x03) as u16,
                     size: size,
@@ -161,22 +161,61 @@ impl BAR {
 }
 
 #[derive(Debug)]
+pub struct PCIFunction {
+    pub bus_id: u16,
+    pub slot_id: u16,
+    pub func_id: u16,
+}
+
+impl PCIFunction {
+    pub fn new(bus_id: u16, slot_id: u16, func_id: u16) -> Self {
+        PCIFunction {
+            bus_id: bus_id,
+            slot_id: slot_id,
+            func_id: func_id,
+        }
+    }
+
+    pub fn read_config_u8(&self, offset: u8) -> u8 {
+        unsafe { pci_config_read_u8(self.bus_id, self.slot_id, self.func_id, offset) }
+    }
+
+    pub fn write_config_u8(&self, offset: u8, value: u8) {
+        unsafe { pci_config_write_u8(self.bus_id, self.slot_id, self.func_id, offset, value) }
+    }
+
+    pub fn read_config_u16(&self, offset: u8) -> u16 {
+        unsafe { pci_config_read_u16(self.bus_id, self.slot_id, self.func_id, offset) }
+    }
+
+    pub fn write_config_u16(&self, offset: u8, value: u16) {
+        unsafe { pci_config_write_u16(self.bus_id, self.slot_id, self.func_id, offset, value) }
+    }
+
+    pub fn read_config_u32(&self, offset: u8) -> u32 {
+        unsafe { pci_config_read_u32(self.bus_id, self.slot_id, self.func_id, offset) }
+    }
+
+    pub fn write_config_u32(&self, offset: u8, value: u32) {
+        unsafe { pci_config_write_u32(self.bus_id, self.slot_id, self.func_id, offset, value) }
+    }
+}
+
+#[derive(Debug)]
 pub struct PCIDevice {
-    pub bus: u16,
-    pub slot: u16,
-    pub func: u16,
+    pub func: PCIFunction,
     pub dev_id: DeviceID,
     pub bars: [Option<BAR>; 6],
 }
 
 impl PCIDevice {
-    pub fn parse_config(bus: u16, slot: u16, func: u16, header_type: u8) -> PCIDevice {
-        let vendor_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_CFG_VENDOR_ID) };
-        let device_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_CFG_DEVICE_ID) };
-        let revision_id = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_REVISION_ID) };
-        let class_code = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_CLASS_CODE) };
-        let subclass = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SUBCLASS) };
-        let prog_if = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_PROG_IF) };
+    pub fn parse_config(func: PCIFunction, header_type: u8) -> PCIDevice {
+        let vendor_id = func.read_config_u16(PCI_CFG_VENDOR_ID);
+        let device_id = func.read_config_u16(PCI_CFG_DEVICE_ID);
+        let revision_id = func.read_config_u8(PCI_CFG_REVISION_ID);
+        let class_code = func.read_config_u8(PCI_CFG_CLASS_CODE);
+        let subclass = func.read_config_u8(PCI_CFG_SUBCLASS);
+        let prog_if = func.read_config_u8(PCI_CFG_PROG_IF);
         let mut bars = [None, None, None, None, None, None];
         let max_bars = match header_type & PCI_HEADER_TYPE_MASK {
             PCI_HEADER_TYPE_DEVICE => 6,
@@ -185,13 +224,11 @@ impl PCIDevice {
         };
         let mut bar_idx = 0;
         while bar_idx < max_bars {
-            let (bar, next_idx) = BAR::decode(bus, slot, func, bar_idx);
+            let (bar, next_idx) = BAR::decode(&func, bar_idx);
             bars[bar_idx] = bar;
             bar_idx = next_idx;
         }
         PCIDevice {
-            bus: bus,
-            slot: slot,
             func: func,
             dev_id: DeviceID {
                 vendor_id: vendor_id,
@@ -218,21 +255,13 @@ impl PCIDevice {
     }
 
     pub fn set_bus_master(&self, master: bool) {
-        let mut cmd = self.read_config_u16(PCI_CFG_COMMAND);
+        let mut cmd = self.func.read_config_u16(PCI_CFG_COMMAND);
         if master {
             cmd |= PCI_CMD_BUS_MASTER;
         } else {
             cmd &= !PCI_CMD_BUS_MASTER;
         }
-        self.write_config_u16(PCI_CFG_COMMAND, cmd);
-    }
-
-    pub fn read_config_u16(&self, offset: u8) -> u16 {
-        unsafe { pci_config_read_u16(self.bus, self.slot, self.func, offset) }
-    }
-
-    pub fn write_config_u16(&self, offset: u8, value: u16) {
-        unsafe { pci_config_write_u16(self.bus, self.slot, self.func, offset, value) }
+        self.func.write_config_u16(PCI_CFG_COMMAND, cmd);
     }
 }
 
@@ -259,28 +288,27 @@ fn pci_probe_bus(bus: u16) -> bool {
     return result;
 }
 
-fn pci_probe_slot(bus: u16, slot: u16) -> bool {
+fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
     let mut result = false;
-    for func in 0..8 {
-        let class_revision =
-            unsafe { pci_config_read_u32(bus, slot, func, PCI_CFG_CLASS_REVISION) };
+    for func_id in 0..8 {
+        let func = PCIFunction::new(bus_id, slot_id, func_id);
+        let class_revision = func.read_config_u32(PCI_CFG_CLASS_REVISION);
         if class_revision == 0xffffffff {
             continue;
         }
-        let header_type = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_HEADER_TYPE) };
+        let header_type = func.read_config_u8(PCI_CFG_HEADER_TYPE);
         if header_type & PCI_HEADER_TYPE_MASK == PCI_HEADER_TYPE_BRIDGE {
-            let secondary_bus =
-                unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SECONDARY_BUS) };
+            let secondary_bus = func.read_config_u8(PCI_CFG_SECONDARY_BUS);
             pci_probe_bus(secondary_bus as u16);
             continue;
         }
         result = true;
-        let dev = PCIDevice::parse_config(bus, slot, func, header_type);
+        let dev = PCIDevice::parse_config(func, header_type);
         println!(
             "  {:02x}:{:02x}.{:x} {:02x}{:02x}: {:04x}:{:04x} (rev {:x})",
-            bus,
-            slot,
-            func,
+            dev.func.bus_id,
+            dev.func.slot_id,
+            dev.func.func_id,
             dev.dev_id.class_code,
             dev.dev_id.subclass,
             dev.dev_id.vendor_id,
@@ -322,9 +350,10 @@ pub fn pci_register_driver(driver: &PCIDriver) {
 
 extern "C" {
     pub fn pci_config_read_u8(bus: u16, slot: u16, func: u16, offset: u8) -> u8;
+    pub fn pci_config_write_u8(bus: u16, slot: u16, func: u16, offset: u8, value: u8);
     pub fn pci_config_read_u16(bus: u16, slot: u16, func: u16, offset: u8) -> u16;
-    pub fn pci_config_read_u32(bus: u16, slot: u16, func: u16, offset: u8) -> u32;
     pub fn pci_config_write_u16(bus: u16, slot: u16, func: u16, offset: u8, value: u16);
+    pub fn pci_config_read_u32(bus: u16, slot: u16, func: u16, offset: u8) -> u32;
     pub fn pci_config_write_u32(bus: u16, slot: u16, func: u16, offset: u8, value: u32);
     pub fn ioremap(paddr: usize, size: usize) -> usize;
 }
