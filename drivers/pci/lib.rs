@@ -24,6 +24,7 @@ pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
 
 const PCI_VENDOR_ID: u8 = 0x00;
 const PCI_DEVICE_ID: u8 = 0x02;
+const PCI_CFG_COMMAND: u8 = 0x04;
 const PCI_CLASS_REVISION: u8 = 0x08;
 const PCI_CFG_REVISION_ID: u8 = 0x08;
 const PCI_CFG_CLASS_CODE: u8 = 0x08;
@@ -37,6 +38,8 @@ const PCI_HEADER_TYPE_MASK: u8 = 0x03;
 const PCI_HEADER_TYPE_DEVICE: u8 = 0x00;
 const PCI_HEADER_TYPE_BRIDGE: u8 = 0x01;
 const PCI_HEADER_TYPE_PCCARD: u8 = 0x02;
+
+const PCI_CMD_BUS_MASTER: u16 = 1 << 2;
 
 /// PCI device identification
 #[derive(Debug, Clone)]
@@ -164,6 +167,26 @@ pub struct PCIDevice {
     pub func: u16,
     pub dev_id: DeviceID,
     pub bars: [Option<BAR>; 6],
+}
+
+impl PCIDevice {
+    pub fn set_bus_master(&self, master: bool) {
+        let mut cmd = self.read_config_u16(PCI_CFG_COMMAND);
+        if master {
+            cmd |= PCI_CMD_BUS_MASTER;
+        } else {
+            cmd &= !PCI_CMD_BUS_MASTER;
+        }
+        self.write_config_u16(PCI_CFG_COMMAND, cmd);
+    }
+
+    pub fn read_config_u16(&self, offset: u8) -> u16 {
+        unsafe { pci_config_read_u16(self.bus, self.slot, self.func, offset) }
+    }
+
+    pub fn write_config_u16(&self, offset: u8, value: u16) {
+        unsafe { pci_config_write_u16(self.bus, self.slot, self.func, offset, value) }
+    }
 }
 
 #[no_mangle]
@@ -296,6 +319,7 @@ extern "C" {
     pub fn pci_config_read_u8(bus: u16, slot: u16, func: u16, offset: u8) -> u8;
     pub fn pci_config_read_u16(bus: u16, slot: u16, func: u16, offset: u8) -> u16;
     pub fn pci_config_read_u32(bus: u16, slot: u16, func: u16, offset: u8) -> u32;
+    pub fn pci_config_write_u16(bus: u16, slot: u16, func: u16, offset: u8, value: u16);
     pub fn pci_config_write_u32(bus: u16, slot: u16, func: u16, offset: u8, value: u32);
     pub fn ioremap(paddr: usize, size: usize) -> usize;
 }
