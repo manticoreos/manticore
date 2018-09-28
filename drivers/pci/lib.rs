@@ -170,6 +170,42 @@ pub struct PCIDevice {
 }
 
 impl PCIDevice {
+    pub fn parse_config(bus: u16, slot: u16, func: u16, header_type: u8) -> PCIDevice {
+        let vendor_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_VENDOR_ID) };
+        let device_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_DEVICE_ID) };
+        let revision_id = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_REVISION_ID) };
+        let class_code = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_CLASS_CODE) };
+        let subclass = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SUBCLASS) };
+        let prog_if = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_PROG_IF) };
+        let mut bars = [None, None, None, None, None, None];
+        let max_bars = match header_type & PCI_HEADER_TYPE_MASK {
+            PCI_HEADER_TYPE_DEVICE => 6,
+            PCI_HEADER_TYPE_PCCARD => 2,
+            _ => 0,
+        };
+        let mut bar_idx = 0;
+        while bar_idx < max_bars {
+            let (bar, next_idx) = BAR::decode(bus, slot, func, bar_idx);
+            bars[bar_idx] = bar;
+            bar_idx = next_idx;
+        }
+        PCIDevice {
+            bus: bus,
+            slot: slot,
+            func: func,
+            dev_id: DeviceID {
+                vendor_id: vendor_id,
+                device_id: device_id,
+                revision_id: revision_id,
+                header_type: header_type,
+                class_code: class_code,
+                subclass: subclass,
+                prog_if: prog_if,
+            },
+            bars: bars,
+        }
+    }
+
     pub fn set_bus_master(&self, master: bool) {
         let mut cmd = self.read_config_u16(PCI_CFG_COMMAND);
         if master {
@@ -227,39 +263,7 @@ fn pci_probe_slot(bus: u16, slot: u16) -> bool {
             continue;
         }
         result = true;
-        let vendor_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_VENDOR_ID) };
-        let device_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_DEVICE_ID) };
-        let revision_id = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_REVISION_ID) };
-        let class_code = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_CLASS_CODE) };
-        let subclass = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SUBCLASS) };
-        let prog_if = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_PROG_IF) };
-        let mut bars = [None, None, None, None, None, None];
-        let max_bars = match header_type & PCI_HEADER_TYPE_MASK {
-            PCI_HEADER_TYPE_DEVICE => 6,
-            PCI_HEADER_TYPE_PCCARD => 2,
-            _ => 0,
-        };
-        let mut bar_idx = 0;
-        while bar_idx < max_bars {
-            let (bar, next_idx) = BAR::decode(bus, slot, func, bar_idx);
-            bars[bar_idx] = bar;
-            bar_idx = next_idx;
-        }
-        let dev = PCIDevice {
-            bus: bus,
-            slot: slot,
-            func: func,
-            dev_id: DeviceID {
-                vendor_id: vendor_id,
-                device_id: device_id,
-                revision_id: revision_id,
-                header_type: header_type,
-                class_code: class_code,
-                subclass: subclass,
-                prog_if: prog_if,
-            },
-            bars: bars,
-        };
+        let dev = PCIDevice::parse_config(bus, slot, func, header_type);
         println!(
             "  {:02x}:{:02x}.{:x} {:02x}{:02x}: {:04x}:{:04x} (rev {:x})",
             bus,
@@ -267,9 +271,9 @@ fn pci_probe_slot(bus: u16, slot: u16) -> bool {
             func,
             dev.dev_id.class_code,
             dev.dev_id.subclass,
-            vendor_id,
-            device_id,
-            dev.dev_id.revision_id
+            dev.dev_id.vendor_id,
+            dev.dev_id.device_id,
+            dev.dev_id.revision_id,
         );
         pci_probe_device(&dev);
     }
