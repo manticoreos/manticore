@@ -201,6 +201,18 @@ impl PCIFunction {
         None
     }
 
+    pub fn find_next_capability(&self, cap_id: u8, pos: u8) -> Option<u8> {
+        let mut offset = self.read_config_u8(pos + PCI_CAP_NEXT_OFFSET);
+        while offset != 0 {
+            let id = self.read_config_u8(offset + PCI_CAP_ID_OFFSET);
+            if id == cap_id {
+                return Some(offset);
+            }
+            offset = self.read_config_u8(offset + PCI_CAP_NEXT_OFFSET);
+        }
+        None
+    }
+
     pub fn read_config_u8(&self, offset: u8) -> u8 {
         unsafe { pci_config_read_u8(self.bus_id, self.slot_id, self.func_id, offset) }
     }
