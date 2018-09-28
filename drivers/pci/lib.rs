@@ -25,6 +25,7 @@ pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
 const PCI_CFG_VENDOR_ID: u8 = 0x00;
 const PCI_CFG_DEVICE_ID: u8 = 0x02;
 const PCI_CFG_COMMAND: u8 = 0x04;
+const PCI_CFG_STATUS: u8 = 0x06;
 const PCI_CFG_CLASS_REVISION: u8 = 0x08;
 const PCI_CFG_REVISION_ID: u8 = 0x08;
 const PCI_CFG_CLASS_CODE: u8 = 0x08;
@@ -33,6 +34,7 @@ const PCI_CFG_PROG_IF: u8 = 0x08;
 const PCI_CFG_HEADER_TYPE: u8 = 0x0e;
 const PCI_CFG_BARS: u8 = 0x10;
 const PCI_CFG_SECONDARY_BUS: u8 = 0x19;
+const PCI_CFG_CAPABILITIES_PTR: u8 = 0x34;
 
 const PCI_HEADER_TYPE_MASK: u8 = 0x03;
 const PCI_HEADER_TYPE_DEVICE: u8 = 0x00;
@@ -40,6 +42,13 @@ const PCI_HEADER_TYPE_BRIDGE: u8 = 0x01;
 const PCI_HEADER_TYPE_PCCARD: u8 = 0x02;
 
 const PCI_CMD_BUS_MASTER: u16 = 1 << 2;
+
+const PCI_STATUS_CAPABILITIES_LIST: u8 = 1 << 4;
+
+const PCI_CAP_ID_OFFSET: u8 = 0x00;
+const PCI_CAP_NEXT_OFFSET: u8 = 0x01;
+
+const PCI_CAPABILITY_MSIX: u8 = 0x11;
 
 /// PCI device identification
 #[derive(Debug, Clone)]
@@ -176,6 +185,22 @@ impl PCIFunction {
         }
     }
 
+    pub fn find_capability(&self, cap_id: u8) -> Option<u8> {
+        let status = self.read_config_u8(PCI_CFG_STATUS);
+        if status & PCI_STATUS_CAPABILITIES_LIST == 0 {
+            return None;
+        }
+        let mut offset = self.read_config_u8(PCI_CFG_CAPABILITIES_PTR);
+        while offset != 0 {
+            let id = self.read_config_u8(offset + PCI_CAP_ID_OFFSET);
+            if id == cap_id {
+                return Some(offset);
+            }
+            offset = self.read_config_u8(offset + PCI_CAP_NEXT_OFFSET);
+        }
+        None
+    }
+
     pub fn read_config_u8(&self, offset: u8) -> u8 {
         unsafe { pci_config_read_u8(self.bus_id, self.slot_id, self.func_id, offset) }
     }
@@ -206,6 +231,7 @@ pub struct PCIDevice {
     pub func: PCIFunction,
     pub dev_id: DeviceID,
     pub bars: [Option<BAR>; 6],
+    pub msix_offset: Option<u8>,
 }
 
 impl PCIDevice {
@@ -228,6 +254,7 @@ impl PCIDevice {
             bars[bar_idx] = bar;
             bar_idx = next_idx;
         }
+        let msix_offset = func.find_capability(PCI_CAPABILITY_MSIX);
         PCIDevice {
             func: func,
             dev_id: DeviceID {
@@ -240,6 +267,7 @@ impl PCIDevice {
                 prog_if: prog_if,
             },
             bars: bars,
+            msix_offset: msix_offset,
         }
     }
 
@@ -305,7 +333,7 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
         result = true;
         let dev = PCIDevice::parse_config(func, header_type);
         println!(
-            "  {:02x}:{:02x}.{:x} {:02x}{:02x}: {:04x}:{:04x} (rev {:x})",
+            "  {:02x}:{:02x}.{:x} {:02x}{:02x}: {:04x}:{:04x} (rev {:x}) {}",
             dev.func.bus_id,
             dev.func.slot_id,
             dev.func.func_id,
@@ -314,6 +342,7 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
             dev.dev_id.vendor_id,
             dev.dev_id.device_id,
             dev.dev_id.revision_id,
+            if dev.msix_offset.is_some() { "[msix]" } else { "" },
         );
         dev.probe();
     }
