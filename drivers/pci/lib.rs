@@ -22,17 +22,17 @@ use kernel::print;
 pub const PCI_VENDOR_ID_REDHAT: u16 = 0x1af4;
 pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
 
-const PCI_VENDOR_ID: u8 = 0x00;
-const PCI_DEVICE_ID: u8 = 0x02;
+const PCI_CFG_VENDOR_ID: u8 = 0x00;
+const PCI_CFG_DEVICE_ID: u8 = 0x02;
 const PCI_CFG_COMMAND: u8 = 0x04;
-const PCI_CLASS_REVISION: u8 = 0x08;
+const PCI_CFG_CLASS_REVISION: u8 = 0x08;
 const PCI_CFG_REVISION_ID: u8 = 0x08;
 const PCI_CFG_CLASS_CODE: u8 = 0x08;
 const PCI_CFG_SUBCLASS: u8 = 0x08;
 const PCI_CFG_PROG_IF: u8 = 0x08;
-const PCI_CONFIG_HEADER_TYPE: u8 = 0x0e;
-const PCI_CONFIG_BARS: u8 = 0x10;
-const PCI_CONFIG_SECONDARY_BUS: u8 = 0x19;
+const PCI_CFG_HEADER_TYPE: u8 = 0x0e;
+const PCI_CFG_BARS: u8 = 0x10;
+const PCI_CFG_SECONDARY_BUS: u8 = 0x19;
 
 const PCI_HEADER_TYPE_MASK: u8 = 0x03;
 const PCI_HEADER_TYPE_DEVICE: u8 = 0x00;
@@ -104,7 +104,7 @@ impl BAR {
     }
 
     fn decode(bus: u16, slot: u16, func: u16, bar_idx: usize) -> (Option<BAR>, usize) {
-        let offset = PCI_CONFIG_BARS + (bar_idx << 2) as u8;
+        let offset = PCI_CFG_BARS + (bar_idx << 2) as u8;
         let raw_bar = unsafe { pci_config_read_u32(bus, slot, func, offset) };
         if raw_bar == 0 {
             (None, bar_idx + 1)
@@ -116,7 +116,7 @@ impl BAR {
                     (Some(base_addr), Some(Locatable::Bits32))
                 }
                 0b10 => {
-                    let next_offset = PCI_CONFIG_BARS + ((bar_idx + 1) << 2) as u8;
+                    let next_offset = PCI_CFG_BARS + ((bar_idx + 1) << 2) as u8;
                     let next_bar = unsafe { pci_config_read_u32(bus, slot, func, next_offset) };
                     let base_addr: u64 = ((raw_bar & !0xf) as u64) | ((next_bar as u64) << 32);
                     (Some(base_addr), Some(Locatable::Bits64))
@@ -171,8 +171,8 @@ pub struct PCIDevice {
 
 impl PCIDevice {
     pub fn parse_config(bus: u16, slot: u16, func: u16, header_type: u8) -> PCIDevice {
-        let vendor_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_VENDOR_ID) };
-        let device_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_DEVICE_ID) };
+        let vendor_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_CFG_VENDOR_ID) };
+        let device_id = unsafe { pci_config_read_u16(bus, slot, func, PCI_CFG_DEVICE_ID) };
         let revision_id = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_REVISION_ID) };
         let class_code = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_CLASS_CODE) };
         let subclass = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SUBCLASS) };
@@ -250,7 +250,7 @@ pub extern "C" fn pci_probe() {
 fn pci_probe_bus(bus: u16) -> bool {
     let mut result = false;
     for slot in 0..32 {
-        let vendor_id = unsafe { pci_config_read_u16(bus, slot, 0, PCI_VENDOR_ID) };
+        let vendor_id = unsafe { pci_config_read_u16(bus, slot, 0, PCI_CFG_VENDOR_ID) };
         if vendor_id == 0xffff {
             continue;
         }
@@ -262,14 +262,15 @@ fn pci_probe_bus(bus: u16) -> bool {
 fn pci_probe_slot(bus: u16, slot: u16) -> bool {
     let mut result = false;
     for func in 0..8 {
-        let class_revision = unsafe { pci_config_read_u32(bus, slot, func, PCI_CLASS_REVISION) };
+        let class_revision =
+            unsafe { pci_config_read_u32(bus, slot, func, PCI_CFG_CLASS_REVISION) };
         if class_revision == 0xffffffff {
             continue;
         }
-        let header_type = unsafe { pci_config_read_u8(bus, slot, func, PCI_CONFIG_HEADER_TYPE) };
+        let header_type = unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_HEADER_TYPE) };
         if header_type & PCI_HEADER_TYPE_MASK == PCI_HEADER_TYPE_BRIDGE {
             let secondary_bus =
-                unsafe { pci_config_read_u8(bus, slot, func, PCI_CONFIG_SECONDARY_BUS) };
+                unsafe { pci_config_read_u8(bus, slot, func, PCI_CFG_SECONDARY_BUS) };
             pci_probe_bus(secondary_bus as u16);
             continue;
         }
