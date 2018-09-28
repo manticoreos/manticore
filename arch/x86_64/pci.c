@@ -38,6 +38,13 @@ uint32_t pci_config_read_u32(uint16_t bus, uint16_t slot, uint16_t func, uint8_t
 	return inl(PCI_CONFIG_DATA);
 }
 
+void pci_config_write_u16(uint16_t bus, uint16_t slot, uint16_t func, uint8_t offset, uint16_t value)
+{
+	size_t addr = pci_config_addr(bus, slot, func, offset);
+	outl(addr, PCI_CONFIG_ADDRESS);
+	outw(value, PCI_CONFIG_DATA);
+}
+
 void pci_config_write_u32(uint16_t bus, uint16_t slot, uint16_t func, uint8_t offset, uint32_t value)
 {
 	size_t addr = pci_config_addr(bus, slot, func, offset);
