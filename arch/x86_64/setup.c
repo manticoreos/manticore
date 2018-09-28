@@ -2,6 +2,7 @@
 
 #include <kernel/page-alloc.h>
 #include <kernel/memory.h>
+#include <kernel/virtio.h>
 #include <kernel/panic.h>
 #include <kernel/mmu.h>
 #include <kernel/pci.h>
@@ -90,5 +91,6 @@ void arch_early_setup(void)
 
 void arch_late_setup(void)
 {
+	virtio_register_drivers();
 	pci_probe();
 }
