@@ -50,6 +50,20 @@ pub struct DeviceID {
     pub prog_if: u8,
 }
 
+impl DeviceID {
+    pub const fn new(vendor_id: u16, device_id: u16) -> Self {
+        DeviceID {
+            vendor_id: vendor_id,
+            device_id: device_id,
+            revision_id: 0,
+            header_type: 0,
+            class_code: 0,
+            subclass: 0,
+            prog_if: 0,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Locatable {
     Bits32,
