@@ -3,6 +3,8 @@
 //!
 
 #![feature(lang_items)]
+#![feature(alloc_error_handler)]
+#![feature(panic_info_message)]
 #![no_std]
 
 #[macro_use]
@@ -12,7 +14,7 @@ extern crate pci;
 #[cfg(target_arch = "x86_64")]
 extern crate virtio;
 
-use core::fmt::Arguments;
+use core::panic::PanicInfo;
 use kernel::print;
 
 extern "C" {
@@ -20,14 +22,29 @@ extern "C" {
 }
 
 #[cfg(not(test))]
-#[lang = "panic_fmt"]
+#[panic_handler]
 #[no_mangle]
-pub extern "C" fn panic_fmt(fmt: Arguments, file: &str, line: u32) {
-    println!("Panic: {}:{}: {}", file, line, fmt);
+pub extern "C" fn panic_handler(info: &PanicInfo) -> ! {
+    let (file, line) = match info.location() {
+        Some(location) => (location.file(), location.line()),
+        None => ("<unknown>", 0),
+    };
+    if let Some(msg) = info.message() {
+        println!("Panic occurred at {}:{}: {}", file, line, msg);
+    } else {
+        println!("Panic occurred at {}:{}", file, line);
+    }
     unsafe {
         panic("Halting\0".as_ptr());
     }
+    loop {}
+}
 
+#[cfg(not(test))]
+#[alloc_error_handler]
+#[no_mangle]
+pub extern "C" fn oom(_: ::core::alloc::Layout) -> ! {
+    panic!("out of memory");
 }
 
 #[cfg(not(test))]

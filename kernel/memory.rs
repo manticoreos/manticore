@@ -10,9 +10,8 @@
 //! Annual Technical Conference, General Track. 2001.
 
 use intrusive_collections::{Bound, UnsafeRef, RBTree, RBTreeLink, KeyAdapter};
-use alloc::allocator::{Alloc, Layout, AllocErr};
+use alloc::alloc::{GlobalAlloc, Layout};
 use core::intrinsics::transmute;
-use core::mem::size_of;
 use print;
 
 const KIB: u64 = 1 << 10;
@@ -237,19 +236,12 @@ extern "C" {
     pub fn kmem_free(ptr: usize, size: usize);
 }
 
-unsafe impl<'a> Alloc for &'a KAllocator {
-    unsafe fn alloc(&mut self, layout: Layout) -> Result<*mut u8, AllocErr> {
-        if layout.align() != size_of::<usize>() {
-            return Err(AllocErr::Unsupported { details: "Unsupported alignment" });
-        }
-        let obj = kmem_alloc(layout.size());
-        if obj == 0 {
-            return Err(AllocErr::Exhausted { request: layout });
-        }
-        Ok(transmute(obj))
+unsafe impl GlobalAlloc for KAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        transmute(kmem_alloc(layout.size()))
     }
 
-    unsafe fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         kmem_free(ptr as usize, layout.size());
     }
 }

@@ -5,7 +5,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "intrusive-collections"
-version = "0.7.0"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -13,7 +13,7 @@ name = "kernel"
 version = "0.1.0"
 dependencies = [
  "bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "intrusive-collections 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "xmas-elf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -31,7 +31,7 @@ dependencies = [
 name = "pci"
 version = "0.1.0"
 dependencies = [
- "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "intrusive-collections 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "kernel 0.1.0",
 ]
 
@@ -45,7 +45,7 @@ name = "virtio"
 version = "0.1.0"
 dependencies = [
  "bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "intrusive-collections 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "kernel 0.1.0",
  "pci 0.1.0",
 ]
@@ -65,7 +65,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
 "checksum bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
-"checksum intrusive-collections 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cca7ca9335705198e07e52fda501e6742f0290b7cb5cd4de924dde20f0ff2229"
+"checksum intrusive-collections 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)" = "cf71c71c01370d463fa0f814053217855dcb5f270ca2dfb62440bf24e76d1a17"
 "checksum rlibc 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fc874b127765f014d792f16763a81245ab80500e2ad921ed4ee9e82481ee08fe"
 "checksum xmas-elf 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "e7f5dde2a8bc9d05c0782c0c13ccd72bd3dc6e6bc03a205c8bb3b45257d08a41"
 "checksum zero 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "5f1bc8a6b2005884962297587045002d8cfb8dcec9db332f4ca216ddc5de82c5"

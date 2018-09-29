@@ -14,12 +14,14 @@
   "max-atomic-width": 64,
   "os": "none",
   "position-independent-executables": false,
-  "pre-link-args": [
-    "-m64",
-    "-nostdlib",
-    "-static",
-    "-mcmodel=kernel"
-  ],
+  "pre-link-args": {
+    "gcc": [
+      "-m64",
+      "-nostdlib",
+      "-static",
+      "-mcmodel=kernel"
+    ]
+  },
   "target-endian": "little",
   "target-pointer-width": "64",
   "target-c-int-width": "8",
