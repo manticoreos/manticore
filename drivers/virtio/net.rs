@@ -101,6 +101,8 @@ struct VirtioNetDevice {
 
 impl VirtioNetDevice {
     fn probe(pci_dev: &PCIDevice) -> Device {
+        pci_dev.set_bus_master(true);
+
         let mut dev = VirtioNetDevice::new();
 
         let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
