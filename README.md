@@ -24,17 +24,16 @@ The kernel boots on QEMU/KVM platform on x86-64. The port to AArch64 boots under
    - [x] Slab allocator
  * [x] ELF object file support
 
-### Hardware Requirements
+### Hardware Support
 
- * [x] Legacy-free PC with x86-64 processor -or-
- * [ ] Raspberry Pi 3 with AArch64 processor
-
-### Supported Devices
-
- * [ ] Virtio network device 
- * [x] PCI bus
- * [x] 16550 UART
- * [x] PrimeCell® UART (PL011)
+ * [x] Legacy-free PC with a 64-bit x86 processor:
+   * [x] PCIe 3.0 bus
+   * [ ] xAPIC2 interrupt controller
+   * [ ] MSI-X interrupt delivery
+ * [ ] Raspberry Pi 3 with AArch64 processor:
+   * [x] PrimeCell® UART (PL011)
+ * [ ] Paravirtualized I/O drivers
+   * [ ] VIRTIO network device
 
 ## Getting Started
 
