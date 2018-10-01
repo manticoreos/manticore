@@ -53,6 +53,7 @@ class Publish:
 
 
 class Qemu:
+    GDB_PORT = 1234
 
     def __init__(self):
         self.opts = ["-enable-kvm", "-nographic"]
@@ -89,6 +90,11 @@ class Qemu:
             self.opts += ["-netdev", net]
             self.opts += ["-device", device]
 
+    def configure_gdb(self, debug):
+        self.debug = debug
+        if self.debug:
+            self.opts += ["-gdb", "tcp::1234", "-S"]
+
     def run(self, dry_run=False):
         print(HEADER)
         print(" Image: '%s'" % (self.image))
@@ -103,6 +109,9 @@ class Qemu:
         else:
             print(" Ports: none")
         print(FOOTER)
+        if self.debug:
+            print("QEMU is waiting for gdb to connect to %s:%d ..." %
+                  ('localhost', Qemu.GDB_PORT))
         cmdline = ["qemu-system-x86_64"] + self.opts
         if dry_run:
             print(" ".join(cmdline))
@@ -120,6 +129,8 @@ if __name__ == "__main__":
                         help="enable networking. Supported values: 'user' and 'none'.")
     parser.add_argument("-p", "--publish", type=str, default=[], action="append",
                         help="publish VM ports to the host. Format: <host port>:<guest port>/<protocol>")
+    parser.add_argument("-d", "--debug", action="store_true",
+                        help="enable gdb support with QEMU")
     parser.add_argument("--dry-run", action="store_true",
                         help="display actions without running them")
     args = parser.parse_args()
@@ -129,4 +140,5 @@ if __name__ == "__main__":
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
     qemu.configure_net(args.network)
+    qemu.configure_gdb(args.debug)
     qemu.run(args.dry_run)

@@ -14,9 +14,8 @@ You can debug Manticore using GDB when the OS is running under QEMU/KVM.
 
 First, start a QEMU instance with GDB remote debugging enabled using the `-gdb` command line option and also pass the `-S` command line option, which causes QEMU not to start the CPU until the user explicitly starts it with GDB:
 
-
 ```
-qemu-system-x86_64 -nographic -enable-kvm -cdrom kernel.iso -gdb tcp::1234 -S
+./scripts/run --debug kernel.iso
 ```
 
 Once QEMU is running, use the following script to start a GDB session:
