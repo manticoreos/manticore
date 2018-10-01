@@ -73,6 +73,10 @@ class Qemu:
         for publish in publish_list:
             self.publish += [Publish.parse(publish)]
 
+    def configure_trace(self, trace_list):
+        for trace in trace_list:
+            self.opts += ["-trace", "enable=%s" % trace]
+
     def configure_net(self, network):
         self.network = network
         if network == "user":
@@ -131,6 +135,8 @@ if __name__ == "__main__":
                         help="publish VM ports to the host. Format: <host port>:<guest port>/<protocol>")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="enable gdb support with QEMU")
+    parser.add_argument("-t", "--trace", type=str, default=[], action="append",
+                        help="enable tracepoints")
     parser.add_argument("--dry-run", action="store_true",
                         help="display actions without running them")
     args = parser.parse_args()
@@ -139,6 +145,7 @@ if __name__ == "__main__":
     qemu.configure_cpus(args.cpus)
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
+    qemu.configure_trace(args.trace)
     qemu.configure_net(args.network)
     qemu.configure_gdb(args.debug)
     qemu.run(args.dry_run)
