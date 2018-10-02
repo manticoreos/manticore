@@ -55,7 +55,8 @@ class Publish:
 class Qemu:
     GDB_PORT = 1234
 
-    def __init__(self):
+    def __init__(self, qemu_exec):
+        self.qemu_exec = qemu_exec
         self.opts = ["-enable-kvm", "-nographic"]
 
     def configure_cpus(self, cpus):
@@ -116,7 +117,7 @@ class Qemu:
         if self.debug:
             print("QEMU is waiting for gdb to connect to %s:%d ..." %
                   ('localhost', Qemu.GDB_PORT))
-        cmdline = ["qemu-system-x86_64"] + self.opts
+        cmdline = [self.qemu_exec] + self.opts
         if dry_run:
             print(" ".join(cmdline))
         else:
@@ -139,9 +140,11 @@ if __name__ == "__main__":
                         help="enable tracepoints")
     parser.add_argument("--dry-run", action="store_true",
                         help="display actions without running them")
+    parser.add_argument("--qemu-exec", type=str, default="qemu-system-x86_64",
+                        help="QEMU executable to launch VM with")
     args = parser.parse_args()
 
-    qemu = Qemu()
+    qemu = Qemu(args.qemu_exec)
     qemu.configure_cpus(args.cpus)
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
