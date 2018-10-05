@@ -42,7 +42,7 @@ void pci_config_write_u16(uint16_t bus, uint16_t slot, uint16_t func, uint8_t of
 {
 	size_t addr = pci_config_addr(bus, slot, func, offset);
 	outl(addr, PCI_CONFIG_ADDRESS);
-	outw(value, PCI_CONFIG_DATA);
+	outw(value, PCI_CONFIG_DATA + (offset & 2));
 }
 
 void pci_config_write_u32(uint16_t bus, uint16_t slot, uint16_t func, uint8_t offset, uint32_t value)
