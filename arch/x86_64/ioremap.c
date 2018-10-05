@@ -16,7 +16,7 @@ void *ioremap(phys_t io_mem_start, size_t io_mem_size)
 {
 	virt_t ret = io_mem_start;
 	mmu_map_t map = mmu_current_map();
-	int err = mmu_map_range(map, ret, io_mem_start, io_mem_size, MMU_PROT_READ | MMU_PROT_WRITE, 0);
+	int err = mmu_map_range(map, ret, io_mem_start, io_mem_size, MMU_PROT_READ | MMU_PROT_WRITE, MMU_NOCACHE);
 	if (err) {
 		return NULL;
 	}
