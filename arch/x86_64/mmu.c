@@ -207,6 +207,9 @@ static uint64_t mmu_flags_to_hw(mmu_flags_t flags)
 	if (flags & MMU_USER_PAGE) {
 		hw_flags |= X86_PE_US;
 	}
+	if (flags & MMU_NOCACHE) {
+		hw_flags |= X86_PE_PCD;
+	}
 	return hw_flags;
 }
 
