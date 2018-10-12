@@ -1,3 +1,4 @@
+#include <arch/interrupt-defs.h>
 #include <arch/segment.h>
 
 .macro EXCEPTION_ENTRY name, has_error_code
@@ -78,6 +79,21 @@ EXCEPTION_ERROR_ENTRY	x86_alignment_check_exception
 EXCEPTION_NOERROR_ENTRY	x86_machine_check_exception
 EXCEPTION_NOERROR_ENTRY	x86_simd_floating_point_exception
 EXCEPTION_NOERROR_ENTRY	x86_virtualization_exception
+
+/* An array of interrupt entries, which pass interrupt vector as the error code
+ * to the interrupt handler. */
+.align 16
+.global interrupt_entries
+interrupt_entries:
+vector = NR_EXCEPTIONS
+.rept NR_INTERRUPTS
+    .align 16
+    pushq $vector
+    jmp interrupt
+    vector = vector + 1
+.endr
+
+EXCEPTION_ERROR_ENTRY	interrupt
 
 .align 16
 .globl syscall_entry

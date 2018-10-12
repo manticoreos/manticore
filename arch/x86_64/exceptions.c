@@ -2,9 +2,11 @@
 
 #include <kernel/printf.h>
 #include <kernel/panic.h>
+#include <kernel/irq.h>
 
-#include <arch/segment.h>
 #include <arch/cpu.h>
+#include <arch/interrupt-defs.h>
+#include <arch/segment.h>
 
 #include <stddef.h>
 #include <stdint.h>
@@ -49,7 +51,6 @@ struct idt_entry {
 
 #define X86_INTERRUPT_GATE	14
 #define X86_TRAP_GATE		15
-#define X86_NR_INTERRUPTS	256
 
 void init_idt_entry(struct idt_entry *id, uint8_t type, unsigned ist, void *offset)
 {
@@ -278,9 +279,17 @@ void do_x86_virtualization_exception(struct exception_frame *ef)
 	panic("Halted");
 }
 
+void do_interrupt(struct exception_frame *ef)
+{
+	handle_interrupt(ef->error_code);
+}
+
+extern void *interrupt_entries[];
+
 void init_idt(void)
 {
 	memset(idt, 0, sizeof(idt));
+
 	init_idt_entry(idt + X86_INTERRUPT_DE, X86_TRAP_GATE, 0, x86_divide_error_exception);
 	init_idt_entry(idt + X86_INTERRUPT_DB, X86_TRAP_GATE, 1, x86_debug_exception);
 	init_idt_entry(idt + X86_INTERRUPT_NMI, X86_INTERRUPT_GATE, 1, x86_nmi_interrupt);
@@ -301,7 +310,13 @@ void init_idt(void)
 	init_idt_entry(idt + X86_INTERRUPT_XM, X86_TRAP_GATE, 0, x86_simd_floating_point_exception);
 	init_idt_entry(idt + X86_INTERRUPT_VE, X86_TRAP_GATE, 0, x86_virtualization_exception);
 
-	idtp.limit = (sizeof(struct idt_entry) * X86_NR_INTERRUPTS) - 1;
+	for (size_t idx = 0; idx < NR_INTERRUPTS; idx++) {
+		int vector = NR_EXCEPTIONS + idx;
+		void *handler = (void*)interrupt_entries + idx * 16;
+		init_idt_entry(idt + vector, X86_INTERRUPT_GATE, 1, handler);
+	}
+
+	idtp.limit = (sizeof(struct idt_entry) * NR_INTERRUPT_VECTORS) - 1;
 	idtp.base = (uint64_t) idt;
 	load_idt(&idtp);
 }
