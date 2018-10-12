@@ -31,6 +31,9 @@ void start_kernel(void)
 	test_page_alloc();
 	test_printf();
 #endif
+	for (;;) {
+		arch_halt_cpu();
+	}
 	printf("Halted.\n");
 	arch_halt_cpu();
 }
