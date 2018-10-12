@@ -11,6 +11,7 @@
 #include <arch/syscall.h>
 #include <arch/segment.h>
 #include <arch/i8259.h>
+#include <arch/apic.h>
 #include <arch/task.h>
 #include <arch/cpu.h>
 #include <arch/gdt.h>
@@ -86,6 +87,7 @@ void arch_early_setup(void)
 	init_syscall();
 	init_memory_map();
 	init_mmu_map();
+	init_apic();
 	setup_nxe();
 }
 
