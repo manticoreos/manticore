@@ -90,18 +90,18 @@ impl IOPort {
 }
 
 extern "C" {
-    fn pio_read8(port: u16) -> u8;
-    fn pio_read16(port: u16) -> u16;
-    fn pio_read32(port: u16) -> u32;
-    fn pio_write8(v: u8, port: u16);
-    fn pio_write16(v: u16, port: u16);
-    fn pio_write32(v: u32, port: u16);
-    fn mmio_read8(addr: u64) -> u8;
-    fn mmio_read16(addr: u64) -> u16;
-    fn mmio_read32(addr: u64) -> u32;
-    fn mmio_read64(addr: u64) -> u64;
-    fn mmio_write8(v: u8, addr: u64);
-    fn mmio_write16(v: u16, addr: u64);
-    fn mmio_write32(v: u32, addr: u64);
-    fn mmio_write64(v: u64, addr: u64);
+    pub fn pio_read8(port: u16) -> u8;
+    pub fn pio_read16(port: u16) -> u16;
+    pub fn pio_read32(port: u16) -> u32;
+    pub fn pio_write8(v: u8, port: u16);
+    pub fn pio_write16(v: u16, port: u16);
+    pub fn pio_write32(v: u32, port: u16);
+    pub fn mmio_read8(addr: u64) -> u8;
+    pub fn mmio_read16(addr: u64) -> u16;
+    pub fn mmio_read32(addr: u64) -> u32;
+    pub fn mmio_read64(addr: u64) -> u64;
+    pub fn mmio_write8(v: u8, addr: u64);
+    pub fn mmio_write16(v: u16, addr: u64);
+    pub fn mmio_write32(v: u32, addr: u64);
+    pub fn mmio_write64(v: u64, addr: u64);
 }
