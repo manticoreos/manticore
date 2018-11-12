@@ -14,36 +14,36 @@ void i8259_remap(void)
 	/*
 	 * Save interrupt masks:
 	 */
-	uint8_t pic1_mask = inb(PIC1_DATA);
-	uint8_t pic2_mask = inb(PIC2_DATA);
+	uint8_t pic1_mask = pio_read8(PIC1_DATA);
+	uint8_t pic2_mask = pio_read8(PIC2_DATA);
 
 	/*
 	 * ICW1 - start initialization:
 	 */
-	outb(0x10 | ICW1_IC4, PIC1_CMD);
-	outb(0x10 | ICW1_IC4, PIC2_CMD);
+	pio_write8(0x10 | ICW1_IC4, PIC1_CMD);
+	pio_write8(0x10 | ICW1_IC4, PIC2_CMD);
 
 	/*
 	 * ICW2 - interrupt vector offsets:
 	 */
-	outb(0x20, PIC1_DATA);
-	outb(0x28, PIC2_DATA);
+	pio_write8(0x20, PIC1_DATA);
+	pio_write8(0x28, PIC2_DATA);
 
 	/*
 	 * ICW3 - cascading:
 	 */
-	outb(4, PIC1_DATA);
-	outb(2, PIC2_DATA);
+	pio_write8(4, PIC1_DATA);
+	pio_write8(2, PIC2_DATA);
 
 	/*
 	 * ICW4 - other configuration:
 	 */
-	outb(ICW4_8086_MODE, PIC1_DATA);
-	outb(ICW4_8086_MODE, PIC2_DATA);
+	pio_write8(ICW4_8086_MODE, PIC1_DATA);
+	pio_write8(ICW4_8086_MODE, PIC2_DATA);
 
 	/*
 	 * Restore interrupt masks:
 	 */
-	outb(pic1_mask, PIC1_DATA);
-	outb(pic2_mask, PIC2_DATA);
+	pio_write8(pic1_mask, PIC1_DATA);
+	pio_write8(pic2_mask, PIC2_DATA);
 }
