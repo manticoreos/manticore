@@ -12,12 +12,10 @@ extern crate kernel;
 #[macro_use]
 extern crate intrusive_collections;
 
-pub mod ioport;
-
 use intrusive_collections::{LinkedList, LinkedListLink, UnsafeRef};
-use ioport::IOPort;
 use kernel::device::{Device, register_device};
 use kernel::print;
+use kernel::ioport::IOPort;
 
 pub const PCI_VENDOR_ID_REDHAT: u16 = 0x1af4;
 pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;

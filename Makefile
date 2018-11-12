@@ -27,11 +27,11 @@ objs += kernel/thread.o
 objs += mm/kmem.o
 
 rust_src += drivers/pci/lib.rs
-rust_src += drivers/pci/ioport.rs
 rust_src += drivers/virtio/lib.rs
 rust_src += drivers/virtio/net.rs
 rust_src += drivers/virtio/virtqueue.rs
 rust_src += kernel/device.rs
+rust_src += kernel/ioport.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
 rust_src += kernel/print.rs
