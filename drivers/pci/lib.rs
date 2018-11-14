@@ -40,6 +40,8 @@ const PCI_HEADER_TYPE_BRIDGE: u8 = 0x01;
 const PCI_HEADER_TYPE_PCCARD: u8 = 0x02;
 
 const PCI_CMD_BUS_MASTER: u16 = 1 << 2;
+const PCI_CMD_BAR_MEM_ENABLE: u16 = 1 << 1;
+const PCI_CMD_BAR_IO_ENABLE: u16 = 1 << 0;
 
 const PCI_STATUS_CAPABILITIES_LIST: u8 = 1 << 4;
 
@@ -266,6 +268,12 @@ impl PCIDevice {
             bar_idx = next_idx;
         }
         let msix_offset = func.find_capability(PCI_CAPABILITY_MSIX);
+
+        let mut cmd = func.read_config_u16(PCI_CFG_COMMAND);
+        cmd |= PCI_CMD_BAR_MEM_ENABLE;
+        cmd |= PCI_CMD_BAR_IO_ENABLE;
+        func.write_config_u16(PCI_CFG_COMMAND, cmd);
+
         PCIDevice {
             func: func,
             dev_id: DeviceID {
