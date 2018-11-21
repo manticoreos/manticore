@@ -7,20 +7,27 @@
 
 #include <stddef.h>
 
-static unsigned int next_vector = NR_EXCEPTIONS;
-static irq_handler_t irq_handlers[NR_INTERRUPTS];
+struct irq_service {
+	irq_handler_t	handler;
+	void		*arg;
+};
 
-irq_vector_t request_irq(irq_handler_t handler)
+static unsigned int next_vector = NR_EXCEPTIONS;
+static struct irq_service irq_services[NR_INTERRUPTS];
+
+irq_vector_t request_irq(irq_handler_t handler, void *arg)
 {
 	irq_vector_t vector = next_vector++;
 	if (vector < NR_EXCEPTIONS || vector > NR_INTERRUPT_VECTORS) {
 		return -EINVAL;
 	}
 	size_t idx = vector - NR_EXCEPTIONS;
-	if (irq_handlers[idx]) {
+	struct irq_service *service = &irq_services[idx];
+	if (service->handler) {
 		return -EINVAL;
 	}
-	irq_handlers[idx] = handler;
+	service->handler = handler;
+	service->arg = arg;
 	return vector;
 }
 
@@ -30,9 +37,9 @@ void handle_interrupt(irq_vector_t vector)
 		return;
 	}
 	size_t idx = vector - NR_EXCEPTIONS;
-	irq_handler_t handler = irq_handlers[idx];
-	if (handler) {
-		handler();
+	struct irq_service *service = &irq_services[idx];
+	if (service->handler) {
+		service->handler(service->arg);
 	} else {
 		printf("warning: unhandled interrupt %d\n", vector);
 	}
