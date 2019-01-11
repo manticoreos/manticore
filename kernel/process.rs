@@ -38,11 +38,12 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
                 process.vmspace.allocate(start, end, prot).expect(
                     "allocate failed",
                 );
-                let src_start: usize = transmute(image_start);
-                let src_end = src_start + image_size;
+                let image_start: u64 = transmute(image_start);
+                let src_start: u64 = image_start + phdr.offset();
+                let src_end = src_start + phdr.file_size();
                 process
                     .vmspace
-                    .populate_from(start, end, src_start, src_end)
+                    .populate_from(start, end, src_start as usize, src_end as usize)
                     .expect("populate_from failed");
             }
             _ => {}
