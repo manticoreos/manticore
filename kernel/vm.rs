@@ -185,7 +185,7 @@ impl VMAddressSpace {
     ) -> Result<()> {
         let size = end - start;
         let src_size = src_end - src_start;
-        if size > src_size {
+        if size < src_size {
             return Err(Error::new(EINVAL));
         }
         let cur = self.vm_regions.find(&start);
