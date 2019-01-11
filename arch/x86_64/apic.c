@@ -20,7 +20,25 @@ enum {
 	APIC_TIMER_DC  = 0x83e,
 };
 
+/* MSI message data register flags. Specified in Section 10.11.2
+   ("Message Data Register Format)") of Intel SDM. */
+enum {
+	/* Delivery mode: */
+	__MSI_DELIVERY_SHIFT = 8,
+	MSI_DELIVERY_FIXED = 0b000UL << __MSI_DELIVERY_SHIFT,
+
+	/* Trigger mode: */
+	__MSI_TRIGGER_SHIFT = 15,
+	MSI_TRIGGER_EDGE = 1UL << __MSI_TRIGGER_SHIFT,
+};
+
 static uint64_t _apic_base;
+
+void apic_compose_msi_msg(struct msi_message *msg, uint8_t vector, uint8_t dest_id)
+{
+	msg->msg_addr = (_apic_base & 0xfff00000ULL) | (dest_id << 12);
+	msg->msg_data = MSI_TRIGGER_EDGE | MSI_DELIVERY_FIXED | vector;
+}
 
 static void apic_write(uint32_t addr, uint64_t val)
 {
