@@ -340,14 +340,6 @@ impl PCIDevice {
         cmd |= PCI_CMD_BAR_IO_ENABLE;
         func.write_config_u16(PCI_CFG_COMMAND, cmd);
 
-        for bar_opt in &bars {
-            if let Some(bar) = bar_opt {
-                unsafe {
-                    bar.remap();
-                }
-            }
-        }
-
         PCIDevice {
             func: func,
             dev_id: DeviceID {
