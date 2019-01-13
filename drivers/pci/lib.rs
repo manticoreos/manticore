@@ -12,10 +12,40 @@ extern crate kernel;
 #[macro_use]
 extern crate intrusive_collections;
 
+use core::intrinsics::transmute;
 use intrusive_collections::{LinkedList, LinkedListLink, UnsafeRef};
-use kernel::device::{Device, register_device};
-use kernel::print;
+use kernel::device::{register_device, Device};
+use kernel::ioport;
 use kernel::ioport::IOPort;
+use kernel::print;
+
+const MSIX_ENTRY_SIZE: u64 = 16;
+const MSIX_ENTRY_ADDR: u64 = 0;
+const MSIX_ENTRY_DATA: u64 = 8;
+const MSIX_ENTRY_CONTROL: u64 = 12;
+
+#[repr(C)]
+pub struct MSIMessage {
+    msg_addr: u64,
+    msg_data: u32,
+}
+
+impl MSIMessage {
+    fn compose(vector: u8) -> MSIMessage {
+        let mut msi_msg = MSIMessage {
+            msg_addr: 0,
+            msg_data: 0,
+        };
+        unsafe {
+            apic_compose_msi_msg(&mut msi_msg, vector, 0);
+        }
+        msi_msg
+    }
+}
+
+extern "C" {
+    pub fn apic_compose_msi_msg(msg: *mut MSIMessage, vector: u8, dest_id: u8);
+}
 
 pub const PCI_VENDOR_ID_REDHAT: u16 = 0x1af4;
 pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
@@ -40,6 +70,7 @@ const PCI_HEADER_TYPE_BRIDGE: u8 = 0x01;
 const PCI_HEADER_TYPE_PCCARD: u8 = 0x02;
 
 const PCI_CMD_BUS_MASTER: u16 = 1 << 2;
+const PCI_CMD_INTX_DISABLE: u16 = 1 << 10;
 const PCI_CMD_BAR_MEM_ENABLE: u16 = 1 << 1;
 const PCI_CMD_BAR_IO_ENABLE: u16 = 1 << 0;
 
@@ -50,6 +81,20 @@ const PCI_CAP_NEXT_OFFSET: u8 = 0x01;
 
 pub const PCI_CAPABILITY_VENDOR: u8 = 0x09;
 const PCI_CAPABILITY_MSIX: u8 = 0x11;
+
+// Message control for MSI-X:
+const PCI_MSIX_MSG_CTRL: u8 = 0x02;
+const PCI_MSIX_MSG_CTRL_MSIX_ENABLE: u16 = 1 << 15;
+const PCI_MSIX_MSG_CTRL_FUNCTION_MASK: u16 = 1 << 14;
+const PCI_MSIX_MSG_CTRL_TABLE_SIZE: u16 = (1 << 11) - 1;
+
+// Table offset/Table BIR for MSI-X:
+const PCI_MSIX_TABLE_OFFSET: u8 = 0x04;
+const PCI_MSIX_TABLE_OFFSET_MASK: u32 = 0x7ffffff8;
+const PCI_MSIX_TABLE_BIR_MASK: u32 = 0x00000007;
+
+// Vector Control for MSI-X Table Entries:
+const PCI_MSIX_ENTRY_VECTOR_CTRL_MASK_BIT: u32 = 1 << 0;
 
 /// PCI device identification
 #[derive(Debug, Clone)]
@@ -91,16 +136,21 @@ pub enum BAR {
         prefetchable: bool,
         locatable: Locatable,
     },
-    IO { iobase: u16, size: u32 },
+    IO {
+        iobase: u16,
+        size: u32,
+    },
 }
 
 impl BAR {
     pub unsafe fn remap(&self) -> IOPort {
         match self {
-            &BAR::Memory { base_addr, size, .. } => {
+            &BAR::Memory {
+                base_addr, size, ..
+            } => {
                 let addr = ioremap(base_addr as usize, size as usize);
                 return IOPort::Memory {
-                    base_addr: addr,
+                    base_addr: addr as usize,
                     size: size,
                 };
             }
@@ -240,11 +290,18 @@ impl PCIFunction {
 }
 
 #[derive(Debug)]
+pub struct MSIX {
+    pub offset: u8,
+    pub table_bar: u8,
+    pub table_offset: u64,
+}
+
+#[derive(Debug)]
 pub struct PCIDevice {
     pub func: PCIFunction,
     pub dev_id: DeviceID,
     pub bars: [Option<BAR>; 6],
-    pub msix_offset: Option<u8>,
+    pub msix: Option<MSIX>,
 }
 
 impl PCIDevice {
@@ -267,12 +324,29 @@ impl PCIDevice {
             bars[bar_idx] = bar;
             bar_idx = next_idx;
         }
-        let msix_offset = func.find_capability(PCI_CAPABILITY_MSIX);
+        let msix = func.find_capability(PCI_CAPABILITY_MSIX).map(|off| {
+            let msix_table = func.read_config_u32(off + PCI_MSIX_TABLE_OFFSET);
+            let bir = (msix_table & PCI_MSIX_TABLE_BIR_MASK) as u8;
+            let table_off = (msix_table & PCI_MSIX_TABLE_OFFSET_MASK) as u64;
+            MSIX {
+                offset: off,
+                table_bar: bir,
+                table_offset: table_off,
+            }
+        });
 
         let mut cmd = func.read_config_u16(PCI_CFG_COMMAND);
         cmd |= PCI_CMD_BAR_MEM_ENABLE;
         cmd |= PCI_CMD_BAR_IO_ENABLE;
         func.write_config_u16(PCI_CFG_COMMAND, cmd);
+
+        for bar_opt in &bars {
+            if let Some(bar) = bar_opt {
+                unsafe {
+                    bar.remap();
+                }
+            }
+        }
 
         PCIDevice {
             func: func,
@@ -286,7 +360,7 @@ impl PCIDevice {
                 prog_if: prog_if,
             },
             bars: bars,
-            msix_offset: msix_offset,
+            msix: msix,
         }
     }
 
@@ -310,6 +384,93 @@ impl PCIDevice {
         }
         self.func.write_config_u16(PCI_CFG_COMMAND, cmd);
     }
+
+    pub fn enable_msix(&self) {
+        if let Some(ref msix) = self.msix {
+            self.disable_intx();
+
+            let mut control = self.func.read_config_u16(msix.offset + PCI_MSIX_MSG_CTRL);
+
+            control |= PCI_MSIX_MSG_CTRL_MSIX_ENABLE;
+            control |= PCI_MSIX_MSG_CTRL_FUNCTION_MASK;
+            self.func
+                .write_config_u16(msix.offset + PCI_MSIX_MSG_CTRL, control);
+
+            let table_size = control & PCI_MSIX_MSG_CTRL_TABLE_SIZE + 1;
+            for id in 0..table_size {
+                self.mask_msix_entry(id);
+            }
+
+            control = self.func.read_config_u16(msix.offset + PCI_MSIX_MSG_CTRL);
+            control &= !PCI_MSIX_MSG_CTRL_FUNCTION_MASK;
+            self.func
+                .write_config_u16(msix.offset + PCI_MSIX_MSG_CTRL, control);
+        }
+    }
+
+    pub fn disable_intx(&self) {
+        let mut cmd = self.func.read_config_u16(PCI_CFG_COMMAND);
+        cmd |= PCI_CMD_INTX_DISABLE;
+        self.func.write_config_u16(PCI_CFG_COMMAND, cmd);
+    }
+
+    pub fn register_irq(&self, entry: u16, handler: extern "C" fn(arg: usize), arg: usize) -> i32 {
+        let vector = unsafe { request_irq(handler, transmute(arg)) };
+        let msi_msg = MSIMessage::compose(vector as u8);
+        self.write_msix_entry(entry, msi_msg.msg_addr, msi_msg.msg_data);
+        vector
+    }
+
+    pub fn enable_irq(&self, entry: u16) {
+        self.unmask_msix_entry(entry);
+    }
+
+    pub fn write_msix_entry(&self, id: u16, addr: u64, data: u32) {
+        let entry_addr = self.get_entry_addr(id);
+        unsafe { ioport::mmio_write64(addr, entry_addr + MSIX_ENTRY_ADDR) };
+        unsafe { ioport::mmio_write32(data, entry_addr + MSIX_ENTRY_DATA) };
+    }
+
+    pub fn mask_msix_entry(&self, id: u16) {
+        let mut ctrl_data = self.read_msix_entry_ctrl(id);
+        ctrl_data |= PCI_MSIX_ENTRY_VECTOR_CTRL_MASK_BIT;
+        self.write_msix_entry_ctrl(id, ctrl_data);
+    }
+
+    pub fn unmask_msix_entry(&self, id: u16) {
+        let mut ctrl_data = self.read_msix_entry_ctrl(id);
+        ctrl_data &= !(PCI_MSIX_ENTRY_VECTOR_CTRL_MASK_BIT);
+        self.write_msix_entry_ctrl(id, ctrl_data);
+    }
+
+    fn read_msix_entry_ctrl(&self, id: u16) -> u32 {
+        let entry_addr = self.get_entry_addr(id);
+        let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
+        return unsafe { ioport::mmio_read32(ctrl) };
+    }
+
+    fn write_msix_entry_ctrl(&self, id: u16, ctrl_data: u32) {
+        let entry_addr = self.get_entry_addr(id);
+        let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
+        unsafe { ioport::mmio_write32(ctrl_data, ctrl) };
+    }
+
+    fn get_entry_addr(&self, id: u16) -> u64 {
+        return self.get_msix_table() + (id as u64 * MSIX_ENTRY_SIZE);
+    }
+
+    pub fn get_msix_table(&self) -> u64 {
+        if let Some(ref msix) = self.msix {
+            if let Some(BAR::Memory { base_addr, .. }) = self.bars[msix.table_bar as usize] {
+                return base_addr + msix.table_offset;
+            }
+        }
+        return 0;
+    }
+}
+
+extern "C" {
+    pub fn request_irq(handler: extern "C" fn(arg: usize), arg: usize) -> i32;
 }
 
 #[no_mangle]
@@ -361,7 +522,7 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
             dev.dev_id.vendor_id,
             dev.dev_id.device_id,
             dev.dev_id.revision_id,
-            if dev.msix_offset.is_some() { "[msix]" } else { "" },
+            if dev.msix.is_some() { "[msix]" } else { "" },
         );
         dev.probe();
     }
@@ -403,5 +564,5 @@ extern "C" {
     pub fn pci_config_write_u16(bus: u16, slot: u16, func: u16, offset: u8, value: u16);
     pub fn pci_config_read_u32(bus: u16, slot: u16, func: u16, offset: u8) -> u32;
     pub fn pci_config_write_u32(bus: u16, slot: u16, func: u16, offset: u8, value: u32);
-    pub fn ioremap(paddr: usize, size: usize) -> usize;
+    pub fn ioremap(paddr: usize, size: usize) -> u64;
 }
