@@ -31,7 +31,7 @@ irq_vector_t request_irq(irq_handler_t handler, void *arg)
 	return vector;
 }
 
-void handle_interrupt(irq_vector_t vector)
+static void interrupt_service(irq_vector_t vector)
 {
 	if (vector < NR_EXCEPTIONS || vector > NR_INTERRUPT_VECTORS) {
 		return;
@@ -43,5 +43,10 @@ void handle_interrupt(irq_vector_t vector)
 	} else {
 		printf("warning: unhandled interrupt %d\n", vector);
 	}
+}
+
+void handle_interrupt(irq_vector_t vector)
+{
 	end_of_interrupt();
+	interrupt_service(vector);
 }
