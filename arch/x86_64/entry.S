@@ -1,4 +1,5 @@
 #include <arch/interrupt-defs.h>
+#include <arch/processor.h>
 #include <arch/segment.h>
 
 .macro EXCEPTION_ENTRY name, has_error_code
@@ -142,10 +143,11 @@ switch_to_userspace:
 	mov %ax, %ds
 	mov %ax, %es
 
-	push %rax # %ss
-	push %rsi # %rsp
-	pushf
-	pushq $X86_USER_CS # %cs
-	push %rdi # rip
+	push %rax			# %ss
+	push %rsi			# %rsp
+	pushfq				# %rflags
+	orq $X86_RFLAGS_IF, (%rsp)	# %rflags |= IF
+	pushq $X86_USER_CS		# %cs
+	push %rdi			# %rip
 
 	iretq
