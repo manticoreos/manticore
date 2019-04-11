@@ -4,6 +4,7 @@
 #include <kernel/memory.h>
 #include <kernel/printf.h>
 #include <kernel/panic.h>
+#include <kernel/sched.h>
 #include <kernel/kmem.h>
 #include <kernel/cpu.h>
 
@@ -31,9 +32,7 @@ void start_kernel(void)
 	test_page_alloc();
 	test_printf();
 #endif
-	for (;;) {
-		arch_halt_cpu();
-	}
+	schedule();
 	printf("Halted.\n");
 	arch_halt_cpu();
 }

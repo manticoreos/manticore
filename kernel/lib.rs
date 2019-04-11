@@ -24,6 +24,7 @@ pub mod memory;
 pub mod mmu;
 pub mod vm;
 pub mod process;
+pub mod sched;
 pub mod device;
 pub mod ioport;
 
