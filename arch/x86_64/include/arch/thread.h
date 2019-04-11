@@ -5,6 +5,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+//! The TIF_NEW flag represents a task that has never been scheduled.
+//! The switch_to() function takes this into account and switches the task
+//! to userspace context.
 #define __TIF_NEW	0
 #define TIF_NEW		(1ULL << __TIF_NEW)
 
