@@ -113,6 +113,10 @@ impl VMAddressSpace {
         self.vm_regions.clear();
     }
 
+    pub fn switch_to(&self) {
+        unsafe { mmu::mmu_load_map(self.mmu_map) };
+    }
+
     pub fn allocate(&mut self, start: usize, end: usize, prot: VMProt) -> Result<()> {
         let size = end - start;
         if size != memory::PAGE_SIZE_SMALL as usize {
