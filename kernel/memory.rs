@@ -162,6 +162,10 @@ pub extern "C" fn memory_add_span(start: u64, size: u64) {
     }
 }
 
+pub fn is_aligned(value: u64, align: u64) -> bool {
+    value % align == 0
+}
+
 pub fn align_down(value: u64, align: u64) -> u64 {
     value & !(align - 1)
 }

@@ -119,7 +119,7 @@ impl VMAddressSpace {
 
     pub fn allocate(&mut self, start: usize, end: usize, prot: VMProt) -> Result<()> {
         let size = end - start;
-        if size != memory::PAGE_SIZE_SMALL as usize {
+        if !memory::is_aligned(size as u64, memory::PAGE_SIZE_SMALL) {
             return Err(Error::new(EINVAL));
         }
         {
