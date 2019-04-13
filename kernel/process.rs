@@ -8,6 +8,7 @@ use sched;
 use vm::{VMAddressSpace, VMProt, VM_PROT_EXEC, VM_PROT_READ, VM_PROT_RW, VM_PROT_WRITE};
 use xmas_elf::program;
 use xmas_elf::ElfFile;
+use rlibc::memset;
 
 pub type TaskState = usize;
 
@@ -76,7 +77,9 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
             _ => {}
         }
     }
-
+    if let Some(section) = elf_file.find_section_by_name(".bss") {
+        memset(transmute(section.address()), 0, section.size() as usize);
+    }
     let stack_top = 0x40000000;
     let stack_size = 4096;
     let stack_start = stack_top - stack_size;
