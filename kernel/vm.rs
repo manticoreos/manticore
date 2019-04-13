@@ -192,11 +192,31 @@ impl VMAddressSpace {
         if size < src_size {
             return Err(Error::new(EINVAL));
         }
-        let cur = self.vm_regions.find(&start);
-        if let Some(region) = cur.get() {
+        let region = self.vm_regions.find(&start);
+        if let Some(region) = region.get() {
             if region.end != end {
                 return Err(Error::new(EINVAL));
             }
+            for offset in (0..size).step_by(memory::PAGE_SIZE_SMALL as usize) {
+                let page = memory::page_alloc_small();
+                if page as usize == 0 {
+                    return Err(Error::new(ENOMEM));
+                }
+                region.page.set(Some(page as usize));
+                unsafe { memcpy(mem::transmute(page), mem::transmute(src_start + offset), memory::PAGE_SIZE_SMALL as usize) };
+                let err = unsafe { mmu::mmu_map_range(
+                    self.mmu_map,
+                    start + offset,
+                    mmu::virt_to_phys(mem::transmute(page)),
+                    memory::PAGE_SIZE_SMALL as usize,
+                    region.mmu_prot(),
+                    mmu::MMU_USER_PAGE,
+                )};
+                if err != 0 {
+                    return Err(Error::new(err));
+                }
+            }
+            /*
             let err = unsafe {
                 let page = memory::page_alloc_small();
                 if page as usize == 0 {
@@ -216,6 +236,7 @@ impl VMAddressSpace {
             if err != 0 {
                 return Err(Error::new(err));
             }
+            */
             return Ok(());
         } else {
             return Err(Error::new(EINVAL));
