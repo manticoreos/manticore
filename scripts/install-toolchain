@@ -8,7 +8,7 @@ else
     echo "Warning: '$ID' is not a supported OS."
 fi
 
-version=nightly-2018-09-28
+version=nightly-2019-04-18
 
 rustup install $version
 rustup default $version
