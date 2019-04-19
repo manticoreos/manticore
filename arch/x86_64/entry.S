@@ -136,9 +136,9 @@ syscall_entry:
 	sysretq
 
 .align 16
-.globl switch_to_userspace
-.type switch_to_userspace, @function
-switch_to_userspace:
+.globl ret_to_userspace
+.type ret_to_userspace, @function
+ret_to_userspace:
 	movq	$X86_USER_DS, %rax
 	mov	%ax, %ds
 	mov	%ax, %es

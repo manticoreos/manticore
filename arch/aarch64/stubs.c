@@ -1,4 +1,4 @@
-void switch_to_userspace(void)
+void ret_to_userspace(void)
 {
 	/* Not supported. */
 }

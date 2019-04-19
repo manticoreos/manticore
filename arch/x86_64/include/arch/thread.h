@@ -25,6 +25,6 @@ void *task_state_entry_point(struct task_state *task_state);
 
 void switch_to(struct task_state *old, struct task_state *new);
 void switch_to_first(struct task_state *task_state);
-void switch_to_userspace(void *rip, void *rsp);
+void ret_to_userspace(void *rip, void *rsp);
 
 #endif
