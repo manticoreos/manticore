@@ -51,11 +51,20 @@ pub extern "C" fn schedule() {
             unsafe { switch_to_first(next_ts) };
         }
     } else {
-        panic!("Nothing to schedule.");
+        if let Some(prev) = prev {
+            unsafe {
+                switch_to(prev.task_state, idle_task);
+            }
+        } else {
+            unsafe {
+                switch_to_first(idle_task);
+            }
+        }
     }
 }
 
 extern "C" {
     pub fn switch_to(old: TaskState, new: TaskState);
     pub fn switch_to_first(ts: TaskState);
+    pub static idle_task: TaskState;
 }

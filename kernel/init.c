@@ -9,9 +9,23 @@
 #include <kernel/cpu.h>
 
 #include <arch/interrupts.h>
+#include <arch/thread.h>
 #include <arch/setup.h>
 
 #include <stddef.h>
+
+#define IDLE_STACK_SIZE PAGE_SIZE_SMALL
+
+static char idle_stack[IDLE_STACK_SIZE] __attribute__((aligned(16)));
+struct task_state *idle_task;
+
+static void idle(void)
+{
+	for (;;) {
+		arch_halt_cpu();
+		schedule();
+	}
+}
 
 void start_kernel(void)
 {
@@ -32,6 +46,11 @@ void start_kernel(void)
 	test_page_alloc();
 	test_printf();
 #endif
+	idle_task = task_state_new(idle, idle_stack + IDLE_STACK_SIZE);
+	if (!idle_task) {
+		panic("unable to allocate idle task");
+	}
+	idle_task->flags = 0;
 	schedule();
 	printf("Halted.\n");
 	arch_halt_cpu();
