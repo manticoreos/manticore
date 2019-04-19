@@ -34,10 +34,26 @@ void *task_state_entry_point(struct task_state *task_state)
 	return task_state->rip;
 }
 
-void switch_to_first(struct task_state *task_state)
+void switch_to_first(struct task_state *new)
 {
-	task_state->flags &= ~TIF_NEW;
-	switch_to_userspace(task_state->rip, task_state->rsp);
+	asm volatile(
+		"push	%%rbp\n"
+		"btrl	%[tif_new], %c[flags](%0)\n"
+		"movq	%c[rip](%0), %%rdi\n"
+		"movq	%c[rsp](%0), %%rsi\n"
+		"jc	switch_to_userspace\n"
+		"movq	%%rsi, %%rsp\n"
+		"jmpq	*%%rdi\n"
+		"0:\n"
+		"pop	%%rbp\n"
+		:
+		: "S"(new),
+		  [rsp]"i"(offsetof(struct task_state, rsp)),
+		  [rip]"i"(offsetof(struct task_state, rip)),
+		  [tif_new]"i"(__TIF_NEW),
+		  [flags]"i"(offsetof(struct task_state, flags))
+		: "rax", "rbx", "rcx", "rdx", "r8",  "r9",  "r10", "r11", "r12", "r13", "r14", "r15",
+		  "memory", "flags", "cc");
 }
 
 void switch_to(struct task_state *old, struct task_state *new)
