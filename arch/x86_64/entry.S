@@ -139,15 +139,15 @@ syscall_entry:
 .globl switch_to_userspace
 .type switch_to_userspace, @function
 switch_to_userspace:
-	movq $X86_USER_DS, %rax
-	mov %ax, %ds
-	mov %ax, %es
+	movq	$X86_USER_DS, %rax
+	mov	%ax, %ds
+	mov	%ax, %es
 
-	push %rax			# %ss
-	push %rsi			# %rsp
+	push	%rax			# %ss
+	push	%rsi			# %rsp
 	pushfq				# %rflags
-	orq $X86_RFLAGS_IF, (%rsp)	# %rflags |= IF
-	pushq $X86_USER_CS		# %cs
-	push %rdi			# %rip
+	orq	$X86_RFLAGS_IF, (%rsp)	# %rflags |= IF
+	pushq	$X86_USER_CS		# %cs
+	push	%rdi			# %rip
 
 	iretq
