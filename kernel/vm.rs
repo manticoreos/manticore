@@ -216,27 +216,6 @@ impl VMAddressSpace {
                     return Err(Error::new(err));
                 }
             }
-            /*
-            let err = unsafe {
-                let page = memory::page_alloc_small();
-                if page as usize == 0 {
-                    return Err(Error::new(ENOMEM));
-                }
-                region.page.set(Some(page as usize));
-                memcpy(mem::transmute(page), mem::transmute(src_start), size);
-                mmu::mmu_map_range(
-                    self.mmu_map,
-                    start,
-                    mmu::virt_to_phys(mem::transmute(page)),
-                    size,
-                    region.mmu_prot(),
-                    mmu::MMU_USER_PAGE,
-                )
-            };
-            if err != 0 {
-                return Err(Error::new(err));
-            }
-            */
             return Ok(());
         } else {
             return Err(Error::new(EINVAL));
