@@ -3,6 +3,7 @@
 
 enum {
 	SYS_exit	= 1,
+	SYS_wait	= 2,
 };
 
 int syscall(int nr, ...);

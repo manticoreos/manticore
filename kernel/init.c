@@ -23,6 +23,7 @@ static void idle(void)
 {
 	for (;;) {
 		arch_halt_cpu();
+		wake_up_processes();
 		schedule();
 	}
 }

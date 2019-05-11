@@ -3,4 +3,7 @@
 
 void schedule();
 
+void process_wait(void);
+void wake_up_processes(void);
+
 #endif

@@ -1,6 +1,7 @@
 use alloc::rc::Rc;
 use core::intrinsics::transmute;
 use core::slice;
+use core::cell::RefCell;
 use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
@@ -13,7 +14,15 @@ use rlibc::memset;
 pub type TaskState = usize;
 
 #[derive(Debug)]
+pub enum ProcessState {
+    RUNNABLE,
+    RUNNING,
+    WAITING,
+}
+
+#[derive(Debug)]
 pub struct Process {
+    pub state: RefCell<ProcessState>,
     pub task_state: TaskState,
     pub vmspace: VMAddressSpace,
     pub link: LinkedListLink,
@@ -24,6 +33,7 @@ intrusive_adapter!(pub ProcessAdapter = Rc<Process>: Process { link: LinkedListL
 impl Process {
     pub fn new(task_state: TaskState, vmspace: VMAddressSpace) -> Self {
         Process {
+            state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
             vmspace: vmspace,
             link: LinkedListLink::new(),

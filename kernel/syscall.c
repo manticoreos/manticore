@@ -2,6 +2,7 @@
 
 #include <kernel/errno.h>
 #include <kernel/panic.h>
+#include <kernel/sched.h>
 
 #include <stdarg.h>
 
@@ -10,6 +11,19 @@ static int sys_exit(int status)
 	panic("Process terminated.");
 	return 0;
 }
+
+static int sys_wait(void)
+{
+	process_wait();
+
+	return 0;
+}
+
+#define SYSCALL0(fn)                                                                                                   \
+	case (SYS_##fn):                                                                                               \
+		do {                                                                                                   \
+			return sys_##fn();                                                                             \
+		} while (0)
 
 #define SYSCALL1(fn, arg0_type)                                                                                        \
 	case (SYS_##fn):                                                                                               \
@@ -25,7 +39,8 @@ static int sys_exit(int status)
 int syscall(int nr, ...)
 {
 	switch (nr) {
-		SYSCALL1(exit, int);
+	SYSCALL1(exit, int);
+	SYSCALL0(wait);
 	}
 	return -ENOSYS;
 }
