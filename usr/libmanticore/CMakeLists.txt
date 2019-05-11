@@ -3,6 +3,7 @@ project(libmanticore)
 add_library(manticore
     src/syscall.c
     src/syscalls/exit.c
+    src/syscalls/wait.c
 )
 
 target_include_directories(manticore PUBLIC
