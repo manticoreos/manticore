@@ -48,7 +48,7 @@ tests += tests/tst-printf.o
 endif
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
-CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes)
+CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes) -fno-pie
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 LDFLAGS += --gc-sections
 
