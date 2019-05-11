@@ -19,6 +19,14 @@ static int sys_wait(void)
 	return 0;
 }
 
+static int sys_console_print(const char *text)
+{
+	/* FIXME: This is unsafe -- we are following a pointer from
+	   userspace without verifying it.  */
+	puts(text);
+	return 0;
+}
+
 #define SYSCALL0(fn)                                                                                                   \
 	case (SYS_##fn):                                                                                               \
 		do {                                                                                                   \
@@ -41,6 +49,7 @@ int syscall(int nr, ...)
 	switch (nr) {
 	SYSCALL1(exit, int);
 	SYSCALL0(wait);
+	SYSCALL1(console_print, const char *);
 	}
 	return -ENOSYS;
 }
