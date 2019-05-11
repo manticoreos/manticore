@@ -6,6 +6,8 @@ set -e
 
 if [ "$ID" = "fedora" ]; then
     sudo dnf install gcc xorriso
+elif [ "$ID" = "ubuntu" ]; then
+    sudo apt install --yes curl grub-pc-bin cmake
 else
     echo "Warning: '$ID' is not a supported OS."
 fi
