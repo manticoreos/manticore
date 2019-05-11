@@ -77,6 +77,20 @@ $ ./scripts/run kernel.iso
 
 For more information, see [Manticore Hacker's Guide](HACKING.md).
 
+### Running Example Applications
+
+Once `kernel.elf` is built, you can build an user space echo server with:
+
+```
+$ make -C usr/echod
+```
+
+and launch it under QEMU with:
+
+```
+$ ./scripts/run usr/echod/echod.iso
+```
+
 ### Supported Hardware
 
  * Legacy-free PC with a 64-bit x86 processor
