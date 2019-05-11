@@ -1,4 +1,24 @@
-# Manticore Hacking Guide
+# Manticore Hacker's Guide
+
+### Cross Compiling to AArch64
+
+You can install the AArch64 cross compiling toolchain with:
+
+```
+./scripts/install-aarch64-toolchain
+```
+
+To build an AArch64 kernel image, use:
+
+```
+make ARCH=aarch64
+```
+
+To run the AArch64 kernel image under QEMU:
+
+```
+./scripts/run-aarch64
+```
 
 ## Running kernel test suite
 

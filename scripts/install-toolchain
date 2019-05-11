@@ -3,15 +3,20 @@
 . /etc/os-release
 
 if [ "$ID" = "fedora" ]; then
-    sudo dnf install xorriso
+    sudo dnf install gcc xorriso
 else
     echo "Warning: '$ID' is not a supported OS."
 fi
 
-version=nightly-2019-04-18
+toolchain=nightly-2019-04-18
 
-rustup install $version
-rustup default $version
+# Please hote that the rustup script modifies PATH environment variable.
+curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $toolchain
+
+source $HOME/.cargo/env
+
+rustup install $toolchain
+rustup default $toolchain
 rustup component add rust-src
 
 cargo install xargo
