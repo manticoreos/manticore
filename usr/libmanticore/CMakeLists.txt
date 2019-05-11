@@ -4,6 +4,7 @@ add_library(manticore
     src/syscall.c
     src/syscalls/exit.c
     src/syscalls/wait.c
+    src/syscalls/console_print.c
 )
 
 target_include_directories(manticore PUBLIC
