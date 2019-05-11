@@ -1,4 +1,4 @@
-project(libmanticore)
+project(libmanticore LANGUAGES C)
 
 add_library(manticore
     src/syscall.c
