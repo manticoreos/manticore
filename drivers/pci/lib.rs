@@ -3,7 +3,6 @@
 //!
 
 #![no_std]
-#![feature(alloc)]
 #![feature(const_fn)]
 
 extern crate alloc;
