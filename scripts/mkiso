@@ -58,7 +58,7 @@ if __name__ == "__main__":
     image_boot_dir = os.path.join("/", boot_dir)
 
     # Kernel filename on the bootable image filesystem:
-    image_kernel = os.path.join(image_boot_dir, args.kernel)
+    image_kernel = os.path.join(image_boot_dir, os.path.basename(args.kernel))
 
     # Initrd filename on the bootable image filesystem:
     if args.initrd:
