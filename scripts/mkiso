@@ -3,6 +3,7 @@
 import subprocess
 import argparse
 import shutil
+import sys
 import os
 
 
@@ -30,6 +31,13 @@ menuentry "kernel" {
     multiboot2 %s
 }
 """ % self.kernel
+
+def find_executable(executables):
+    for e in executables:
+        path = shutil.which(e)
+        if path:
+            return path
+    return None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -80,9 +88,13 @@ if __name__ == "__main__":
     if args.initrd:
         shutil.copy(args.initrd, build_boot_dir)
 
+    grub_mkrescue = find_executable(["grub2-mkrescue", "grub-mkrescue"])
+    if grub_mkrescue is None:
+        sys.exit("no grub-mkrescue found")
+
     # Build the bootable image:
     devnull = open(os.devnull, 'wb')
-    ret = subprocess.call(["grub2-mkrescue", "-o", args.image,
+    ret = subprocess.call([grub_mkrescue, "-o", args.image,
                            args.build_directory], stdout=devnull, stderr=devnull)
     if ret != 0:
-        sys.exit("grub2-mkrescue failed")
+        sys.exit("%s failed" % (grub_mkrescue))

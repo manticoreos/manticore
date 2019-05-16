@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.12)
+project(liblinux LANGUAGES C)
 
-project(liblinux)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
 add_library(linux
     src/arpa/inet.c
