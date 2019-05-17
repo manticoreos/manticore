@@ -5,6 +5,9 @@
   <img src="https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/shields_badge.svg" alt="Build Status">
 </a>
 <img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="MIT/Apache 2.0 License">
+<a href="https://gitter.im/manticoreos/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
+  <img src="https://badges.gitter.im/manticoreos/community.svg" alt="Gitter">
+</a>
 </p>
 
 <p align="center">
