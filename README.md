@@ -4,12 +4,7 @@
 <a href="https://semaphoreci.com/manticore/manticore">
   <img src="https://semaphoreci.com/api/v1/projects/3ee7d6de-333a-4b15-afbc-065e3825778b/1298917/shields_badge.svg" alt="Build Status">
 </a>
-<a href="https://choosealicense.com/licenses/mit">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT License">
-</a>
-<a href="https://choosealicense.com/licenses/apache-2.0">
-  <img src="https://img.shields.io/badge/license-apache-blue.svg?style=flat-square" alt="Apache License">
-</a>
+<img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="MIT/Apache 2.0 License">
 </p>
 
 <p align="center">
