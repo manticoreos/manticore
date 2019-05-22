@@ -8,6 +8,8 @@ if [ "$ID" = "fedora" ]; then
     sudo dnf install gcc xorriso
 elif [ "$ID" = "ubuntu" ]; then
     sudo apt install --yes curl grub-pc-bin cmake
+elif [ "$ID" = "antergos" ] || [ "$ID" = "arch" ]; then
+    sudo pacman -S --noconfirm curl cmake grub mtools
 else
     echo "Warning: '$ID' is not a supported OS."
 fi
