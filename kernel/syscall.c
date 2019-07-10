@@ -8,7 +8,7 @@
 
 static int sys_exit(int status)
 {
-	panic("Process terminated.");
+	panic("Process terminated with exit status %d.", status);
 	return 0;
 }
 
