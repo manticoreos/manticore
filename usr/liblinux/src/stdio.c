@@ -298,7 +298,7 @@ int fprintf(FILE *stream, const char *fmt, ...)
 	int ret = vsprintf(text, fmt, ap);
 	va_end(ap);
 
-	console_print(text);
+	console_print(text, ret);
 
 	return 0; // FIXME
 }
