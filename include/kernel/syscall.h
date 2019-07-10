@@ -7,6 +7,6 @@ enum {
 	SYS_console_print	= 3,
 };
 
-int syscall(int nr, ...);
+long syscall(int nr, ...);
 
 #endif
