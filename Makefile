@@ -24,6 +24,7 @@ objs += kernel/panic.o
 objs += kernel/printf.o
 objs += kernel/syscall.o
 objs += kernel/thread.o
+objs += kernel/user-copy.o
 objs += mm/kmem.o
 
 rust_src += drivers/pci/lib.rs
