@@ -115,8 +115,15 @@ syscall_entry:
 	pushq	%rcx
 	pushq	%rbx
 
+	pushq	%r9
+	movq	%r8,  %r9
+	movq	%r10, %r8
+	movq	%rdx, %r10
+	movq	%rsi, %rdx
+	movq	%rdi, %rsi
 	movq	%rax, %rdi
 	callq	syscall
+	add	$8, %rsp
 
 	popq	%rbx
 	popq	%rcx
