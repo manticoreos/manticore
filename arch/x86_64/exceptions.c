@@ -1,5 +1,6 @@
 #include <arch/exceptions.h>
 
+#include <kernel/page-fault.h>
 #include <kernel/printf.h>
 #include <kernel/panic.h>
 #include <kernel/irq.h>
@@ -8,6 +9,7 @@
 #include <arch/interrupt-defs.h>
 #include <arch/segment.h>
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -238,6 +240,11 @@ void do_x86_general_protection_exception(struct exception_frame *ef)
 
 void do_x86_page_fault_exception(struct exception_frame *ef)
 {
+	void *fixup = page_fault_get_fixup();
+	if (fixup) {
+		ef->rip = (uint64_t) fixup;
+		return;
+	}
 	uint64_t addr = x86_read_cr2();
 	printf("Page fault at address %016lx\n", addr);
 	dump_exception_frame(ef);

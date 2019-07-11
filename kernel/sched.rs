@@ -96,6 +96,28 @@ pub extern "C" fn process_wait() {
 }
 
 #[no_mangle]
+pub extern fn page_fault_set_fixup(fixup: u64)
+{
+    unsafe {
+        if let Some(ref mut current) = CURRENT {
+            current.page_fault_fixup.replace(fixup);
+        }
+    }
+}
+
+#[no_mangle]
+pub extern fn page_fault_get_fixup() -> u64
+{
+    unsafe {
+        if let Some(ref mut current) = CURRENT {
+            return current.page_fault_fixup.get()
+        } else {
+            return 0
+        }
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn wake_up_processes() {
     loop {
         unsafe {

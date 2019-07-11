@@ -1,7 +1,7 @@
 use alloc::rc::Rc;
 use core::intrinsics::transmute;
 use core::slice;
-use core::cell::RefCell;
+use core::cell::{Cell, RefCell};
 use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
@@ -25,6 +25,7 @@ pub struct Process {
     pub state: RefCell<ProcessState>,
     pub task_state: TaskState,
     pub vmspace: VMAddressSpace,
+    pub page_fault_fixup: Cell<u64>,
     pub link: LinkedListLink,
 }
 
@@ -36,6 +37,7 @@ impl Process {
             state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
             vmspace: vmspace,
+            page_fault_fixup: Cell::new(0),
             link: LinkedListLink::new(),
         }
     }
