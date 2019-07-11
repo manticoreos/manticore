@@ -8,9 +8,9 @@
 
 static void do_panic(char *msg)
 {
-	console_write("Kernel panic: ");
-	console_write(msg);
-	console_write("\n");
+	console_write_str("Kernel panic: ");
+	console_write_str(msg);
+	console_write_str("\n");
 	arch_local_interrupt_disable();
 	for (;;) {
 		arch_halt_cpu();
