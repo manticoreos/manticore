@@ -13,7 +13,7 @@ echod.linux: echod.c
 	gcc -Wall -O3 -g echod.c -o echod.linux
 
 echod.manti: echod.c
-	gcc -Wall -O3 -g -I../liblinux/include -ffreestanding -fno-stack-protector -static --entry=main -Wl,--gc-sections -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
+	gcc -Wall -O3 -g -I../liblinux/include -fno-stack-protector -static -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
 
 echod.iso: echod.manti
 	../../scripts/mkiso --kernel ../../kernel.elf --initrd echod.manti echod.iso
