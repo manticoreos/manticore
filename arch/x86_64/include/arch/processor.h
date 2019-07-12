@@ -18,5 +18,7 @@
  * CR4:
  */
 #define X86_CR4_PAE		_UL_BIT(5)
+#define X86_CR4_OSFXSR		_UL_BIT(9)
+#define X86_CR4_OSXMMEXCPT	_UL_BIT(10)
 
 #endif
