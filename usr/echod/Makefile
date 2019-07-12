@@ -1,6 +1,6 @@
 PROGRAMS = echod.linux echod.manti
 
-CFLAGS = -Wall -O3 -g 
+CFLAGS = -Wall -O3 -g -static
 
 all: libs echod.linux echod.manti echod.iso
 
@@ -15,7 +15,7 @@ echod.linux: echod.c
 	gcc $(CFLAGS) echod.c -o echod.linux
 
 echod.manti: echod.c
-	gcc $(CFLAGS) -I../liblinux/include -fno-stack-protector -static -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
+	gcc $(CFLAGS) -I../liblinux/include -fno-stack-protector -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
 
 echod.iso: echod.manti
 	../../scripts/mkiso --kernel ../../kernel.elf --initrd echod.manti echod.iso
