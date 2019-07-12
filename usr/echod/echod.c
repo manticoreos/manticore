@@ -38,9 +38,10 @@ static void echo(int sockfd)
 
 int main(int argc, char *argv[])
 {
-	fprintf(stdout, "Echo server running ...\n");
-
 	int port = DEFAULT_PORT;
+
+	fprintf(stdout, "Echo server listening to port %d ...\n", port);
+
 	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd < 0) {
 		die("sockfd");
