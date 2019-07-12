@@ -298,7 +298,18 @@ int fprintf(FILE *stream, const char *fmt, ...)
 	int ret = vsprintf(text, fmt, ap);
 	va_end(ap);
 
+	/* FIXME: We must write to 'stream', not to console...  */
 	console_print(text, ret);
 
-	return 0; // FIXME
+	/* FIXME: Return number of characters printed.  */
+	return 0;
+}
+
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+	/* FIXME: We must write to 'stream', not to console...  */
+	console_print(ptr, size * nmemb);
+
+	/* FIXME: Return number of characters printed.  */
+	return 0;
 }
