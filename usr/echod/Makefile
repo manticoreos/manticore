@@ -17,5 +17,5 @@ echod.linux: echod.c
 echod.manti: echod.c
 	gcc $(CFLAGS) -I../liblinux/include -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
 
-echod.iso: echod.manti
+echod.iso: echod.manti ../../kernel.elf
 	../../scripts/mkiso --kernel ../../kernel.elf --initrd echod.manti echod.iso
