@@ -14,14 +14,13 @@ extern crate intrusive_collections;
 use core::intrinsics::transmute;
 use intrusive_collections::{LinkedList, LinkedListLink, UnsafeRef};
 use kernel::device::{register_device, Device};
-use kernel::ioport;
 use kernel::ioport::IOPort;
 use kernel::print;
 
-const MSIX_ENTRY_SIZE: u64 = 16;
-const MSIX_ENTRY_ADDR: u64 = 0;
-const MSIX_ENTRY_DATA: u64 = 8;
-const MSIX_ENTRY_CONTROL: u64 = 12;
+const MSIX_ENTRY_SIZE: usize = 16;
+const MSIX_ENTRY_ADDR: usize = 0;
+const MSIX_ENTRY_DATA: usize = 8;
+const MSIX_ENTRY_CONTROL: usize = 12;
 
 #[repr(C)]
 pub struct MSIMessage {
@@ -299,7 +298,7 @@ pub struct MSIX {
 pub struct PCIDevice {
     pub func: PCIFunction,
     pub dev_id: DeviceID,
-    pub bars: [Option<BAR>; 6],
+    pub bars: [Option<IOPort>; 6],
     pub msix: Option<MSIX>,
 }
 
@@ -311,7 +310,7 @@ impl PCIDevice {
         let class_code = func.read_config_u8(PCI_CFG_CLASS_CODE);
         let subclass = func.read_config_u8(PCI_CFG_SUBCLASS);
         let prog_if = func.read_config_u8(PCI_CFG_PROG_IF);
-        let mut bars = [None, None, None, None, None, None];
+        let mut bars: [Option<IOPort>; 6] = [None, None, None, None, None, None];
         let max_bars = match header_type & PCI_HEADER_TYPE_MASK {
             PCI_HEADER_TYPE_DEVICE => 6,
             PCI_HEADER_TYPE_PCCARD => 2,
@@ -320,7 +319,7 @@ impl PCIDevice {
         let mut bar_idx = 0;
         while bar_idx < max_bars {
             let (bar, next_idx) = BAR::decode(&func, bar_idx);
-            bars[bar_idx] = bar;
+            bars[bar_idx] = bar.map(|bar| unsafe { bar.remap() });
             bar_idx = next_idx;
         }
         let msix = func.find_capability(PCI_CAPABILITY_MSIX).map(|off| {
@@ -417,9 +416,11 @@ impl PCIDevice {
     }
 
     pub fn write_msix_entry(&self, id: u16, addr: u64, data: u32) {
-        let entry_addr = self.get_entry_addr(id);
-        unsafe { ioport::mmio_write64(addr, entry_addr + MSIX_ENTRY_ADDR) };
-        unsafe { ioport::mmio_write32(data, entry_addr + MSIX_ENTRY_DATA) };
+        if let Some(ioport) = self.get_msix_table() {
+            let entry_addr = self.get_entry_addr(id);
+            unsafe { ioport.write64(addr, entry_addr + MSIX_ENTRY_ADDR) };
+            unsafe { ioport.write32(data, entry_addr + MSIX_ENTRY_DATA) };
+        }
     }
 
     pub fn mask_msix_entry(&self, id: u16) {
@@ -435,28 +436,31 @@ impl PCIDevice {
     }
 
     fn read_msix_entry_ctrl(&self, id: u16) -> u32 {
-        let entry_addr = self.get_entry_addr(id);
-        let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
-        return unsafe { ioport::mmio_read32(ctrl) };
+        if let Some(ioport) = self.get_msix_table() {
+            let entry_addr = self.get_entry_addr(id);
+            let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
+            return unsafe { ioport.read32(ctrl) };
+        }
+        return 0;
     }
 
     fn write_msix_entry_ctrl(&self, id: u16, ctrl_data: u32) {
-        let entry_addr = self.get_entry_addr(id);
-        let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
-        unsafe { ioport::mmio_write32(ctrl_data, ctrl) };
-    }
-
-    fn get_entry_addr(&self, id: u16) -> u64 {
-        return self.get_msix_table() + (id as u64 * MSIX_ENTRY_SIZE);
-    }
-
-    pub fn get_msix_table(&self) -> u64 {
-        if let Some(ref msix) = self.msix {
-            if let Some(BAR::Memory { base_addr, .. }) = self.bars[msix.table_bar as usize] {
-                return base_addr + msix.table_offset;
-            }
+        if let Some(ioport) = self.get_msix_table() {
+            let entry_addr = self.get_entry_addr(id);
+            let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
+            unsafe { ioport.write32(ctrl_data, ctrl) };
         }
-        return 0;
+    }
+
+    fn get_entry_addr(&self, id: u16) -> usize {
+        return id as usize * MSIX_ENTRY_SIZE;
+    }
+
+    pub fn get_msix_table(&self) -> &Option<IOPort> {
+        if let Some(ref msix) = self.msix {
+            return &self.bars[msix.table_bar as usize];
+        }
+        return &None;
     }
 }
 

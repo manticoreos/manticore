@@ -106,9 +106,7 @@ impl VirtioNetDevice {
         let mut dev = VirtioNetDevice::new();
 
         let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
-        let bar = &pci_dev.bars[bar_idx.unwrap()].clone().unwrap();
-
-        let ioport = unsafe { bar.remap() };
+        let ioport = pci_dev.bars[bar_idx.unwrap()].clone().unwrap();
 
         //
         // 1. Reset device
