@@ -8,6 +8,17 @@
 #include <kernel/irq.h>
 
 #include <stdbool.h>
+#define APIC_LVT_TIMER_ONE_SHOT  (0)
+#define APIC_LVT_TIMER_VECTOR (0xee)
+static int tdt_count;
+u64 exptime;
+int delta;
+int mode;
+#define TABLE_SIZE 100000
+u64 table[TABLE_SIZE];
+volatile int table_idx;
+volatile int hitmax = 0;
+int breakmax = 0;
 
 /* Local APIC registers in MSR offsets. Specified in Table 10-6 ("Local APIC
    Register Address Map Supported by x2APIC") of Intel SDM.  */
@@ -39,6 +50,24 @@ enum {
 
 static uint64_t _apic_base;
 
+static void apic_timer_isr(isr_regs_t *regs)
+{
+	u64 now = rdtsc();
+	++tdt_count;
+	if (table_idx < TABLE_SIZE && tdt_count > 1)
+		table[table_idx++] = now - exptime;
+	if (breakmax && tdt_count > 1 && (now - exptime) > breakmax) {
+	  hitmax = 1;
+		apic_write(APIC_EOI, 0);
+		return;
+	}
+	exptime = now + delta;
+	if (mode == APIC_LVT_TIMER_ONE_SHOT)
+		/* Set "Initial Counter Register", which starts the timer */
+		apic_write(APIC_TMICT, delta);
+
+	apic_write(APIC_EOI, 0);
+}
 void apic_compose_msi_msg(struct msi_message *msg, uint8_t vector, uint8_t dest_id)
 {
 	msg->msg_addr = (_apic_base & 0xfff00000ULL) | (dest_id << 12);
@@ -92,8 +121,33 @@ void init_apic(void)
 	printf("Found x2APIC at %lx\n", _apic_base);
 
 	wrmsr(X86_IA32_APIC_BASE, _apic_base | X86_IA32_APIC_BASE_EXTD | X86_IA32_APIC_BASE_EN);
+
+	mode = argc <= 1 ? APIC_LVT_TIMER_PERIODIC : atol(argv[1]);
+	delta = argc <= 2 ? 0x100000 : atol(argv[2]);
+	size = argc <= 3 ? TABLE_SIZE : atol(argv[3]);
+	breakmax = argc <= 4 ? 0 : atol(argv[4]);
+	printf("breakmax=%d\n", breakmax);
+	if (mode == APIC_LVT_TIMER_PERIODIC)
+		printf("APIC Timer Periodic Mode\n");
+	else if (mode == APIC_LVT_TIMER_ONE_SHOT)
+		printf("APIC Timer Oneshot Mode\n");
+  irq_enable();
+
+	do {
+		asm volatile("hlt");
+	} while (!hitmax && table_idx < size);
+
+	for (i = 0; i < table_idx; ++i)
+	{
+		if (hitmax && i == table_idx-1)
+			printf("hit max: %d < ", breakmax);
+		count += table[i];
+		printf("latency: %" PRId64 "\n", table[i]);
+	}
+
+	printf("latency = %lu\n", count/size);
 	apic_write(ACPI_LVT_LINT0, 0);
 	apic_write(APIC_SPIV, 0x1ff);
 
-	apic_timer_init();
+	//apic_timer_init();
 }
