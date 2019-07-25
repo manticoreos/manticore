@@ -96,6 +96,10 @@ static void parse_memory_map(struct tag *tag, void *data)
 
 	for (; offset < tag->size; offset += sizeof(struct memory_map_entry)) {
 		struct memory_map_entry *entry = data + offset;
+		virt_t vaddr = align_up(entry->base_addr + KERNEL_VMA, PAGE_SIZE_SMALL);
+		if (vaddr > kernel_vm_end) {
+			kernel_vm_end = vaddr;
+		}
 		const char *memory_type = "unknown";
 		if (entry->type < ARRAY_SIZE(memory_types)) {
 			memory_type = memory_types[entry->type];
