@@ -1,11 +1,13 @@
 //! Virtio network device driver.
 
 use alloc::boxed::Box;
+use core::intrinsics::transmute;
 use intrusive_collections::LinkedList;
 use kernel::device::{Device, DeviceOps};
+use kernel::memory;
 use kernel::mmu;
 use kernel::print;
-use pci::{PCIDriver, PCIDevice, DeviceID, PCI_VENDOR_ID_REDHAT, PCI_CAPABILITY_VENDOR};
+use pci::{DeviceID, PCIDevice, PCIDriver, PCI_CAPABILITY_VENDOR, PCI_VENDOR_ID_REDHAT};
 use virtqueue;
 
 const PCI_DEVICE_ID_VIRTIO_NET: u16 = 0x1041;
@@ -103,9 +105,14 @@ impl VirtioNetDevice {
     fn probe(pci_dev: &PCIDevice) -> Device {
         pci_dev.set_bus_master(true);
 
+        pci_dev.enable_msix();
+
         let mut dev = VirtioNetDevice::new();
 
         let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
+
+        println!("virtio-net: using PCI BAR{} for device configuration", bar_idx.unwrap());
+
         let ioport = pci_dev.bars[bar_idx.unwrap()].clone().unwrap();
 
         //
@@ -156,7 +163,7 @@ impl VirtioNetDevice {
 
             let size = unsafe { ioport.read16(QUEUE_SIZE) };
 
-            let vq = virtqueue::Virtqueue::new(size as usize);
+            let vq = Box::new(virtqueue::Virtqueue::new(size as usize));
 
             unsafe {
                 ioport.write64(
@@ -168,6 +175,18 @@ impl VirtioNetDevice {
                     QUEUE_AVAIL,
                 );
                 ioport.write64(mmu::virt_to_phys(vq.raw_used_ring_ptr) as u64, QUEUE_USED);
+
+                // RX queue:
+                if queue == 0 {
+                    /* FIXME: Free allocated pages when driver is unloaded.  */
+                    let page = memory::page_alloc_small();
+                    /* FIXME: Check if page allocator returned NULL.  */
+                    vq.add_inbuf(mmu::virt_to_phys(page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
+                    let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(&dev));
+                    pci_dev.enable_irq(queue);
+                    ioport.write16(queue, QUEUE_MSIX_VECTOR);
+                    println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
+                }
                 ioport.write16(1 as u16, QUEUE_ENABLE);
             }
 
@@ -198,12 +217,37 @@ impl VirtioNetDevice {
         None
     }
 
-    fn new() -> Self {
-        VirtioNetDevice { vqs: LinkedList::new(virtqueue::VirtqueueAdapter::new()) }
+    fn recv(&self) {
+        for ref mut vq in self.vqs.iter() {
+            /* FIXME: The used ring is in little endian byte order.  */
+            let last_seen_idx = vq.last_seen_used();
+            let last_used_idx = unsafe { (*vq.used_ring()).idx };
+            if last_seen_idx != last_used_idx {
+                /* FIXME: Fix loop when indexes wrap around.  */
+                assert!(last_seen_idx < last_used_idx);
+                for _ in last_seen_idx..last_used_idx {
+                    vq.advance_last_seen_used();
+                    let avail = vq.available_ring();
+                    unsafe { (*avail).ring[((*avail).idx % vq.queue_size as u16) as usize] = 0; }
+                    unsafe { (*avail).idx += 1; }
+                }
+            }
+        }
     }
 
-    fn add_vq(&mut self, vq: virtqueue::Virtqueue) {
-        self.vqs.push_back(Box::new(vq));
+    extern "C" fn interrupt(arg: usize) {
+        let dev: *mut VirtioNetDevice = unsafe { transmute(arg) };
+        unsafe { (*dev).recv() };
+    }
+
+    fn new() -> Self {
+        VirtioNetDevice {
+            vqs: LinkedList::new(virtqueue::VirtqueueAdapter::new()),
+        }
+    }
+
+    fn add_vq(&mut self, vq: Box<virtqueue::Virtqueue>) {
+        self.vqs.push_back(vq);
     }
 }
 
