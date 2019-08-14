@@ -31,4 +31,4 @@ pub fn register_device(device: Device) {
     }
 }
 
-static mut DEVICE_LIST: LinkedList<DeviceAdapter> = LinkedList::new(DeviceAdapter::new());
+static mut DEVICE_LIST: LinkedList<DeviceAdapter> = LinkedList::new(DeviceAdapter::NEW);

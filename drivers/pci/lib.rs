@@ -544,7 +544,7 @@ impl PCIDriver {
     }
 }
 
-static mut PCI_DRIVER_LIST: LinkedList<PCIDriverAdapter> = LinkedList::new(PCIDriverAdapter::new());
+static mut PCI_DRIVER_LIST: LinkedList<PCIDriverAdapter> = LinkedList::new(PCIDriverAdapter::NEW);
 
 pub fn pci_register_driver(driver: &PCIDriver) {
     unsafe {

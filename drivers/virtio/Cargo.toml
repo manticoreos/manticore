@@ -8,6 +8,6 @@ path = "lib.rs"
 
 [dependencies]
 bitflags = { version = "0.9" }
-intrusive-collections = { version = "0.7.4", default-features = false, features = [ "nightly", "alloc" ]}
+intrusive-collections = { version = "0.8.1", default-features = false, features = [ "nightly", "alloc" ]}
 kernel = { path = "../../kernel" }
 pci = { path = "../pci" }

@@ -18,10 +18,10 @@ fn take_current() -> Option<Rc<Process>> {
 }
 
 /// Queue of runnable processes.
-static mut RUNQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::new());
+static mut RUNQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::NEW);
 
 /// Queue of waiting processes.
-static mut WAITQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::new());
+static mut WAITQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::NEW);
 
 pub fn enqueue(proc: Rc<Process>) {
     proc.state.replace(ProcessState::RUNNABLE);

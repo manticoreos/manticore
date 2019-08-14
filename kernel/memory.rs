@@ -74,7 +74,7 @@ struct MemoryArena {
 
 impl MemoryArena {
     const fn new() -> Self {
-        MemoryArena { segments: RBTree::new(SegmentsAdaptor::new()) }
+        MemoryArena { segments: RBTree::new(SegmentsAdaptor::NEW) }
     }
 
     unsafe fn alloc(&mut self, size: u64) -> *mut u8 {
@@ -103,22 +103,30 @@ impl MemoryArena {
         {
             // Attempt to coalesce with next segment:
             let mut cursor = self.segments.find_mut(&(addr + size));
-            if let Some(next) = cursor.get() {
+            let coalesced = cursor.get().map_or(false, |next| {
                 if addr + size == next.base {
-                    cursor.remove();
                     size += next.size;
+                    return true
                 }
+                return false
+            });
+            if coalesced {
+                cursor.remove();
             }
         }
         {
             // Attempt to coalesce with previous segment:
             let mut cursor = self.segments.upper_bound_mut(Bound::Excluded(&addr));
-            if let Some(prev) = cursor.get() {
+            let coalesced = cursor.get().map_or(false, |prev| {
                 if prev.base + prev.size == addr {
-                    cursor.remove();
                     addr = prev.base;
                     size += prev.size;
+                    return true
                 }
+                return false
+            });
+            if coalesced {
+                cursor.remove();
             }
         }
         let seg : &mut MemorySegment = transmute(addr);
