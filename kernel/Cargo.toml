@@ -5,16 +5,8 @@ version = "0.1.0"
 [lib]
 path = "lib.rs"
 
-[dependencies.intrusive-collections]
-version = "0.7.4"
-default-features = false
-features = [ "nightly", "alloc" ]
-
-[dependencies.rlibc]
-version = "1.0.0"
-
-[dependencies.xmas-elf]
-version = "0.6"
-
-[dependencies.bitflags]
-version = "0.9"
+[dependencies]
+bitflags = { version = "0.9" }
+intrusive-collections = { version = "0.7.4", default-features = false, features = [ "nightly", "alloc" ]}
+rlibc = { version = "1.0.0" }
+xmas-elf = { version = "0.6" }
