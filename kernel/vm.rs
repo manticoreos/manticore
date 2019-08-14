@@ -9,7 +9,6 @@ use memory;
 use mmu;
 use rlibc::memcpy;
 
-/// VM region protection flags
 bitflags! {
     pub struct VMProt: u32 {
         const VM_PROT_READ  = 0b00000001;
