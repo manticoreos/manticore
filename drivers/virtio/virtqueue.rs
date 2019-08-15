@@ -138,14 +138,16 @@ impl Virtqueue {
 
     pub fn add_buf(&self, addr: usize, len: usize, flags: u16) {
         unsafe {
-            (*self.descriptor_table())[0] = VirtqDesc {
+            /* FIXME: We only support one virtqueue descriptor.  */
+            let idx = 0 as u16;
+            (*self.descriptor_table())[idx as usize] = VirtqDesc {
                 addr: addr as u64,
                 len: len as u32,
                 flags: flags,
                 next: 0,
             };
             let avail = self.available_ring();
-            (*avail).ring[((*avail).idx % self.queue_size as u16) as usize] = 0;
+            (*avail).ring[((*avail).idx % self.queue_size as u16) as usize] = idx;
             (*avail).idx += 1;
         }
     }
