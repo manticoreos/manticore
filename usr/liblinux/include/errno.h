@@ -5,6 +5,7 @@
 #define EFAULT 14
 #define EINVAL 22
 #define EMFILE 24
+#define ENOSYS 38
 
 extern int errno;
 

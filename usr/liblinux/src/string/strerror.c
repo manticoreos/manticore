@@ -11,6 +11,8 @@ char *strerror(int errnum)
 		return "Invalid argument";
 	case EMFILE:
 		return "Too many open files";
+	case ENOSYS:
+		return "Invalid system call number";
 	default:
 		return "Unknown error";
 	}
