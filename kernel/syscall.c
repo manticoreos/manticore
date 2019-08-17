@@ -23,6 +23,11 @@ static int sys_wait(void)
 	return 0;
 }
 
+static int sys_subscribe(void)
+{
+	return 0;
+}
+
 static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 {
 	ssize_t off = 0;
@@ -84,6 +89,7 @@ long syscall(int nr, ...)
 	SYSCALL1(exit, int);
 	SYSCALL0(wait);
 	SYSCALL2(console_print, const char *, size_t);
+	SYSCALL0(subscribe);
 	}
 	return -ENOSYS;
 }
