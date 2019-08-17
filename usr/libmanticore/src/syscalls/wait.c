@@ -1,6 +1,6 @@
 #include <manticore/syscalls.h>
 
-void wait()
+int wait(void)
 {
-	syscall0(SYS_wait);
+	return syscall0(SYS_wait);
 }

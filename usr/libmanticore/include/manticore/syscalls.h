@@ -13,7 +13,7 @@ enum {
 };
 
 void exit(int status) __attribute__ ((noreturn));
-void wait(void);
+int wait(void);
 ssize_t console_print(const char *text, size_t count);
 int subscribe(void);
 
