@@ -12,4 +12,5 @@ extern "C" {
     pub fn mmu_map_range(map: MMUMap, vaddr: usize, paddr: usize, sz: usize, prot: usize, flags: usize) -> i32;
     pub fn mmu_invalidate_tlb();
     pub fn virt_to_phys(addr: usize) -> usize;
+    pub fn phys_to_virt(addr: usize) -> usize;
 }

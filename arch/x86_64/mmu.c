@@ -15,6 +15,11 @@ phys_t virt_to_phys(virt_t addr)
 	return addr - KERNEL_VMA;
 }
 
+virt_t phys_to_virt(phys_t addr)
+{
+	return addr + KERNEL_VMA;
+}
+
 // Entries in paging structure:
 #define NR_PG_ENTRIES 512
 // Bits used for translation per level:
