@@ -16,6 +16,7 @@ add_library(linux
 
 target_include_directories(linux PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include/uapi>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
