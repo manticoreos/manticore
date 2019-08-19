@@ -126,6 +126,11 @@ impl Virtqueue {
         self.last_seen_used.replace(self.last_seen_used.get() + 1);
     }
 
+    pub fn last_used_idx(&self) -> u16 {
+        /* FIXME: The used ring is in little endian byte order.  */
+        unsafe { (*self.used_ring()).idx }
+    }
+
     /// Add a device-writable buffer to virtqueue that is consumed by us.
     pub fn add_inbuf(&self, addr: usize, len: usize) {
         self.add_buf(addr, len, VIRTQ_DESC_F_WRITE)
@@ -146,10 +151,14 @@ impl Virtqueue {
                 flags: flags,
                 next: 0,
             };
-            let avail = self.available_ring();
-            (*avail).ring[((*avail).idx % self.queue_size as u16) as usize] = idx;
-            (*avail).idx += 1;
+            self.add_buf_idx(idx);
         }
+    }
+
+    pub fn add_buf_idx(&self, idx: u16) {
+        let avail = self.available_ring();
+        unsafe { (*avail).ring[((*avail).idx % self.queue_size as u16) as usize] = idx; }
+        unsafe { (*avail).idx += 1; }
     }
 
     pub fn get_buf(&self, idx: u16) -> usize {

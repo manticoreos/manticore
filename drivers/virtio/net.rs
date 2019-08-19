@@ -219,17 +219,16 @@ impl VirtioNetDevice {
 
     fn recv(&self) {
         for ref mut vq in self.vqs.iter() {
-            /* FIXME: The used ring is in little endian byte order.  */
             let last_seen_idx = vq.last_seen_used();
-            let last_used_idx = unsafe { (*vq.used_ring()).idx };
+            let last_used_idx = vq.last_used_idx();
             if last_seen_idx != last_used_idx {
                 /* FIXME: Fix loop when indexes wrap around.  */
                 assert!(last_seen_idx < last_used_idx);
                 for _ in last_seen_idx..last_used_idx {
                     vq.advance_last_seen_used();
-                    let avail = vq.available_ring();
-                    unsafe { (*avail).ring[((*avail).idx % vq.queue_size as u16) as usize] = 0; }
-                    unsafe { (*avail).idx += 1; }
+
+                    /* FIXME: We reuse the same buffer, but user space has not consumed it yet.  */
+                    vq.add_buf_idx(0);
                 }
             }
         }
