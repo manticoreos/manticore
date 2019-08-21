@@ -12,4 +12,7 @@
 /// Copy memory region from userspace to a kernel buffer.
 int copy_from_user(void *dest, const void __user *src, size_t len);
 
+/// Copy a NULL-terminated string from userspace to a kernel buffer.
+int strncpy_from_user(void *dest, const void __user *src, size_t len);
+
 #endif
