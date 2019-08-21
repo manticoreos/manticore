@@ -50,7 +50,7 @@ static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 		if (nr > BUF_SIZE) {
 			nr = BUF_SIZE;
 		}
-		err = copy_from_user(buf, ubuf + off, nr);
+		err = memcpy_from_user(buf, ubuf + off, nr);
 		if (err < 0) {
 			return err;
 		}

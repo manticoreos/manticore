@@ -9,9 +9,9 @@ raw_copy_from_user_fixup:
 	retq
 
 .align 16
-.globl raw_copy_from_user
-.type raw_copy_from_user, @function
-raw_copy_from_user:
+.globl raw_memcpy_from_user
+.type raw_memcpy_from_user, @function
+raw_memcpy_from_user:
 	push	%rdi
 	movq	$raw_copy_from_user_fixup, %rdi
 	callq	page_fault_set_fixup
