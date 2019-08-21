@@ -15,7 +15,7 @@ enum {
 void exit(int status) __attribute__ ((noreturn));
 int wait(void);
 ssize_t console_print(const char *text, size_t count);
-int subscribe(void);
+int subscribe(const char *event);
 
 long syscall0(long number);
 long syscall1(long number, long arg0);

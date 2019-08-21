@@ -23,8 +23,16 @@ static int sys_wait(void)
 	return 0;
 }
 
-static int sys_subscribe(void)
+static int sys_subscribe(const char *uevent)
 {
+#define EVENT_SIZE 32
+	char event[EVENT_SIZE];
+	int err;
+
+	err = strncpy_from_user(event, uevent, EVENT_SIZE);
+	if (err < 0) {
+		return err;
+	}
 	return 0;
 }
 
@@ -89,7 +97,7 @@ long syscall(int nr, ...)
 	SYSCALL1(exit, int);
 	SYSCALL0(wait);
 	SYSCALL2(console_print, const char *, size_t);
-	SYSCALL0(subscribe);
+	SYSCALL1(subscribe, const char *);
 	}
 	return -ENOSYS;
 }

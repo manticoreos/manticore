@@ -1,6 +1,6 @@
 #include <manticore/syscalls.h>
 
-int subscribe(void)
+int subscribe(const char *event)
 {
-	return syscall0(SYS_subscribe);
+	return syscall1(SYS_subscribe, (long) event);
 }
