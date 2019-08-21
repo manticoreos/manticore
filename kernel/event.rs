@@ -12,6 +12,7 @@ use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
+use errno::EINVAL;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 
 /// A kernel event.
@@ -77,11 +78,13 @@ impl Events {
         self.notifiers.insert(notifier);
     }
 
-    pub fn subscribe(&mut self, name: &'static str, listener: Rc<dyn EventListener>) {
+    pub fn subscribe(&mut self, name: &'static str, listener: Rc<dyn EventListener>) -> i32 {
         let cursor = self.notifiers.find_mut(name);
         if let Some(notifier) = cursor.get() {
             notifier.add_listener(listener);
+            return 0
         }
+        return -EINVAL
     }
 }
 

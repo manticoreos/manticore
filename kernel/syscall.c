@@ -34,9 +34,7 @@ static int sys_subscribe(const char *uevent)
 		return err;
 	}
 
-	process_subscribe(event);
-
-	return 0;
+	return process_subscribe(event);
 }
 
 static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)

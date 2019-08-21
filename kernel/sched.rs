@@ -85,10 +85,10 @@ extern "C" {
 }
 
 #[no_mangle]
-pub extern "C" fn process_subscribe(name: &'static NulStr) {
+pub extern "C" fn process_subscribe(name: &'static NulStr) -> i32 {
     unsafe {
         if let Some(ref current) = CURRENT {
-            EVENTS.subscribe(&name[..], current.clone());
+            return EVENTS.subscribe(&name[..], current.clone());
         } else {
             panic!("No current process");
         }
