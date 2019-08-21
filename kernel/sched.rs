@@ -3,7 +3,9 @@
 //! The `sched` module contains a round-robin process scheduler.
 
 use alloc::rc::Rc;
+use event::EVENTS;
 use intrusive_collections::LinkedList;
+use null_terminated::NulStr;
 use process::{Process, ProcessAdapter, ProcessState, TaskState};
 
 /// Current running process.
@@ -80,6 +82,17 @@ extern "C" {
     pub fn switch_to(old: TaskState, new: TaskState);
     pub fn switch_to_first(ts: TaskState);
     pub static idle_task: TaskState;
+}
+
+#[no_mangle]
+pub extern "C" fn process_subscribe(name: &'static NulStr) {
+    unsafe {
+        if let Some(ref current) = CURRENT {
+            EVENTS.subscribe(&name[..], current.clone());
+        } else {
+            panic!("No current process");
+        }
+    }
 }
 
 /// Make the current process wait for an event.

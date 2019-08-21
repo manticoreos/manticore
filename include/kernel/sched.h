@@ -3,6 +3,7 @@
 
 void schedule();
 
+void process_subscribe(const char *name);
 void process_wait(void);
 void wake_up_processes(void);
 

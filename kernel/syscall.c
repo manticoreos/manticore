@@ -33,6 +33,9 @@ static int sys_subscribe(const char *uevent)
 	if (err < 0) {
 		return err;
 	}
+
+	process_subscribe(event);
+
 	return 0;
 }
 

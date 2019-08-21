@@ -2,6 +2,7 @@ use alloc::rc::Rc;
 use core::intrinsics::transmute;
 use core::slice;
 use core::cell::{Cell, RefCell};
+use event::{Event, EventListener};
 use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
@@ -55,6 +56,12 @@ impl Drop for Process {
     fn drop(&mut self) {
         unsafe { task_state_delete(self.task_state); }
     }
+}
+
+impl EventListener for Process {
+  fn on_event(&self, _: Event) {
+      /* FIXME: Emit events to user space */
+  }
 }
 
 extern "C" {

@@ -7,6 +7,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
 
 [[package]]
+name = "fallible"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d09a4b5619e28507a1b442183ecc5123bd53f6493fc1b31bc618f9d36949b1c"
+dependencies = [
+ "void",
+]
+
+[[package]]
 name = "intrusive-collections"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -18,6 +27,7 @@ version = "0.1.0"
 dependencies = [
  "bitflags",
  "intrusive-collections",
+ "null-terminated",
  "rlibc",
  "xmas-elf",
 ]
@@ -29,6 +39,17 @@ dependencies = [
  "kernel",
  "pci",
  "virtio",
+]
+
+[[package]]
+name = "null-terminated"
+version = "0.3.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3b9e061a985e3bfac5c19647f730fd72a42a09ac48c33ac14ccd1300e001c13"
+dependencies = [
+ "fallible",
+ "unreachable",
+ "utf",
 ]
 
 [[package]]
@@ -46,6 +67,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc874b127765f014d792f16763a81245ab80500e2ad921ed4ee9e82481ee08fe"
 
 [[package]]
+name = "unreachable"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "382810877fe448991dfc7f0dd6e3ae5d58088fd0ea5e35189655f84e6814fa56"
+dependencies = [
+ "void",
+]
+
+[[package]]
+name = "utf"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5ca396d4ba74e9c454de1b3f9e22a7387fe54065797cea0589d9f0085ec6006"
+
+[[package]]
 name = "virtio"
 version = "0.1.0"
 dependencies = [
@@ -54,6 +90,12 @@ dependencies = [
  "kernel",
  "pci",
 ]
+
+[[package]]
+name = "void"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "xmas-elf"
