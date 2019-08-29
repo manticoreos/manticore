@@ -11,7 +11,6 @@ Manticore Documentation
    :maxdepth: 1
    :glob:
 
-   Overview <overview/index>
    User's Guide <guides/user>
    Architecture Guide <guides/architecture>
    Contributor's Guide <guides/contributors>
