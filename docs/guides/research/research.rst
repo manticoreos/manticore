@@ -11,7 +11,7 @@ in 1970 during mainframes when the mainframe pheripherals can't connect with the
 mainmeory. The transfer directly happens using channels. This scenarios was
 different from a microservers.
 
-![](./1.png/)
+.. image:: /docs/guides/research/1.png
 
 Multiple server applications are isolated for reducing the layers in the parakernel.
 
@@ -21,7 +21,7 @@ There are 4 bad scenarios that are the issue we worked in removing in the papers
 - Predictability of tail latency
 - Predictablility of energy
 
-![](./2.png)
+.. image:: /docs/guides/research/2.png
 
 We partition the kernel hardware much like MICA and SeaStar implementation. We
 then remove the POSIX API standards and implementation. The parakernel would have
@@ -31,9 +31,9 @@ a:
 - A kernel space
 - NIC having Rx/Tx pair
 
-![](./3.png)
+.. image:: /docs/guides/research/3.png
 
 The open area of research and use of parakernels are in serverless architecture.
 Most contains are heavy weight and hence remains in the papers exploration list.
 
-![](./4.png)
+.. image:: /docs/guides/research/4.png
