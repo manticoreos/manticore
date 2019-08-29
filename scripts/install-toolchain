@@ -14,7 +14,7 @@ else
     echo "Warning: '$ID' is not a supported OS."
 fi
 
-toolchain=nightly-2019-04-18
+toolchain=nightly-2019-08-13
 
 # Please hote that the rustup script modifies PATH environment variable.
 curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $toolchain

@@ -13,9 +13,11 @@ extern crate alloc;
 extern crate bitflags;
 #[macro_use]
 extern crate intrusive_collections;
+extern crate null_terminated;
 extern crate rlibc;
 extern crate xmas_elf;
 
+pub mod event;
 pub mod errno;
 #[macro_use]
 pub mod print;

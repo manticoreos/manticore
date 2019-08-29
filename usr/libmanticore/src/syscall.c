@@ -21,3 +21,14 @@ long syscall1(long number, long arg0)
 		: "rcx", "r11", "memory");
         return ret;
 }
+
+long syscall2(long number, long arg0, long arg1)
+{
+        unsigned long ret;
+        asm volatile(
+		"syscall"
+		: "=a"(ret)
+		: "a"(number), "D"(arg0), "S"(arg1)
+		: "rcx", "r11", "memory");
+        return ret;
+}

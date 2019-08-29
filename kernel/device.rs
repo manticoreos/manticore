@@ -6,12 +6,12 @@ use core::cell::RefCell;
 
 /// Device.
 pub struct Device {
-    _ops: RefCell<Box<DeviceOps>>,
+    _ops: RefCell<Box<dyn DeviceOps>>,
     link: LinkedListLink,
 }
 
 impl Device {
-    pub fn new(ops: Box<DeviceOps>) -> Self {
+    pub fn new(ops: Box<dyn DeviceOps>) -> Self {
         Device {
             _ops: RefCell::new(ops),
             link: LinkedListLink::new(),
@@ -31,4 +31,4 @@ pub fn register_device(device: Device) {
     }
 }
 
-static mut DEVICE_LIST: LinkedList<DeviceAdapter> = LinkedList::new(DeviceAdapter::new());
+static mut DEVICE_LIST: LinkedList<DeviceAdapter> = LinkedList::new(DeviceAdapter::NEW);

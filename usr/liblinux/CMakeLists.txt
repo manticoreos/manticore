@@ -1,8 +1,9 @@
-project(liblinux LANGUAGES C)
+project(liblinux LANGUAGES C ASM)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
 
 add_library(linux
+    src/arch/x86/crt0.S
     src/arpa/inet.c
     src/epoll.c
     src/errno.c

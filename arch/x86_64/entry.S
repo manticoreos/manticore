@@ -96,6 +96,22 @@ vector = NR_EXCEPTIONS
 
 EXCEPTION_ERROR_ENTRY	interrupt
 
+/*
+ * Entry point for the syscall instruction.
+ *
+ * User space executes the syscall instruction to call into a system call. The
+ * instruction traps and starts executing here.
+ *
+ * The calling conventions are the same as in Linux:
+ *
+ *	rax	system call number
+ *	rdi	arg1
+ *	rsi	arg2
+ *	rdx	arg3
+ *	r10	arg4
+ *	r8	arg5
+ *	r9	arg6
+ */
 .align 16
 .globl syscall_entry
 .type syscall_entry, @function
@@ -115,8 +131,15 @@ syscall_entry:
 	pushq	%rcx
 	pushq	%rbx
 
+	pushq	%r9
+	movq	%r8,  %r9
+	movq	%r10, %r8
+	movq	%rdx, %r10
+	movq	%rsi, %rdx
+	movq	%rdi, %rsi
 	movq	%rax, %rdi
 	callq	syscall
+	add	$8, %rsp
 
 	popq	%rbx
 	popq	%rcx

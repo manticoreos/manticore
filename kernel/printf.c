@@ -266,7 +266,7 @@ int putchar(int c)
 
 int puts(const char *s)
 {
-	console_write(s);
+	console_write_str(s);
 	return 1;
 }
 

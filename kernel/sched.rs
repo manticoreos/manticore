@@ -3,7 +3,9 @@
 //! The `sched` module contains a round-robin process scheduler.
 
 use alloc::rc::Rc;
+use event::EVENTS;
 use intrusive_collections::LinkedList;
+use null_terminated::NulStr;
 use process::{Process, ProcessAdapter, ProcessState, TaskState};
 
 /// Current running process.
@@ -18,10 +20,10 @@ fn take_current() -> Option<Rc<Process>> {
 }
 
 /// Queue of runnable processes.
-static mut RUNQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::new());
+static mut RUNQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::NEW);
 
 /// Queue of waiting processes.
-static mut WAITQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::new());
+static mut WAITQUEUE: LinkedList<ProcessAdapter> = LinkedList::new(ProcessAdapter::NEW);
 
 pub fn enqueue(proc: Rc<Process>) {
     proc.state.replace(ProcessState::RUNNABLE);
@@ -82,6 +84,17 @@ extern "C" {
     pub static idle_task: TaskState;
 }
 
+#[no_mangle]
+pub extern "C" fn process_subscribe(name: &'static NulStr) -> i32 {
+    unsafe {
+        if let Some(ref current) = CURRENT {
+            return EVENTS.subscribe(&name[..], current.clone());
+        } else {
+            panic!("No current process");
+        }
+    }
+}
+
 /// Make the current process wait for an event.
 #[no_mangle]
 pub extern "C" fn process_wait() {
@@ -91,6 +104,28 @@ pub extern "C" fn process_wait() {
             schedule();
         } else {
             panic!("No current process");
+        }
+    }
+}
+
+#[no_mangle]
+pub extern fn page_fault_set_fixup(fixup: u64)
+{
+    unsafe {
+        if let Some(ref mut current) = CURRENT {
+            current.page_fault_fixup.replace(fixup);
+        }
+    }
+}
+
+#[no_mangle]
+pub extern fn page_fault_get_fixup() -> u64
+{
+    unsafe {
+        if let Some(ref mut current) = CURRENT {
+            return current.page_fault_fixup.get()
+        } else {
+            return 0
         }
     }
 }

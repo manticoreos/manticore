@@ -6,6 +6,8 @@
 #include <errno.h>
 #include <stddef.h>
 
+#include <manticore/syscalls.h>
+
 #define SOCKET_FD_OFFSET 100
 
 struct socket {
@@ -44,7 +46,11 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 		errno = EBADF;
 		return -1;
 	}
-	// TODO: Register interest in "addr" flow to the OS.
+	int err = subscribe("/dev/eth");
+	if (err) {
+		errno = -err;
+		return -1;
+	}
 	return 0;
 }
 

@@ -90,6 +90,12 @@ start:
 	or	$X86_CR4_PAE, %eax
 	mov	%eax, %cr4
 
+	/* Enable SSE instructions */
+	mov	%cr4, %eax
+	or	$X86_CR4_OSFXSR, %eax
+	or	$X86_CR4_OSXMMEXCPT, %eax
+	mov	%eax, %cr4
+
 	/* Load page map table */
 	mov	$boot_pml4e, %eax
 	mov	%eax, %cr3
