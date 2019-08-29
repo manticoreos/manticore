@@ -1,5 +1,11 @@
 #include <arch/thread.h>
 
+/////////////////////////////////////////////////////////////////////////////
+// \breif the function convers task state in a process control block, changes
+//        the program counter and defines sp
+//
+// \param takes struct task_state and information that should be updated
+// \returns function accepts a structure pointers
 void task_state_init(struct task_state *task_state, void *pc, void *sp)
 {
 	task_state->sp = sp;

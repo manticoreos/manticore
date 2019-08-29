@@ -2,6 +2,12 @@
 
 #include <kernel/errno.h>
 
+/////////////////////////////////////////////////////////////////////////////
+// \brief method converts address from virtual to physical memory
+//
+// \param accepts an address variable
+// \returns converted physical memory address
+////////////////////////////////////////////////////////////////////////////
 phys_t virt_to_phys(virt_t addr)
 {
 	return addr;

@@ -10,6 +10,14 @@
 
 void *dtb;
 
+//////////////////////////////////////////////////////////////////////////////
+// \breif the function defines the handling of the virtual memory map under 86_64
+//        architecture. The basic functionality includes, allocates, alighn and
+//        checking for bad memory blocks.
+//
+// \param none
+// \returns none
+///////////////////////////////////////////////////////////////////////////////
 void init_memory_map(void)
 {
 	if (!dtb) {
