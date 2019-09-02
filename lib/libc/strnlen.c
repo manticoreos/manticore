@@ -1,11 +1,12 @@
 #include <string.h>
 
-///////////////////////////////////////////////////////////////////////////////
-// \breif Implementation of string length
-//
-// \params string pointer and maximum length
-// \returns the string length of variable string
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * \file         lib:libc:strnlen.c
+ * \brief        strnlen method implements the length of string
+ * \param s      s holds source string address
+ * \param maxlen holds maximum length of string
+ * \return       the string length of s
+ */
 
 size_t strnlen(const char *s, size_t maxlen)
 {

@@ -6,13 +6,12 @@
 
 #include <arch/interrupts.h>
 
-//////////////////////////////////////////////////////////////////////////////
-// \breif Implementation of panic function, times when interrupts are disabled
-//        panics will be called with appropriate message
-//
-// \param panic message
-// \returns none
-// //////////////////////////////////////////////////////////////////////////
+/**
+ * \file      kernel:panic.c
+ * \brief     The method do_panic implements a panic function disabling interrupts
+ *            calling with appropriate message
+ * \param msg Kernel panic message
+ */
 static void do_panic(char *msg)
 {
 	console_write_str("Kernel panic: ");

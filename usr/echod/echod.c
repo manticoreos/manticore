@@ -11,9 +11,11 @@
 
 #define DEFAULT_PORT 7777
 
-//////////////////////////////////////////////////////////////////////////////
-// \breif Implementation of UDP echo server.
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * \file usr:echod:echod.c
+ * \brief The file implements UDP echo server
+ */
+
 static void die(const char *msg)
 {
 	fprintf(stderr, "error: %s: %s\n", msg, strerror(errno));

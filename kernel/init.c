@@ -28,12 +28,10 @@ static void idle(void)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// \breif The instructions are for starting a kernel
-//
-// \params none
-// \returns none
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * \file kernel:init.c
+ * \brief The function start_kernel initializes and starts the kernel for boot.
+ */
 void start_kernel(void)
 {
 	int err;

@@ -10,14 +10,12 @@
 
 void *dtb;
 
-//////////////////////////////////////////////////////////////////////////////
-// \breif the function defines the handling of the virtual memory map under 86_64
-//        architecture. The basic functionality includes, allocates, alighn and
-//        checking for bad memory blocks.
-//
-// \param none
-// \returns none
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * \file  arch:aarch64:memory.c
+ * \brief method init_memory_map defines the handling of the virtual memory map
+ *        in 86_64 architecture. The basic functionality includes, allocatation,
+ *        alighnment and checking for bad memory blocks.
+ */
 void init_memory_map(void)
 {
 	if (!dtb) {

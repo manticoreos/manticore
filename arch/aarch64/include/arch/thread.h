@@ -3,10 +3,11 @@
 
 #include <stddef.h>
 
-///////////////////////////////////////////////////////////////////////////////
-// \breif the file descives the task_state structre and functions for initalising
-//        task_state_init and task changes state
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * \file  arch:aarch64:include:arch:thread.h
+ * \brief the file implements the task_state structure and functions for
+ *        initalising task_state_init and task changes state
+ */
 
 struct task_state {
 	void *sp;
