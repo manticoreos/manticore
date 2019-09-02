@@ -8,7 +8,7 @@
  *                physical memory
  *
  * \param    addr Virtual address to translate
- * \returns       converted physical memory address
+ * \returns       returns physical address of addr
  */
 
  phys_t virt_to_phys(virt_t addr)
