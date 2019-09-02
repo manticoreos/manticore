@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Manticore'
-copyright = '2019, Tapasweni Pathak'
+copyright = '2019, Manticore Contributors'
 author = 'Tapasweni Pathak'
 
 # The full version, including alpha/beta/rc tags
