@@ -1,6 +1,7 @@
 //! PCI I/O port accessors.
 
 /// I/O port that is either MMIO or PIO.
+#[derive(Clone, Debug)]
 pub enum IOPort {
     Memory { base_addr: usize, size: u32 },
     IO { iobase: u16, size: u32 },

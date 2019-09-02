@@ -37,9 +37,10 @@ static void echo(int sockfd)
 
 int main(int argc, char *argv[])
 {
-	fprintf(stdout, "Echo server running ...\n");
-
 	int port = DEFAULT_PORT;
+
+	fprintf(stdout, "Echo server listening to port %d ...\n", port);
+
 	int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd < 0) {
 		die("sockfd");
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
 			die("epoll_wait");
 		}
 #if 1
-		fprintf(stderr, "epoll_wait() returned\n");
+		fprintf(stderr, "epoll_wait() returned %d events\n", nr);
 #endif
 		for (int i = 0; i < nr; i++) {
 			struct epoll_event *ev = &events[i];

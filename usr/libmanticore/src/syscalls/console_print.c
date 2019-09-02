@@ -1,6 +1,6 @@
 #include <manticore/syscalls.h>
 
-void console_print(const char *text)
+ssize_t console_print(const char *text, size_t count)
 {
-	syscall1(SYS_console_print, (unsigned long) text);
+	return syscall2(SYS_console_print, (unsigned long) text, count);
 }

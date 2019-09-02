@@ -7,13 +7,7 @@
 
 static int nr_epoll_fds = 0;
 
-int epoll_create(int size)
-{
-	errno = EINVAL;
-	return -1;
-}
-
-int epoll_create1(int flags)
+static int do_epoll_create(int flags)
 {
 	if (flags != 0) {
 		errno = EINVAL;
@@ -24,6 +18,20 @@ int epoll_create1(int flags)
 		return -1;
 	}
 	return EPOLL_FD;
+}
+
+int epoll_create(int size)
+{
+	if (size <= 0) {
+		errno = EINVAL;
+		return -1;
+	}
+	return do_epoll_create(0);
+}
+
+int epoll_create1(int flags)
+{
+	return do_epoll_create(flags);
 }
 
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)

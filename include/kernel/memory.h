@@ -1,6 +1,8 @@
 #ifndef KERNEL_MEMORY_H
 #define KERNEL_MEMORY_H
 
+#include <arch/vmem.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -13,6 +15,7 @@ struct memory_region {
 
 extern struct memory_region mem_regions[MAX_MEM_REGIONS];
 extern size_t nr_mem_regions;
+extern virt_t kernel_vm_end;
 
 void init_memory_map(void);
 void memory_add_span(uint64_t addr, uint64_t size);
