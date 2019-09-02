@@ -1,15 +1,15 @@
 #include <arch/thread.h>
 
-/**
- * \brief            The task_state_init function enables task switching that is
- *                   converts task state in a process control block and updates
- *                   the program counter and defines sp
- *
- * \param task_state A variable of type task_state struct object
- * \param pc         Program counter
- * \param sp         Stack pointer
- * \returns          returns the task state
- */
+
+/// \brief            The task_state_init function enables task switching that is
+///                   converts task state in a process control block and updates
+///                   the program counter and defines sp
+///
+/// \param task_state A variable of type task_state struct object
+/// \param pc         Program counter
+/// \param sp         Stack pointer
+/// \returns          returns the task state
+
 void task_state_init(struct task_state *task_state, void *pc, void *sp)
 {
 	task_state->sp = sp;

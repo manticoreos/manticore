@@ -18,35 +18,34 @@
 #include <stdbool.h>
 #include <string.h>
 
-/**
- * \file          mm:kmem.c
- * \brief         File implements kernel memory manipulation
- *
- * \fn            kmem_object_to_bufctl(struct kmem_cache *cache, void *obj)
- * \brief         initializes obj + cache
- * \param  cache  kmem_cache is of kmem_cache struct type storing kmem_cache
- *                information
- * \param  obj    obj is void pointer type
- * \return        pointer of type kem_bufctl
- *
- * \fn            kmem_slab_create(struct kmem_cache *cache)
- * \brief         Implements allocation of a slab described as per cache
- * \param  cache  cache holds kmem_cache struct information
- * \return        returns the allocated slab or null if the allocation failed
- *
- * \fn            kmem_slab_destroy(struct kmem_slab *slab)
- * \brief         frees the slab allocated
- * \param  slab   slab holds kmem_slab struct information
- *
- * \fn            kmem_slab_is_full(struct kmem_slab *slab)
- * \brief         check if slab is full or not
- * \param  slab   slab holds kmem_slab struct information
- * \returns       true/false as per the allocated and max size
- *
- * \fn            kmem_cache_alloc(struct kmem_cache *cache)
- * \brief         allocates cache
- * \param  cache  cache holds kmem_cache information
- */
+///
+/// \file          mm:kmem.c
+/// \brief         File implements kernel memory manipulation
+///
+/// \fn            kmem_object_to_bufctl(struct kmem_cache *cache, void *obj)
+/// \brief         initializes obj + cache
+/// \param  cache  kmem_cache is of kmem_cache struct type storing kmem_cache
+///                information
+/// \param  obj    obj is void pointer type
+/// \return        pointer of type kem_bufctl
+///
+/// \fn            kmem_slab_create(struct kmem_cache *cache)
+/// \brief         Implements allocation of a slab described as per cache
+/// \param  cache  cache holds kmem_cache struct information
+/// \return        returns the allocated slab or null if the allocation failed
+///
+/// \fn            kmem_slab_destroy(struct kmem_slab *slab)
+/// \brief         frees the slab allocated
+/// \param  slab   slab holds kmem_slab struct information
+///
+/// \fn            kmem_slab_is_full(struct kmem_slab *slab)
+/// \brief         check if slab is full or not
+/// \param  slab   slab holds kmem_slab struct information
+/// \returns       true/false as per the allocated and max size
+///
+/// \fn            kmem_cache_alloc(struct kmem_cache *cache)
+/// \brief         allocates cache
+/// \param  cache  cache holds kmem_cache information
 static struct kmem_cache kmem_cache_cache;
 static struct kmem_cache kmem_slab_cache;
 

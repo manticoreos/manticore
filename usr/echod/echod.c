@@ -11,10 +11,8 @@
 
 #define DEFAULT_PORT 7777
 
-/**
- * \file usr:echod:echod.c
- * \brief The file implements UDP echo server
- */
+/// \file usr:echod:echod.c
+/// \brief The file implements UDP echo server
 
 static void die(const char *msg)
 {

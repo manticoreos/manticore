@@ -2,14 +2,14 @@
 
 #include <kernel/errno.h>
 
-/**
- * \file          arch:aarch64:mmu.c
- * \brief         The virt_to_phys function converts address from virtual to
- *                physical memory
- *
- * \param    addr Virtual address to translate
- * \returns       returns physical address of addr
- */
+
+/// \file          arch:aarch64:mmu.c
+/// \brief         The virt_to_phys function converts address from virtual to
+///                physical memory
+///
+/// \param    addr Virtual address to translate
+/// \returns       returns physical address of addr
+
 
  phys_t virt_to_phys(virt_t addr)
 {
