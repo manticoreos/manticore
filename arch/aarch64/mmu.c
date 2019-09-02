@@ -2,13 +2,16 @@
 
 #include <kernel/errno.h>
 
-/////////////////////////////////////////////////////////////////////////////
-// \brief method converts address from virtual to physical memory
-//
-// \param accepts an address variable
-// \returns converted physical memory address
-////////////////////////////////////////////////////////////////////////////
-phys_t virt_to_phys(virt_t addr)
+/**
+ * \file          arch:aarch64:mmu.c
+ * \brief         The virt_to_phys function converts address from virtual to
+ *                physical memory
+ *
+ * \param    addr Virtual address to translate
+ * \returns       converted physical memory address
+ */
+
+ phys_t virt_to_phys(virt_t addr)
 {
 	return addr;
 }
