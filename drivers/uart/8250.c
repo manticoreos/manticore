@@ -6,6 +6,12 @@
 
 #include <arch/ioport.h>
 
+/**
+ * \file drivers:uart:8250.c
+ * An enum.
+ * Enables UART dirvers read and write constants as described.
+ */
+
 enum {
 	UART_THR = 0, /* Write, DLAB=0 */
 	UART_RBR = 0, /* Read, DLAB=0 */
