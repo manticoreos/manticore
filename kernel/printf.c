@@ -10,6 +10,10 @@
 
 typedef void (*fmt_putchar_t)(int c, void *priv);
 
+/**
+ * An enum type.
+ * Enum desribes the format flags for prints method.
+ */
 enum format_flags {
 	FMT_LONG = 1UL << 0,
 	FMT_LONG_LONG = 1UL << 1,
@@ -20,6 +24,10 @@ enum format_flags {
 	FMT_WIDTH = 1UL << 6,
 };
 
+/**
+ * \struct format_state
+ * \brief  Flags and width for the format state.
+ */
 struct format_state {
 	enum format_flags flags;
 	size_t width;
@@ -33,6 +41,17 @@ static const char number_chars[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 };
 
+/**
+ * \file        kernel:printf.c
+ * \brief       format_number formats a number per a particular base.
+ * \param buf   buffer pointer
+ * \param n     maximum size of string
+ * \param len   actual length of string
+ * \param chars characters passed from input
+ * \param base  base of the output
+ * \param sign  signed or unsigned
+ * \return      formatter number
+ */
 static char *format_number(char *buf, uint64_t n, size_t len, const char *chars, uint64_t base, bool sign)
 {
 	bool negative = (int64_t)n < 0;

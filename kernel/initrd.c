@@ -9,6 +9,10 @@ void *initrd_end;
 
 extern void process_run(const char *image_start, unsigned long image_size);
 
+/**
+ * \file       kernel:initrd.c
+ * \brief      initrd_load loads initrd information and initialzes the size
+ */
 void initrd_load(void)
 {
 	if (!initrd_start) {
