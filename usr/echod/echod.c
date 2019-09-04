@@ -1,3 +1,7 @@
+/**
+ * UDP echo server
+ */
+
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -10,9 +14,6 @@
 #include <unistd.h>
 
 #define DEFAULT_PORT 7777
-
-/// \file usr:echod:echod.c
-/// \brief The file implements UDP echo server
 
 static void die(const char *msg)
 {
