@@ -40,8 +40,7 @@ static const char number_chars[] = {
 };
 
 
-/// \file        kernel:printf.c
-/// \brief       format_number formats a number per a particular base.
+/// format_number formats a number per a particular base.
 /// \param buf   buffer pointer
 /// \param n     maximum size of string
 /// \param len   actual length of string

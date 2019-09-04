@@ -1,4 +1,4 @@
-/**
+/*
  * UDP echo server
  */
 

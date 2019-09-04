@@ -29,8 +29,7 @@ static void idle(void)
 }
 
 
-/// \file kernel:init.c
-/// \brief The function start_kernel initializes and starts the kernel for boot.
+/// The function start_kernel initializes and starts the kernel for boot.
 
 void start_kernel(void)
 {

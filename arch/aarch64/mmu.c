@@ -2,15 +2,10 @@
 
 #include <kernel/errno.h>
 
-
-/// \file          arch:aarch64:mmu.c
-/// \brief         The virt_to_phys function converts address from virtual to
-///                physical memory
+/// Converts a virtual memory address to physical address.
 ///
 /// \param    addr Virtual address to translate
-/// \returns       returns physical address of addr
-
-
+/// \returns       returns physical memory address of addr
 phys_t virt_to_phys(virt_t addr)
 {
 	return addr;

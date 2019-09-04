@@ -1,7 +1,6 @@
 #include <string.h>
 
-/// \file         lib:libc:strnlen.c
-/// \brief        strnlen method implements the length of string
+/// strnlen method implements the length of string
 /// \param s      s holds source string address
 /// \param maxlen holds maximum length of string
 /// \return       the string length of s

@@ -1,7 +1,6 @@
 #include <string.h>
 
-/// \file         lib:libc:strlcpy.c
-/// \brief        The method strlcpy implement size bounded string copying
+/// The method strlcpy implement size bounded string copying
 /// \param dest   dest holds destination string address destination string
 /// \param src    src holds source string address
 /// \param size   size holds the length of string

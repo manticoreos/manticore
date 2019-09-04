@@ -4,9 +4,8 @@
 #include <stddef.h>
 
 
-/// \file  arch:aarch64:include:arch:thread.h
-/// \brief the file implements the task_state structure and functions for
-///        initalising task_state_init and task changes state
+/// the file implements the task_state structure and functions for
+/// initalising task_state_init and task changes state
 
 
 struct task_state {
