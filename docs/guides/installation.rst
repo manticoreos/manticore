@@ -14,8 +14,8 @@ The build system generates a `kernel.iso` image, can be launched under QEMU with
 
 `$ ./scripts/run kernel.iso`
 
-Manticore Exploitation and Hacker's Guide
-------------------------------------------
+Manticore Hacker's Guide
+------------------------
 
 The guide describes how you can exploit the os implementation. You can install
 the cross compiling toolchain with
