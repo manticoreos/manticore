@@ -11,7 +11,7 @@
 /// \returns       returns physical address of addr
 
 
- phys_t virt_to_phys(virt_t addr)
+phys_t virt_to_phys(virt_t addr)
 {
 	return addr;
 }
