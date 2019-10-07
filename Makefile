@@ -60,6 +60,8 @@ $(objs): | $(DEPS)
 $(DEPS):
 	$(Q) mkdir -p $(DEPS)
 
+all: kernel.elf usr/echod/echod.iso
+
 kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
 	$(E) "  LD      " $@
 	$(Q) $(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
@@ -79,6 +81,10 @@ $(LIBMANTICORE): $(rust_src)
 %.ld: %.ld.S
 	$(E) "  CPP     " $@
 	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
+
+usr/echod/echod.iso:
+	$(E) "  MAKE -C usr/echod"
+	$(Q) make -C usr/echod
 
 clean: archclean
 	$(E) "  CLEAN"
