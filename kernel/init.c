@@ -28,6 +28,7 @@ static void idle(void)
 	}
 }
 
+/// The platform-independent part of kernel startup routines.
 void start_kernel(void)
 {
 	int err;
