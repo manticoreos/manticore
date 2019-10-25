@@ -12,6 +12,9 @@ typedef uint64_t phys_t;
 typedef uint64_t virt_t;
 
 /// Converts a virtual address to a physical address.
+///
+/// \param addr A virtual address to translate to its physical address.
+/// \returns the physical address of \addr.
 phys_t virt_to_phys(virt_t addr);
 
 /// Converts a physical address to a virtual address.
