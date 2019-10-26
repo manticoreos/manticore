@@ -10,12 +10,14 @@ enum {
 	SYS_wait		= 2,
 	SYS_console_print	= 3,
 	SYS_subscribe		= 4,
+	SYS_getevents		= 5,
 };
 
 void exit(int status) __attribute__ ((noreturn));
 int wait(void);
 ssize_t console_print(const char *text, size_t count);
 int subscribe(const char *event);
+int getevents(void **events);
 
 long syscall0(long number);
 long syscall1(long number, long arg0);

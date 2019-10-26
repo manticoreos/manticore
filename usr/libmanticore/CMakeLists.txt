@@ -5,6 +5,7 @@ add_library(manticore
     src/syscall.c
     src/syscalls/console_print.c
     src/syscalls/exit.c
+    src/syscalls/getevents.c
     src/syscalls/subscribe.c
     src/syscalls/wait.c
 )
