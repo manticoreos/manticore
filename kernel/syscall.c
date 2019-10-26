@@ -37,6 +37,13 @@ static int sys_subscribe(const char *uevent)
 	return process_subscribe(event);
 }
 
+static int sys_getevents(void **events)
+{
+	*events = process_getevents();
+
+	return 0;
+}
+
 static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 {
 	ssize_t off = 0;
@@ -99,6 +106,7 @@ long syscall(int nr, ...)
 	SYSCALL0(wait);
 	SYSCALL2(console_print, const char *, size_t);
 	SYSCALL1(subscribe, const char *);
+	SYSCALL1(getevents, void **);
 	}
 	return -ENOSYS;
 }

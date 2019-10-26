@@ -6,6 +6,7 @@ enum {
 	SYS_wait		= 2,
 	SYS_console_print	= 3,
 	SYS_subscribe		= 4,
+	SYS_getevents		= 5,
 };
 
 long syscall(int nr, ...);

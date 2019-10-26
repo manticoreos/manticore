@@ -2,7 +2,7 @@ use alloc::rc::Rc;
 use core::intrinsics::transmute;
 use core::slice;
 use core::cell::{Cell, RefCell};
-use event::{Event, EventListener};
+use event::{Event, EventListener, EventQueue};
 use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
@@ -27,18 +27,20 @@ pub struct Process {
     pub task_state: TaskState,
     pub vmspace: VMAddressSpace,
     pub page_fault_fixup: Cell<u64>,
+    pub event_queue: RefCell<EventQueue>,
     pub link: LinkedListLink,
 }
 
 intrusive_adapter!(pub ProcessAdapter = Rc<Process>: Process { link: LinkedListLink });
 
 impl Process {
-    pub fn new(task_state: TaskState, vmspace: VMAddressSpace) -> Self {
+    pub fn new(task_state: TaskState, vmspace: VMAddressSpace, event_queue: EventQueue) -> Self {
         Process {
             state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
             vmspace: vmspace,
             page_fault_fixup: Cell::new(0),
+            event_queue: RefCell::new(event_queue),
             link: LinkedListLink::new(),
         }
     }
@@ -59,12 +61,14 @@ impl Drop for Process {
 }
 
 impl EventListener for Process {
-  fn on_event(&self, _: Event) {
-      /* FIXME: Emit events to user space */
-  }
+    fn on_event(&self, ev: Event) {
+        self.event_queue.borrow_mut().emplace(ev);
+    }
 }
 
 extern "C" {
+    pub fn events_init(queue: usize);
+    pub fn events_emplace(queue: usize, addr: usize, len: usize);
     pub fn task_state_new(entry_point: usize, stack_top: usize) -> TaskState;
     pub fn task_state_delete(task_state: TaskState);
     pub fn task_state_entry_point(task_state: TaskState) -> u64;
@@ -104,8 +108,14 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
     let stack_start = stack_top - stack_size;
     vmspace.allocate(stack_start, stack_top, VM_PROT_RW).expect("allocate failed");
     vmspace.populate(stack_start, stack_top).expect("populate failed");
+    let event_buf_start = 0x80000000;
+    let event_buf_size = 4096;
+    let event_buf_end = event_buf_start + event_buf_size;
+    vmspace.allocate(event_buf_start, event_buf_end, VM_PROT_RW).expect("allocate failed");
+    vmspace.populate(event_buf_start, event_buf_end).expect("populate failed");
+    let event_queue = EventQueue::new(event_buf_start, event_buf_size);
     let task_state = task_state_new(elf_file.header.pt2.entry_point() as usize, stack_top);
-    let process = Rc::new(Process::new(task_state, vmspace));
+    let process = Rc::new(Process::new(task_state, vmspace, event_queue));
     sched::enqueue(process);
 }
 

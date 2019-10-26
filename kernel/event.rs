@@ -12,6 +12,7 @@ use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
+use core::mem;
 use errno::EINVAL;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 
@@ -19,6 +20,44 @@ use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 #[derive(Clone, Debug)]
 pub enum Event {
     PacketIO { addr: usize, len: usize },
+}
+
+/// A raw kernel event (needs to match definition in include/uapi/manticore/events.h).
+#[repr(C)]
+struct RawEvent {
+    type_: usize,
+    addr: usize,
+    len: usize
+}
+
+const EVENT_PACKET_IO: usize = 0x01;
+
+/// An event queue between kernel and user space.
+#[derive(Debug)]
+pub struct EventQueue {
+    pub ring_buffer: usize,
+}
+
+impl EventQueue {
+    pub fn new(buf: usize, size: usize) -> EventQueue {
+        EventQueue {
+            ring_buffer: unsafe { atomic_ring_buffer_new(buf, size) },
+        }
+    }
+
+    pub fn emplace(&mut self, event: Event) {
+        let raw_event = match event {
+            Event::PacketIO { addr, len } => {
+                RawEvent { type_: EVENT_PACKET_IO, addr: addr, len: len }
+            }
+        };
+        unsafe { atomic_ring_buffer_emplace(self.ring_buffer, mem::transmute(&raw_event), mem::size_of::<RawEvent>()); }
+    }
+}
+
+extern "C" {
+    pub fn atomic_ring_buffer_new(buf: usize, size: usize) -> usize;
+    pub fn atomic_ring_buffer_emplace(spc_queue: usize, event: usize, size: usize) -> usize;
 }
 
 /// An event listener.
@@ -56,7 +95,7 @@ impl EventNotifier {
     }
 
     pub fn on_event(&self, ev: Event) {
-        for listener in self.listeners.borrow().iter() {
+        for ref mut listener in self.listeners.borrow().iter() {
             listener.on_event(ev.clone());
         }
     }

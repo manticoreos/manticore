@@ -33,6 +33,7 @@ rust_src += drivers/virtio/lib.rs
 rust_src += drivers/virtio/net.rs
 rust_src += drivers/virtio/virtqueue.rs
 rust_src += kernel/device.rs
+rust_src += kernel/event.rs
 rust_src += kernel/ioport.rs
 rust_src += kernel/lib.rs
 rust_src += kernel/memory.rs
