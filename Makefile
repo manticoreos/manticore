@@ -18,6 +18,7 @@ LD := ld.bfd
 
 includes += -include include/kernel/kernel.h -Iinclude
 
+objs += kernel/atomic-ring-buffer.o
 objs += kernel/init.o
 objs += kernel/initrd.o
 objs += kernel/panic.o
