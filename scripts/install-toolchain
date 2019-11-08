@@ -5,7 +5,7 @@ set -e
 . /etc/os-release
 
 if [ "$ID" = "fedora" ]; then
-    sudo dnf install gcc xorriso
+    sudo dnf install --assumeyes --refresh gcc xorriso
 elif [ "$ID" = "ubuntu" ]; then
     sudo DEBIAN_FRONTEND=noninteractive apt install --yes --quiet curl grub-pc-bin cmake
 elif [ "$ID" = "antergos" ] || [ "$ID" = "arch" ]; then
