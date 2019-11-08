@@ -8,4 +8,5 @@ jobs:
       - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
       - run: source $HOME/.profile
       - run: ./scripts/install-toolchain
+      - run: export HOME=$HOME/.cargo/bin:$HOME
       - run: make V=1 kernel.elf
