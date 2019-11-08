@@ -1,7 +1,7 @@
 <h1 align="center"> Manticore Operating System</h1>
 
 <p align="center">
-<a href="https://semaphoreci.com/manticore/manticore">
+<a href="https://circleci.com/gh/manticoreos/manticore">
   <img src="https://circleci.com/gh/manticoreos/manticore/tree/master.svg?style=svg" alt="Build Status">
 </a>
 <img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="MIT/Apache 2.0 License">
