@@ -156,7 +156,12 @@ impl VMAddressSpace {
                 return Err(Error::new(EINVAL));
             }
             let err = unsafe {
-                let page = memory::page_alloc_small();
+                let size = (end - start) as u64;
+                let page = match size {
+                    memory::PAGE_SIZE_LARGE => memory::page_alloc_large(),
+                    memory::PAGE_SIZE_SMALL => memory::page_alloc_small(),
+                    _ => return Err(Error::new(EINVAL)),
+                };
                 if page as usize == 0 {
                     return Err(Error::new(ENOMEM));
                 }
