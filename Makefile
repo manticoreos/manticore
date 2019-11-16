@@ -41,20 +41,25 @@ objs += mm/kmem.o
 #
 KERNEL_LIB = target/$(ARCH)-unknown-none/release/libmanticore.a
 
-rust_src += drivers/pci/lib.rs
-rust_src += drivers/virtio/lib.rs
-rust_src += drivers/virtio/net.rs
-rust_src += drivers/virtio/virtqueue.rs
-rust_src += kernel/device.rs
-rust_src += kernel/event.rs
-rust_src += kernel/ioport.rs
-rust_src += kernel/lib.rs
-rust_src += kernel/memory.rs
-rust_src += kernel/print.rs
-rust_src += kernel/process.rs
-rust_src += kernel/sched.rs
-rust_src += kernel/vm.rs
-rust_src += manticore.rs
+#
+# The source files for the kernel static library. Although `cargo` manages the
+# build of the static library, we need to define Rust source files for `make`
+# to calculate dependencies correctly to execute `cargo` when sources change.
+#
+KERNEL_LIB_SRC += drivers/pci/lib.rs
+KERNEL_LIB_SRC += drivers/virtio/lib.rs
+KERNEL_LIB_SRC += drivers/virtio/net.rs
+KERNEL_LIB_SRC += drivers/virtio/virtqueue.rs
+KERNEL_LIB_SRC += kernel/device.rs
+KERNEL_LIB_SRC += kernel/event.rs
+KERNEL_LIB_SRC += kernel/ioport.rs
+KERNEL_LIB_SRC += kernel/lib.rs
+KERNEL_LIB_SRC += kernel/memory.rs
+KERNEL_LIB_SRC += kernel/print.rs
+KERNEL_LIB_SRC += kernel/process.rs
+KERNEL_LIB_SRC += kernel/sched.rs
+KERNEL_LIB_SRC += kernel/vm.rs
+KERNEL_LIB_SRC += manticore.rs
 
 ifdef TEST
 CFLAGS += -DHAVE_TEST
@@ -79,7 +84,7 @@ $(KERNEL_IMAGE): arch/$(ARCH)/kernel.ld $(objs) $(KERNEL_LIB) $(tests)
 	$(E) "  LD      " $@
 	$(Q) $(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(KERNEL_LIB) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
 
-$(KERNEL_LIB): $(rust_src)
+$(KERNEL_LIB): $(KERNEL_LIB_SRC)
 	$(E) "  XARGO"
 	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
 
