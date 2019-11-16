@@ -16,6 +16,12 @@ include lib/libc/Makefile
 
 LD := ld.bfd
 
+#
+# The filename of the kernel image. This is the main output of the build
+# system, which contains an ELF image of the operating system kernel.
+#
+KERNEL_IMAGE = kernel.elf
+
 includes += -include include/kernel/kernel.h -Iinclude
 
 objs += kernel/atomic-ring-buffer.o
@@ -62,9 +68,9 @@ $(objs): | $(DEPS)
 $(DEPS):
 	$(Q) mkdir -p $(DEPS)
 
-all: kernel.elf usr/echod/echod.iso
+all: $(KERNEL_IMAGE) usr/echod/echod.iso
 
-kernel.elf: arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
+$(KERNEL_IMAGE): arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
 	$(E) "  LD      " $@
 	$(Q) $(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
 
@@ -84,13 +90,13 @@ $(LIBMANTICORE): $(rust_src)
 	$(E) "  CPP     " $@
 	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
-usr/echod/echod.iso: kernel.elf
+usr/echod/echod.iso: $(KERNEL_IMAGE)
 	$(E) "  MAKE -C usr/echod"
 	$(Q) make -C usr/echod
 
 clean: archclean
 	$(E) "  CLEAN"
-	$(Q) rm -f kernel.elf $(objs) $(tests)
+	$(Q) rm -f $(KERNEL_IMAGE) $(objs) $(tests)
 	$(Q) rm -f arch/$(ARCH)/kernel.ld
 	$(Q) rm -rf target
 	$(Q) rm -rf $(DEPS)
