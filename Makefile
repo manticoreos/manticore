@@ -39,7 +39,7 @@ objs += mm/kmem.o
 # of the `cargo` build of kernel Rust source code. The library is linked to
 # the built C source code to produce the final kernel image.
 #
-LIBMANTICORE=target/$(ARCH)-unknown-none/release/libmanticore.a
+KERNEL_LIB = target/$(ARCH)-unknown-none/release/libmanticore.a
 
 rust_src += drivers/pci/lib.rs
 rust_src += drivers/virtio/lib.rs
@@ -75,11 +75,11 @@ $(DEPS):
 
 all: $(KERNEL_IMAGE) usr/echod/echod.iso
 
-$(KERNEL_IMAGE): arch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests)
+$(KERNEL_IMAGE): arch/$(ARCH)/kernel.ld $(objs) $(KERNEL_LIB) $(tests)
 	$(E) "  LD      " $@
-	$(Q) $(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(LIBMANTICORE) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
+	$(Q) $(CROSS_PREFIX)$(LD) $(LDFLAGS) -Tarch/$(ARCH)/kernel.ld $(objs) $(KERNEL_LIB) $(tests) -o $@ -Ltarget/$(ARCH)-unknown-none/release -lmanticore
 
-$(LIBMANTICORE): $(rust_src)
+$(KERNEL_LIB): $(rust_src)
 	$(E) "  XARGO"
 	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
 
