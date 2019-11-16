@@ -84,7 +84,7 @@ $(LIBMANTICORE): $(rust_src)
 	$(E) "  CPP     " $@
 	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
-usr/echod/echod.iso:
+usr/echod/echod.iso: kernel.elf
 	$(E) "  MAKE -C usr/echod"
 	$(Q) make -C usr/echod
 
