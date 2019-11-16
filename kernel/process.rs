@@ -104,7 +104,7 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
         memset(transmute(section.address()), 0, section.size() as usize);
     }
     let stack_top = 0x40000000;
-    let stack_size = 4096;
+    let stack_size = memory::PAGE_SIZE_LARGE as usize;
     let stack_start = stack_top - stack_size;
     vmspace.allocate(stack_start, stack_top, VM_PROT_RW).expect("allocate failed");
     vmspace.populate(stack_start, stack_top).expect("populate failed");
