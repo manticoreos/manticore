@@ -161,6 +161,12 @@ impl Virtqueue {
         unsafe { (*avail).idx += 1; }
     }
 
+    pub fn get_used_buf(&self, idx: u16) -> (usize, usize) {
+        let used = unsafe { &(*self.used_ring()).ring[idx as usize] };
+        let addr = self.get_buf(used.id as u16) as u64;
+        return (addr as usize, used.len as usize);
+    }
+
     pub fn get_buf(&self, idx: u16) -> usize {
         unsafe { (*self.descriptor_table())[idx as usize].addr as usize }
     }

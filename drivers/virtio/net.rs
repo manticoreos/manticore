@@ -1,9 +1,12 @@
 //! Virtio network device driver.
 
 use alloc::boxed::Box;
+use alloc::rc::Rc;
 use core::intrinsics::transmute;
+use core::mem;
 use intrusive_collections::LinkedList;
 use kernel::device::{Device, DeviceOps};
+use kernel::event::{Event, EventNotifier, EVENTS};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
@@ -97,8 +100,21 @@ const VIRTIO_PCI_CAP_PCI_CFG: u8 = 5;
 const VIRTIO_PCI_CAP_CFG_TYPE: u8 = 3;
 const VIRTIO_PCI_CAP_BAR: u8 = 4;
 
+#[repr(C)]
+#[derive(Debug)]
+struct VirtioNetHdr {
+    flags: u8,
+    gso_type: u8,
+    hdr_len: u16,
+    gso_size: u16,
+    csum_start: u16,
+    csum_offset: u16,
+    num_buffers: u16,
+}
+
 struct VirtioNetDevice {
     vqs: LinkedList<virtqueue::VirtqueueAdapter>,
+    notifier: Rc<EventNotifier>,
 }
 
 impl VirtioNetDevice {
@@ -108,6 +124,8 @@ impl VirtioNetDevice {
         pci_dev.enable_msix();
 
         let mut dev = VirtioNetDevice::new();
+
+        unsafe { EVENTS.register(dev.notifier.clone()); }
 
         let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
 
@@ -224,7 +242,20 @@ impl VirtioNetDevice {
             if last_seen_idx != last_used_idx {
                 /* FIXME: Fix loop when indexes wrap around.  */
                 assert!(last_seen_idx < last_used_idx);
-                for _ in last_seen_idx..last_used_idx {
+                for idx in last_seen_idx..last_used_idx {
+                    let (buf_addr, buf_len) = vq.get_used_buf(idx);
+
+                    let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
+                    let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
+                    assert!(unsafe { (*hdr).num_buffers } == 1);
+
+                    let packet_addr = buf_vaddr + mem::size_of::<VirtioNetHdr>();
+                    let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
+                    self.notifier.on_event(Event::PacketIO {
+                        addr: packet_addr,
+                        len: packet_len,
+                    });
+
                     vq.advance_last_seen_used();
 
                     /* FIXME: We reuse the same buffer, but user space has not consumed it yet.  */
@@ -242,6 +273,7 @@ impl VirtioNetDevice {
     fn new() -> Self {
         VirtioNetDevice {
             vqs: LinkedList::new(virtqueue::VirtqueueAdapter::new()),
+            notifier: Rc::new(EventNotifier::new("/dev/eth")),
         }
     }
 
