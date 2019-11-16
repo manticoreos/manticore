@@ -34,6 +34,13 @@ objs += kernel/thread.o
 objs += kernel/user-copy.o
 objs += mm/kmem.o
 
+#
+# The filename of the kernel static library. This static library is the output
+# of the `cargo` build of kernel Rust source code. The library is linked to
+# the built C source code to produce the final kernel image.
+#
+LIBMANTICORE=target/$(ARCH)-unknown-none/release/libmanticore.a
+
 rust_src += drivers/pci/lib.rs
 rust_src += drivers/virtio/lib.rs
 rust_src += drivers/virtio/net.rs
@@ -60,8 +67,6 @@ WARNINGS = -Wall -Wextra -Wno-unused-parameter
 CFLAGS += -std=gnu11 -O3 -g $(WARNINGS) -ffreestanding $(includes) -fno-pie -fno-stack-protector
 ASFLAGS += -D__ASSEMBLY__ $(includes)
 LDFLAGS += --gc-sections
-
-LIBMANTICORE=target/$(ARCH)-unknown-none/release/libmanticore.a
 
 DEPS=.deps
 $(objs): | $(DEPS)
