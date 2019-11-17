@@ -63,6 +63,12 @@ KERNEL_LIB_SRC += kernel/sched.rs
 KERNEL_LIB_SRC += kernel/vm.rs
 KERNEL_LIB_SRC += manticore.rs
 
+#
+# The source code to manual pages.
+#
+MAN_PAGES += man/exit.txt
+MAN_PAGES += man/wait.txt
+
 ifdef TEST
 CFLAGS += -DHAVE_TEST
 tests += tests/tst-kmem.o
@@ -105,6 +111,11 @@ $(KERNEL_LIB): $(KERNEL_LIB_SRC)
 usr/echod/echod.iso: $(KERNEL_IMAGE)
 	$(E) "  MAKE -C usr/echod"
 	$(Q) make -C usr/echod
+
+man: $(MAN_PAGES)
+	$(E) "  ASCIIDOCTOR"
+	$(Q) asciidoctor -b manpage $?
+.PHONY: man
 
 clean: archclean
 	$(E) "  CLEAN"

@@ -1,0 +1,36 @@
+wait(2)
+=======
+
+NAME
+----
+wait - Wait for an event
+
+SYNOPSIS
+--------
+
+#include <manticore/syscalls.h>
+
+int
+wait(void);
+
+DESCRIPTION
+-----------
+
+The wait system call suspends the execution of the current process to
+wait for an event. When an event occurs, the operating system wakes up
+the process, and the wait system call returns.
+
+RETURN VALUE
+------------
+
+When successful, the wait system call returns zero.
+
+ERRORS
+------
+
+The function does not return errors.
+
+STANDARDS
+---------
+
+The wait system call is specific to Manticore.

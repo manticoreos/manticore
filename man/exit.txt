@@ -1,0 +1,30 @@
+exit(2)
+=======
+
+NAME
+----
+exit - Terminate the current process.
+
+SYNOPSIS
+--------
+
+#include <manticore/syscalls.h>
+
+void
+exit(int status);
+
+DESCRIPTION
+-----------
+
+The exit system call terminates the calling process and releases all
+kernel resources associated with it.
+
+RETURN VALUE
+------------
+
+The exit system call does not return.
+
+STANDARDS
+---------
+
+POSIX.1-2008, SUSv4
