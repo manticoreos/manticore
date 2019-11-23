@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 enum {
-	EVENT_PACKET_IO = 0x01,
+	EVENT_PACKET_RX = 0x01,
 };
 
 struct event {

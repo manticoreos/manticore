@@ -32,7 +32,7 @@ struct RawEvent {
     len: usize
 }
 
-const EVENT_PACKET_IO: usize = 0x01;
+const EVENT_PACKET_RX: usize = 0x01;
 
 /// An event queue between kernel and user space.
 #[derive(Debug)]
@@ -50,7 +50,7 @@ impl EventQueue {
     pub fn emplace(&mut self, event: Event) {
         let raw_event = match event {
             Event::PacketIO { addr, len } => {
-                RawEvent { type_: EVENT_PACKET_IO, addr: addr, len: len }
+                RawEvent { type_: EVENT_PACKET_RX, addr: addr, len: len }
             }
         };
         unsafe { atomic_ring_buffer_emplace(self.ring_buffer, mem::transmute(&raw_event), mem::size_of::<RawEvent>()); }

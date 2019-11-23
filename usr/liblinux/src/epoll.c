@@ -79,7 +79,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 		uint32_t ep_events = 0;
 
 		switch (kern_event->type) {
-		case EVENT_PACKET_IO:
+		case EVENT_PACKET_RX:
 			ep_events = EPOLLIN;
 			break;
 		default:
