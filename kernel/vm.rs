@@ -149,6 +149,33 @@ impl VMAddressSpace {
         }
     }
 
+    pub fn map(&mut self, start: usize, end: usize, page: usize) -> Result<()> {
+        let cur = self.vm_regions.find(&start);
+        if let Some(region) = cur.get() {
+            if region.end != end {
+                return Err(Error::new(EINVAL));
+            }
+            let err = unsafe {
+                let size = (end - start) as usize;
+                region.page.set(Some(page as usize));
+                mmu::mmu_map_range(
+                    self.mmu_map,
+                    start,
+                    mmu::virt_to_phys(mem::transmute(page)),
+                    size,
+                    region.mmu_prot(),
+                    mmu::MMU_USER_PAGE,
+                )
+            };
+            if err != 0 {
+                return Err(Error::new(err));
+            }
+            return Ok(());
+        } else {
+            return Err(Error::new(EINVAL));
+        }
+    }
+
     pub fn populate(&mut self, start: usize, end: usize) -> Result<()> {
         let cur = self.vm_regions.find(&start);
         if let Some(region) = cur.get() {
