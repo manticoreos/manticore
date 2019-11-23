@@ -59,11 +59,11 @@ pub extern "C" fn schedule() {
         if let Some(prev) = prev {
             let prev_ts = prev.task_state;
             if prev_ts != next_ts {
-                next.vmspace.switch_to();
+                next.vmspace.borrow().switch_to();
                 unsafe { switch_to(prev_ts, next_ts) };
             }
         } else {
-            next.vmspace.switch_to();
+            next.vmspace.borrow().switch_to();
             unsafe { switch_to_first(next_ts) };
         }
     } else {

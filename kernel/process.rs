@@ -25,7 +25,7 @@ pub enum ProcessState {
 pub struct Process {
     pub state: RefCell<ProcessState>,
     pub task_state: TaskState,
-    pub vmspace: VMAddressSpace,
+    pub vmspace: RefCell<VMAddressSpace>,
     pub page_fault_fixup: Cell<u64>,
     pub event_queue: RefCell<EventQueue>,
     pub link: LinkedListLink,
@@ -38,7 +38,7 @@ impl Process {
         Process {
             state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
-            vmspace: vmspace,
+            vmspace: RefCell::new(vmspace),
             page_fault_fixup: Cell::new(0),
             event_queue: RefCell::new(event_queue),
             link: LinkedListLink::new(),
