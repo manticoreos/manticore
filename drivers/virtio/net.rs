@@ -7,6 +7,7 @@ use core::mem;
 use intrusive_collections::LinkedList;
 use kernel::device::{Device, DeviceOps};
 use kernel::event::{Event, EventNotifier, EVENTS};
+use kernel::vm::{VMAddressSpace, VM_PROT_READ};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
@@ -115,7 +116,14 @@ struct VirtioNetHdr {
 struct VirtioNetDevice {
     vqs: LinkedList<virtqueue::VirtqueueAdapter>,
     notifier: Rc<EventNotifier>,
+    rx_page: usize,
 }
+
+/// The virtual address of the receive packet buffer memory area that is mapped to user space.
+const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
+
+/// The name of this virtio device that is exported to user space.
+const VIRTIO_DEV_NAME: &str = "/dev/eth";
 
 impl VirtioNetDevice {
     fn probe(pci_dev: &PCIDevice) -> Device {
@@ -196,10 +204,7 @@ impl VirtioNetDevice {
 
                 // RX queue:
                 if queue == 0 {
-                    /* FIXME: Free allocated pages when driver is unloaded.  */
-                    let page = memory::page_alloc_small();
-                    /* FIXME: Check if page allocator returned NULL.  */
-                    vq.add_inbuf(mmu::virt_to_phys(page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
+                    vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
                     let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(&dev));
                     pci_dev.enable_irq(queue);
                     ioport.write16(queue, QUEUE_MSIX_VECTOR);
@@ -219,7 +224,7 @@ impl VirtioNetDevice {
             ioport.write8(status, DEVICE_STATUS);
         }
 
-        Device::new(Box::new(dev))
+        Device::new(VIRTIO_DEV_NAME, Box::new(dev))
     }
 
     fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<usize> {
@@ -249,10 +254,9 @@ impl VirtioNetDevice {
                     let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
                     assert!(unsafe { (*hdr).num_buffers } == 1);
 
-                    let packet_addr = buf_vaddr + mem::size_of::<VirtioNetHdr>();
                     let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
                     self.notifier.on_event(Event::PacketIO {
-                        addr: packet_addr,
+                        addr: VIRTIO_NET_RX_BUFFER_ADDR + mem::size_of::<VirtioNetHdr>(),
                         len: packet_len,
                     });
 
@@ -273,7 +277,10 @@ impl VirtioNetDevice {
     fn new() -> Self {
         VirtioNetDevice {
             vqs: LinkedList::new(virtqueue::VirtqueueAdapter::new()),
-            notifier: Rc::new(EventNotifier::new("/dev/eth")),
+            notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
+            /* FIXME: Free allocated pages when driver is unloaded.  */
+            rx_page: memory::page_alloc_small() as usize,
+            /* FIXME: Check if page allocator returned NULL.  */
         }
     }
 
@@ -282,7 +289,15 @@ impl VirtioNetDevice {
     }
 }
 
-impl DeviceOps for VirtioNetDevice {}
+impl DeviceOps for VirtioNetDevice {
+    fn subscribe(&self, vmspace: &mut VMAddressSpace) {
+        let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
+        let rx_buf_size = 4096;
+        let rx_buf_end = rx_buf_start + rx_buf_size;
+        vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
+        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+    }
+}
 
 pub static mut VIRTIO_NET_DRIVER: PCIDriver =
     PCIDriver::new(

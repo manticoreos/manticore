@@ -89,7 +89,7 @@ extern "C" {
 pub extern "C" fn process_subscribe(name: &'static NulStr) -> i32 {
     unsafe {
         if let Some(ref current) = CURRENT {
-            return EVENTS.subscribe(&name[..], current.clone());
+            return EVENTS.subscribe(&name[..], &mut current.vmspace.borrow_mut(), current.clone());
         } else {
             panic!("No current process");
         }

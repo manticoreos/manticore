@@ -15,6 +15,8 @@ use core::cell::RefCell;
 use core::mem;
 use errno::EINVAL;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
+use device::subscribe_device;
+use vm::VMAddressSpace;
 
 /// A kernel event.
 #[derive(Clone, Debug)]
@@ -117,7 +119,8 @@ impl Events {
         self.notifiers.insert(notifier);
     }
 
-    pub fn subscribe(&mut self, name: &'static str, listener: Rc<dyn EventListener>) -> i32 {
+    pub fn subscribe(&mut self, name: &'static str, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> i32 {
+        subscribe_device(name, vmspace);
         let cursor = self.notifiers.find_mut(name);
         if let Some(notifier) = cursor.get() {
             notifier.add_listener(listener);
