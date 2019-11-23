@@ -12,5 +12,6 @@ add_library(manticore
 
 target_include_directories(manticore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include/uapi>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
