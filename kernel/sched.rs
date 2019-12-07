@@ -3,7 +3,6 @@
 //! The `sched` module contains a round-robin process scheduler.
 
 use alloc::rc::Rc;
-use core::mem;
 use event::EVENTS;
 use intrusive_collections::LinkedList;
 use null_terminated::NulStr;
@@ -113,7 +112,7 @@ pub extern "C" fn process_wait() {
 pub extern "C" fn process_getevents() -> usize {
     unsafe {
         if let Some(ref mut current) = CURRENT {
-            return mem::transmute(current.event_queue.borrow().ring_buffer);
+            return current.event_queue.borrow().ring_buffer.raw_ptr();
         } else {
             panic!("No current process");
         }
