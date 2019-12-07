@@ -136,7 +136,7 @@ impl VirtioNetDevice {
 
         unsafe { EVENTS.register(dev.notifier.clone()); }
 
-        let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
+        let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG);
 
         println!("virtio-net: using PCI BAR{} for device configuration", bar_idx.unwrap());
 
