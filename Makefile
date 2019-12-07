@@ -50,6 +50,7 @@ KERNEL_LIB_SRC += drivers/pci/lib.rs
 KERNEL_LIB_SRC += drivers/virtio/lib.rs
 KERNEL_LIB_SRC += drivers/virtio/net.rs
 KERNEL_LIB_SRC += drivers/virtio/virtqueue.rs
+KERNEL_LIB_SRC += kernel/atomic_ring_buffer.rs
 KERNEL_LIB_SRC += kernel/device.rs
 KERNEL_LIB_SRC += kernel/errno.rs
 KERNEL_LIB_SRC += kernel/event.rs

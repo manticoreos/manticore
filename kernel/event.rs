@@ -12,11 +12,11 @@ use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
-use core::mem;
 use errno::EINVAL;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 use device::subscribe_device;
 use vm::VMAddressSpace;
+use atomic_ring_buffer::AtomicRingBuffer;
 
 /// A kernel event.
 #[derive(Clone, Debug)]
@@ -37,13 +37,13 @@ const EVENT_PACKET_RX: usize = 0x01;
 /// An event queue between kernel and user space.
 #[derive(Debug)]
 pub struct EventQueue {
-    pub ring_buffer: usize,
+    pub ring_buffer: AtomicRingBuffer,
 }
 
 impl EventQueue {
     pub fn new(buf: usize, size: usize) -> EventQueue {
         EventQueue {
-            ring_buffer: unsafe { atomic_ring_buffer_new(buf, size) },
+            ring_buffer: AtomicRingBuffer::new(buf, size),
         }
     }
 
@@ -53,13 +53,8 @@ impl EventQueue {
                 RawEvent { type_: EVENT_PACKET_RX, addr: addr, len: len }
             }
         };
-        unsafe { atomic_ring_buffer_emplace(self.ring_buffer, mem::transmute(&raw_event), mem::size_of::<RawEvent>()); }
+        self.ring_buffer.emplace(&raw_event);
     }
-}
-
-extern "C" {
-    pub fn atomic_ring_buffer_new(buf: usize, size: usize) -> usize;
-    pub fn atomic_ring_buffer_emplace(spc_queue: usize, event: usize, size: usize) -> usize;
 }
 
 /// An event listener.

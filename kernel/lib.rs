@@ -17,6 +17,7 @@ extern crate null_terminated;
 extern crate rlibc;
 extern crate xmas_elf;
 
+pub mod atomic_ring_buffer;
 pub mod event;
 pub mod errno;
 #[macro_use]
