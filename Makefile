@@ -55,6 +55,7 @@ KERNEL_LIB_SRC += kernel/device.rs
 KERNEL_LIB_SRC += kernel/errno.rs
 KERNEL_LIB_SRC += kernel/event.rs
 KERNEL_LIB_SRC += kernel/ioport.rs
+KERNEL_LIB_SRC += kernel/ioqueue.rs
 KERNEL_LIB_SRC += kernel/lib.rs
 KERNEL_LIB_SRC += kernel/memory.rs
 KERNEL_LIB_SRC += kernel/mmu.rs

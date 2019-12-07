@@ -29,6 +29,7 @@ pub mod process;
 pub mod sched;
 pub mod device;
 pub mod ioport;
+pub mod ioqueue;
 
 pub use memory::memory_add_span;
 pub use memory::page_alloc_init;
