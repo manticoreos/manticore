@@ -38,6 +38,11 @@ impl AtomicRingBuffer {
             atomic_ring_buffer_pop(self.raw_ptr, mem::size_of::<T>());
         }
     }
+
+    /// Returns the raw pointer to the underlying atomic ring buffer object.
+    pub fn raw_ptr(&self) -> usize {
+        self.raw_ptr
+    }
 }
 
 extern "C" {
