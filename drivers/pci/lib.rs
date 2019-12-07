@@ -357,10 +357,14 @@ impl PCIDevice {
     pub fn probe(&self) {
         unsafe {
             for driver in PCI_DRIVER_LIST.iter() {
-                if driver.dev_id.vendor_id == self.dev_id.vendor_id {
-                    if let Some(dev) = (driver.probe)(self) {
-                        register_device(dev);
-                    }
+                if driver.dev_id.vendor_id != self.dev_id.vendor_id {
+                    continue
+                }
+                if driver.dev_id.device_id != self.dev_id.device_id {
+                    continue
+                }
+                if let Some(dev) = (driver.probe)(self) {
+                    register_device(dev);
                 }
             }
         }
