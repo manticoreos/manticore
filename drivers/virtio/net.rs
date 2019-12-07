@@ -98,8 +98,10 @@ const VIRTIO_PCI_CAP_DEVICE_CFG: u8 = 4;
 #[allow(dead_code)]
 const VIRTIO_PCI_CAP_PCI_CFG: u8 = 5;
 
+/* 4.1.4 Virtio Structure PCI Capabilities */
 const VIRTIO_PCI_CAP_CFG_TYPE: u8 = 3;
 const VIRTIO_PCI_CAP_BAR: u8 = 4;
+const VIRTIO_PCI_CAP_OFFSET: u8 = 8;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -136,11 +138,18 @@ impl VirtioNetDevice {
 
         unsafe { EVENTS.register(dev.notifier.clone()); }
 
-        let bar_idx = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG);
+        let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG);
+        let bar_idx = match common_cfg_cap {
+            Some((bar_idx, _)) => bar_idx,
+            None => {
+                println!("virtio-net: Unable to find VIRTIO_PCI_CAP_COMMON_CFG");
+                return None
+            }
+        };
 
-        println!("virtio-net: using PCI BAR{} for device configuration", bar_idx.unwrap());
+        println!("virtio-net: using PCI BAR{} for device configuration", bar_idx);
 
-        let ioport = pci_dev.bars[bar_idx.unwrap()].clone().unwrap();
+        let ioport = pci_dev.bars[bar_idx].clone().unwrap();
 
         //
         // 1. Reset device
@@ -228,13 +237,14 @@ impl VirtioNetDevice {
         Some(Device::new(VIRTIO_DEV_NAME, Box::new(dev)))
     }
 
-    fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<usize> {
+    fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<(usize, usize)> {
         let mut capability = pci_dev.func.find_capability(PCI_CAPABILITY_VENDOR);
         while let Some(offset) = capability {
             let ty = pci_dev.func.read_config_u8(offset + VIRTIO_PCI_CAP_CFG_TYPE);
             let bar = pci_dev.func.read_config_u8(offset + VIRTIO_PCI_CAP_BAR);
             if ty == cfg_type && bar < 0x05 {
-                return Some(bar as usize);
+                let off = pci_dev.func.read_config_u32(offset + VIRTIO_PCI_CAP_OFFSET);
+                return Some((bar as usize, off as usize));
             }
             capability = pci_dev.func.find_next_capability(PCI_CAPABILITY_VENDOR, offset);
         }
