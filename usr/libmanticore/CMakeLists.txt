@@ -2,6 +2,7 @@ project(libmanticore LANGUAGES C)
 
 add_library(manticore
     src/atomic-ring-buffer.c
+    src/io_queue.c
     src/syscall.c
     src/syscalls/console_print.c
     src/syscalls/exit.c
