@@ -172,7 +172,8 @@ impl VirtioNetDevice {
         //
         // 4. Negotiate features
         //
-        unsafe { ioport.write32(VIRTIO_NET_F_MRG_RXBUF.bits(), DRIVER_FEATURE) };
+        let features = VIRTIO_NET_F_MAC | VIRTIO_NET_F_MRG_RXBUF;
+        unsafe { ioport.write32(features.bits(), DRIVER_FEATURE) };
 
         //
         // 5. Set the FEATURES_OK status bit
@@ -232,6 +233,29 @@ impl VirtioNetDevice {
         status |= VIRTIO_DRIVER_OK;
         unsafe {
             ioport.write8(status, DEVICE_STATUS);
+        }
+
+        let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
+
+        if dev_features.contains(VIRTIO_NET_F_MAC) {
+            let dev_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG);
+            let (bar_idx, offset) = match dev_cap {
+                Some((bar_idx, offset)) => (bar_idx, offset),
+                None => {
+                    println!("virtio-net: Unable to find VIRTIO_PCI_CAP_DEVICE_CFG");
+                    return None;
+                }
+            };
+            if let Some(ioport) = pci_dev.bars[bar_idx].clone() {
+                let mut mac: [u8; 6] = [0; 6];
+                for i in 0..mac.len() {
+                    mac[i] = unsafe { ioport.read8(offset + i) };
+                }
+                println!(
+                    "virtio-net: MAC address is {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+                    mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
+                );
+            }
         }
 
         Some(Device::new(VIRTIO_DEV_NAME, Box::new(dev)))
