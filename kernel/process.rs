@@ -112,6 +112,7 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
     vmspace.allocate(stack_start, stack_top, VM_PROT_RW).expect("allocate failed");
     vmspace.populate(stack_start, stack_top).expect("populate failed");
 
+    /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
     let event_buf_start = 0x80000000;
     let event_buf_size = 4096;
     let event_buf_end = event_buf_start + event_buf_size;
@@ -119,6 +120,7 @@ pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) 
     vmspace.populate(event_buf_start, event_buf_end).expect("populate failed");
     let event_queue = EventQueue::new(event_buf_start, event_buf_size);
 
+    /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
     let io_buf_start = 0xA0000000;
     let io_buf_size = 4096;
     let io_buf_end = io_buf_start + io_buf_size;

@@ -119,6 +119,7 @@ struct VirtioNetDevice {
     rx_page: usize,
 }
 
+/* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
 /// The virtual address of the receive packet buffer memory area that is mapped to user space.
 const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
 
