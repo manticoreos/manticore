@@ -358,8 +358,9 @@ impl PCIDevice {
         unsafe {
             for driver in PCI_DRIVER_LIST.iter() {
                 if driver.dev_id.vendor_id == self.dev_id.vendor_id {
-                    let dev = (driver.probe)(self);
-                    register_device(dev);
+                    if let Some(dev) = (driver.probe)(self) {
+                        register_device(dev);
+                    }
                 }
             }
         }
@@ -524,7 +525,7 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
     return result;
 }
 
-type PCIProbe = fn(&PCIDevice) -> Device;
+type PCIProbe = fn(&PCIDevice) -> Option<Device>;
 
 pub struct PCIDriver {
     dev_id: DeviceID,

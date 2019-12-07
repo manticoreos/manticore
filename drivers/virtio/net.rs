@@ -127,7 +127,7 @@ const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
 const VIRTIO_DEV_NAME: &str = "/dev/eth";
 
 impl VirtioNetDevice {
-    fn probe(pci_dev: &PCIDevice) -> Device {
+    fn probe(pci_dev: &PCIDevice) -> Option<Device> {
         pci_dev.set_bus_master(true);
 
         pci_dev.enable_msix();
@@ -225,7 +225,7 @@ impl VirtioNetDevice {
             ioport.write8(status, DEVICE_STATUS);
         }
 
-        Device::new(VIRTIO_DEV_NAME, Box::new(dev))
+        Some(Device::new(VIRTIO_DEV_NAME, Box::new(dev)))
     }
 
     fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<usize> {
