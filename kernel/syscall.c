@@ -44,6 +44,13 @@ static int sys_getevents(void **events)
 	return 0;
 }
 
+static int sys_get_io_queue(void **io_queue)
+{
+	*io_queue = process_get_io_queue();
+
+	return 0;
+}
+
 static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 {
 	ssize_t off = 0;
@@ -107,6 +114,7 @@ long syscall(int nr, ...)
 	SYSCALL2(console_print, const char *, size_t);
 	SYSCALL1(subscribe, const char *);
 	SYSCALL1(getevents, void **);
+	SYSCALL1(get_io_queue, void **);
 	}
 	return -ENOSYS;
 }

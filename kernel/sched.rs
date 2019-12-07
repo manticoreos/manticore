@@ -120,6 +120,17 @@ pub extern "C" fn process_getevents() -> usize {
 }
 
 #[no_mangle]
+pub extern "C" fn process_get_io_queue() -> usize {
+    unsafe {
+        if let Some(ref mut current) = CURRENT {
+            return current.io_queue.borrow().ring_buffer.raw_ptr();
+        } else {
+            panic!("No current process");
+        }
+    }
+}
+
+#[no_mangle]
 pub extern fn page_fault_set_fixup(fixup: u64)
 {
     unsafe {
