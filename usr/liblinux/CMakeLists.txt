@@ -1,6 +1,6 @@
 project(liblinux LANGUAGES C ASM)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fno-stack-protector")
 
 add_library(linux
     src/arch/x86/crt0.S

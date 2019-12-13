@@ -1,5 +1,7 @@
 project(libmanticore LANGUAGES C)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+
 add_library(manticore
     src/atomic-ring-buffer.c
     src/io_queue.c
