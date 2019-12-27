@@ -133,8 +133,8 @@ syscall_entry:
 
 	pushq	%r9
 	movq	%r8,  %r9
-	movq	%r10, %r8
-	movq	%rdx, %r10
+	movq	%rcx, %r8
+	movq	%rdx, %rcx
 	movq	%rsi, %rdx
 	movq	%rdi, %rsi
 	movq	%rax, %rdi
