@@ -1,6 +1,7 @@
 #ifndef __ARPA_INET_H
 #define __ARPA_INET_H
 
+#include <netinet/in.h>
 #include <inttypes.h>
 
 static inline uint32_t htonl(uint32_t hostlong)
@@ -38,5 +39,7 @@ static inline uint16_t ntohs(uint16_t netshort)
 	return __builtin_bswap16(netshort);
 #endif
 }
+
+in_addr_t inet_addr(const char *cp);
 
 #endif

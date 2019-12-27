@@ -11,6 +11,7 @@ typedef uint32_t in_addr_t;
 #define AF_INET		2
 
 #define INADDR_ANY	((in_addr_t) 0)
+#define INADDR_NONE	((in_addr_t) -1)
 
 struct in_addr {
 	in_addr_t	s_addr;
