@@ -8,6 +8,28 @@ pub enum IOPort {
 }
 
 impl IOPort {
+    /// Remaps this I/O port to a subset of the I/O port.
+    ///
+    /// The function returns an `Option<IOPort>` where the the `IOPort` has its base address
+    /// shifted by `offset` and size of `new_size`. If the requested remapped I/O port region does
+    /// not fit the original I/O port, `None` is returned.
+    pub fn remap(&self, offset: usize, new_size: u32) -> Option<IOPort> {
+        match self {
+            &IOPort::Memory { base_addr, size } => {
+                if offset > (base_addr + size as usize) as usize {
+                    return None
+                }
+                Some(IOPort::Memory { base_addr: base_addr + offset, size: new_size })
+            },
+            &IOPort::IO { iobase, size } => {
+                if offset > (iobase as u32 + size) as usize {
+                    return None
+                }
+                Some(IOPort::IO { iobase: iobase + offset as u16, size: new_size })
+            }
+        }
+    }
+
     pub unsafe fn read8(&self, offset: usize) -> u8 {
         match self {
             &IOPort::Memory { base_addr, .. } => {
