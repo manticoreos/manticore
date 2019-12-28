@@ -47,3 +47,20 @@ Once QEMU is running, use the following script to start a GDB session:
 The GDB session has a hardware breakpoint at `start_kernel`, which is where your debugging session begins.
 
 When setting your own breakpoints, remember to use the `hbreak`, which uses hardware breakpoints and works more reliably with OS running under QEMU/KVM.
+
+## Tracing network traffic
+
+You can dump network traffic to a pcap file with the `--network-dump FILENAME` command line option to `scripts/run`.
+Please note that the option currently only works with `user` networking.
+
+To dump network traffic, start the VM with:
+
+```
+./scripts/run --network=user --network-dump=net.pcap kernel.iso
+```
+
+To inspect the pcap file, run:
+
+```
+tshark -r net.pcap -V
+```
