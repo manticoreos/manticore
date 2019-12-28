@@ -1,6 +1,7 @@
 //! Virtio drivers.
 
 #![no_std]
+#![feature(option_flattening)]
 
 extern crate alloc;
 #[macro_use]
