@@ -19,7 +19,6 @@
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Features](#features)
 * [Getting Started](#getting-started)
   * [Building from Sources](#building-from-sources)
   * [Supported Hardware](#supported-hardware)
@@ -32,26 +31,9 @@
 
 ## Introduction
 
-Manticore is a research operating system, written in Rust, with the aim of exploring the [parakernel](http://penberg.org/parakernel-hotos19.pdf) OS architecture.
+Manticore is a clean-slate research operating system, written in the [Rust programming language](https://www.rust-lang.org/), with the aim of exploring the [parakernel](http://penberg.org/parakernel-hotos19.pdf) OS architecture.
 
-The OS is increasingly a bottleneck for server applications that want to take maximum advantage of the hardware.
-Many traditional kernel interfaces (such as in POSIX) were designed when I/O was significantly slower than the CPU.
-However, today I/O is getting faster, but single-threaded CPU performance has stagnated.
-For example, a 40 GbE NIC can receive a cache-line sized packet faster than the CPU can access its last-level cache (LLC), which makes it tricky for an OS to keep up with packets arriving from the network.
-Similarly, non-volatile memory (NVM) access speed is getting closer to DRAM speeds, which challenges OS abstractions for storage.
-
-To address this OS bottleneck, server applications are increasingly adopting kernel-bypass techniques.
-For example, the [Seastar framework](http://seastar.io/) is an OS implemented in userspace, which implements its own CPU and I/O scheduler, and bypasses the Linux kernel as much as it can.
-Parakernel is an OS architecture that eliminates many OS abstractions (similar to _exokernels_) and partitions hardware resources (similar to _multikernels_) to facilitate high-performance server application with increased application-level parallelism and predictable tail latency.
-
-## Features
-
- * Process scheduling (no kernel threads)
- * Hardware resource partitioning
- * Virtual memory (no demand paging)
- * Kernel-bypass by default
- * Non-blocking OS system calls
- * ELF executable support
+Please refer to the [project homepage](https://manticoreos.io/) for more information.
 
 ## Getting Started
 
