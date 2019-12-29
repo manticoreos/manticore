@@ -1,4 +1,6 @@
-<h1 align="center"> Manticore Operating System</h1>
+<p align="center">
+<img src="docs/images/manticore.png">
+<p>
 
 <p align="center">
 <a href="https://circleci.com/gh/manticoreos/manticore">
@@ -11,7 +13,7 @@
 </p>
 
 <p align="center">
-  A research operating system to explore <a href="http://penberg.org/parakernel-hotos19.pdf"><i>parakernels</i></a>.
+  Manticore is a research operating system to explore <a href="http://penberg.org/parakernel-hotos19.pdf"><i>parakernels</i></a>.
 </p>
 
 ## Table of Contents
