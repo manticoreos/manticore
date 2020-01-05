@@ -10,11 +10,12 @@ clean:
 
 libs:
 	mkdir -p build && cd build && cmake ../.. && make
+.PHONY: libs
 	
 echod.linux: echod.c
 	gcc $(CFLAGS) echod.c -o echod.linux
 
-echod.manti: echod.c
+echod.manti: libs echod.c
 	gcc $(CFLAGS) -I../liblinux/include -nostdlib echod.c build/liblinux/liblinux.a build/libmanticore/libmanticore.a -o echod.manti
 
 echod.iso: echod.manti ../../kernel.elf
