@@ -2,6 +2,7 @@
 
 #include <kernel/types.h>
 #include <kernel/console.h>
+#include <kernel/device.h>
 #include <kernel/errno.h>
 #include <kernel/panic.h>
 #include <kernel/sched.h>
@@ -49,6 +50,11 @@ static int sys_get_io_queue(void **io_queue)
 	*io_queue = process_get_io_queue();
 
 	return 0;
+}
+
+static int sys_get_config(const char *dev_name, int opt, void *buf, size_t len)
+{
+	return device_get_config(dev_name, opt, buf, len);
 }
 
 static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
@@ -106,6 +112,23 @@ static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 			return sys_##fn(arg0, arg1);                                                                   \
 		} while (0)
 
+#define SYSCALL4(fn, arg0_type, arg1_type, arg2_type, arg3_type)                                                       \
+	case (SYS_##fn):                                                                                               \
+		do {                                                                                                   \
+			va_list args;                                                                                  \
+			arg0_type arg0;                                                                                \
+			arg1_type arg1;                                                                                \
+			arg2_type arg2;                                                                                \
+			arg3_type arg3;                                                                                \
+			va_start(args, nr);                                                                            \
+			arg0 = va_arg(args, arg0_type);                                                                \
+			arg1 = va_arg(args, arg1_type);                                                                \
+			arg2 = va_arg(args, arg2_type);                                                                \
+			arg3 = va_arg(args, arg3_type);                                                                \
+			va_end(args);                                                                                  \
+			return sys_##fn(arg0, arg1, arg2, arg3);                                                       \
+		} while (0)
+
 long syscall(int nr, ...)
 {
 	switch (nr) {
@@ -115,6 +138,7 @@ long syscall(int nr, ...)
 	SYSCALL1(subscribe, const char *);
 	SYSCALL1(getevents, void **);
 	SYSCALL1(get_io_queue, void **);
+	SYSCALL4(get_config, const char *, int, void *, size_t);
 	}
 	return -ENOSYS;
 }

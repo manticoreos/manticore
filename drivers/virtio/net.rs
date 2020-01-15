@@ -322,6 +322,10 @@ impl DeviceOps for VirtioNetDevice {
         vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
     }
+
+    fn get_config(&self, opt: ConfigOption) -> Option<Vec<u8>> {
+        None
+    }
 }
 
 pub static mut VIRTIO_NET_DRIVER: PCIDriver =
