@@ -12,9 +12,11 @@ ssize_t console_print(const char *text, size_t count);
 int subscribe(const char *event);
 int getevents(void **events);
 int get_io_queue(void **io_queue);
+int get_config(const char *dev_name, int opt, void *buf, size_t len);
 
 long syscall0(long number);
 long syscall1(long number, long arg0);
 long syscall2(long number, long arg0, long arg1);
+long syscall4(long number, long arg0, long arg1, long arg2, long arg3);
 
 #endif
