@@ -2,10 +2,11 @@
 
 use alloc::boxed::Box;
 use alloc::rc::Rc;
+use alloc::vec::Vec;
 use core::intrinsics::transmute;
 use core::mem;
 use intrusive_collections::LinkedList;
-use kernel::device::{Device, DeviceOps};
+use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS};
 use kernel::event::{Event, EventNotifier, EVENTS};
 use kernel::ioport::IOPort;
 use kernel::vm::{VMAddressSpace, VM_PROT_READ};
@@ -105,6 +106,8 @@ const VIRTIO_PCI_CAP_BAR: u8 = 4;
 const VIRTIO_PCI_CAP_OFFSET: u8 = 8;
 const VIRTIO_PCI_CAP_LENGTH: u8 = 12;
 
+type MacAddr = [u8; 6];
+
 #[repr(C)]
 #[derive(Debug)]
 struct VirtioNetHdr {
@@ -121,6 +124,7 @@ struct VirtioNetDevice {
     vqs: LinkedList<virtqueue::VirtqueueAdapter>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
+    mac_addr: Option<MacAddr>,
 }
 
 /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
@@ -240,6 +244,7 @@ impl VirtioNetDevice {
                     "virtio-net: MAC address is {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
                     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
                 );
+                dev.mac_addr = Some(mac);
             }
         }
 
@@ -306,6 +311,7 @@ impl VirtioNetDevice {
             /* FIXME: Free allocated pages when driver is unloaded.  */
             rx_page: memory::page_alloc_small() as usize,
             /* FIXME: Check if page allocator returned NULL.  */
+            mac_addr: None,
         }
     }
 
@@ -324,7 +330,10 @@ impl DeviceOps for VirtioNetDevice {
     }
 
     fn get_config(&self, opt: ConfigOption) -> Option<Vec<u8>> {
-        None
+        match opt {
+            CONFIG_ETHERNET_MAC_ADDRESS => { self.mac_addr.map(|a| a.to_vec() ) },
+            _ => { None }
+        }
     }
 }
 

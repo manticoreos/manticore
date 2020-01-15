@@ -11,6 +11,9 @@ use errno::EINVAL;
 
 use user_access;
 
+// Keep this up-to-date with include/uapi/manticore/config_abi.h.
+pub const CONFIG_ETHERNET_MAC_ADDRESS: i32 = 0;
+
 /// Device configuration option.
 pub type ConfigOption = i32;
 
