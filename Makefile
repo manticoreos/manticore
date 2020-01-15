@@ -69,6 +69,7 @@ KERNEL_LIB_SRC += manticore.rs
 # The source code to manual pages.
 #
 MAN_PAGES += man/exit.txt
+MAN_PAGES += man/get_config.txt
 MAN_PAGES += man/wait.txt
 
 ifdef TEST

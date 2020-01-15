@@ -1,0 +1,34 @@
+get_config(2)
+=============
+
+NAME
+----
+get_config - Return config option value.
+
+SYNOPSIS
+--------
+
+#include <manticore/syscalls.h>
+
+int
+get_config(const char *dev_name, int opt, void *buf, size_t len);
+
+DESCRIPTION
+-----------
+
+The *get_config*() system call queries a resource for a configuration option. If the option is found, its value is copied to buf.
+
+RETURN VALUE
+------------
+
+When successful, the get_config system call returns zero.
+
+ERRORS
+------
+
+*EINVAL* opt is not a valid option name for dev_name.
+
+STANDARDS
+---------
+
+The get_config system call is specific to Manticore.
