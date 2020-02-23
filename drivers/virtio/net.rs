@@ -270,30 +270,29 @@ impl VirtioNetDevice {
     }
 
     fn recv(&self) {
-        for ref mut vq in self.vqs.iter() {
-            let last_seen_idx = vq.last_seen_used();
-            let last_used_idx = vq.last_used_idx();
-            if last_seen_idx != last_used_idx {
-                /* FIXME: Fix loop when indexes wrap around.  */
-                assert!(last_seen_idx < last_used_idx);
-                for idx in last_seen_idx..last_used_idx {
-                    let (buf_addr, buf_len) = vq.get_used_buf(idx);
+        let vq = &self.vqs[0];
+        let last_seen_idx = vq.last_seen_used();
+        let last_used_idx = vq.last_used_idx();
+        if last_seen_idx != last_used_idx {
+            /* FIXME: Fix loop when indexes wrap around.  */
+            assert!(last_seen_idx < last_used_idx);
+            for idx in last_seen_idx..last_used_idx {
+                let (buf_addr, buf_len) = vq.get_used_buf(idx);
 
-                    let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
-                    let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
-                    assert!(unsafe { (*hdr).num_buffers } == 1);
+                let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
+                let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
+                assert!(unsafe { (*hdr).num_buffers } == 1);
 
-                    let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
-                    self.notifier.on_event(Event::PacketIO {
-                        addr: VIRTIO_NET_RX_BUFFER_ADDR + mem::size_of::<VirtioNetHdr>(),
-                        len: packet_len,
-                    });
+                let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
+                self.notifier.on_event(Event::PacketIO {
+                    addr: VIRTIO_NET_RX_BUFFER_ADDR + mem::size_of::<VirtioNetHdr>(),
+                    len: packet_len,
+                });
 
-                    vq.advance_last_seen_used();
+                vq.advance_last_seen_used();
 
-                    /* FIXME: We reuse the same buffer, but user space has not consumed it yet.  */
-                    vq.add_buf_idx(0);
-                }
+                /* FIXME: We reuse the same buffer, but user space has not consumed it yet.  */
+                vq.add_buf_idx(0);
             }
         }
     }
