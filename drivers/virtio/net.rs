@@ -128,6 +128,27 @@ struct VirtioNetDevice {
     mac_addr: Option<MacAddr>,
 }
 
+/// Virtio PCI capability structure.
+struct VirtioPCICap {
+  pub offset: u8,
+  pub bar_idx: u8,
+}
+
+impl VirtioPCICap {
+    fn new(offset: u8, bar_idx: u8) -> Self {
+      Self {
+          offset,
+          bar_idx,
+      }
+    }
+
+    fn map(&self, pci_dev: &PCIDevice) -> Option<IOPort> {
+        let offset = pci_dev.func.read_config_u32(self.offset + VIRTIO_PCI_CAP_OFFSET);
+        let length = pci_dev.func.read_config_u32(self.offset + VIRTIO_PCI_CAP_LENGTH);
+        pci_dev.bars[self.bar_idx as usize].map(|bar| { bar.remap(offset as usize, length) }).flatten()
+    }
+}
+
 /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
 /// The virtual address of the receive packet buffer memory area that is mapped to user space.
 const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
@@ -145,9 +166,11 @@ impl VirtioNetDevice {
 
         unsafe { EVENTS.register(dev.notifier.clone()); }
 
-        let (bar_idx, ioport) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG).unwrap();
+        let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG).unwrap();
 
-        println!("virtio-net: using PCI BAR{} for device configuration", bar_idx);
+        let ioport = common_cfg_cap.map(pci_dev).unwrap();
+
+        println!("virtio-net: using PCI BAR{} for device configuration", common_cfg_cap.bar_idx);
 
         //
         // 1. Reset device
@@ -236,7 +259,8 @@ impl VirtioNetDevice {
         let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
 
         if dev_features.contains(VIRTIO_NET_F_MAC) {
-            if let Some((_, dev_cfg_ioport)) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
+            if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
+                let dev_cfg_ioport = dev_cfg_cap.map(pci_dev).unwrap();
                 let mut mac: [u8; 6] = [0; 6];
                 for i in 0..mac.len() {
                     mac[i] = unsafe { dev_cfg_ioport.read8(i) };
@@ -252,19 +276,13 @@ impl VirtioNetDevice {
         Some(Device::new(VIRTIO_DEV_NAME, Box::new(dev)))
     }
 
-    fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<(u8, IOPort)> {
+    fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<VirtioPCICap> {
         let mut capability = pci_dev.func.find_capability(PCI_CAPABILITY_VENDOR);
         while let Some(offset) = capability {
             let ty = pci_dev.func.read_config_u8(offset + VIRTIO_PCI_CAP_CFG_TYPE);
             let bar_idx = pci_dev.func.read_config_u8(offset + VIRTIO_PCI_CAP_BAR);
             if ty == cfg_type && bar_idx < 0x05 {
-                let off = pci_dev.func.read_config_u32(offset + VIRTIO_PCI_CAP_OFFSET);
-                let length = pci_dev.func.read_config_u32(offset + VIRTIO_PCI_CAP_LENGTH);
-                return pci_dev.bars[bar_idx as usize].map(|bar| {
-                    bar.remap(off as usize, length)
-                }).flatten().map(|ioport| {
-                    (bar_idx, ioport)
-                })
+                return Some(VirtioPCICap::new(offset, bar_idx))
             }
             capability = pci_dev.func.find_next_capability(PCI_CAPABILITY_VENDOR, offset);
         }
