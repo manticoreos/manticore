@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument("image", help="OS image to run in a virtual machine")
     parser.add_argument("-c", "--cpus", type=int, default=1,
                         help="number of CPUs in the virtual machine")
-    parser.add_argument("-n", "--network", type=str, default="none",
+    parser.add_argument("-n", "--network", type=str, default="user",
                         help="enable networking. Supported values: 'user' and 'none'.")
     parser.add_argument("--network-dump", metavar="FILENAME", type=str,
                         help="Dump network traffic to a file in pcap format.")
