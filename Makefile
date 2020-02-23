@@ -112,8 +112,8 @@ $(KERNEL_LIB): $(KERNEL_LIB_SRC)
 	$(Q) $(CROSS_PREFIX)cpp $(CFLAGS) -P $< $@
 
 usr/echod/echod.iso: $(KERNEL_IMAGE)
-	$(E) "  MAKE -C usr/echod"
-	$(Q) make -C usr/echod
+	$(E) "  MAKE    " $@
+	$(Q) make -s -C usr/echod
 
 man: $(MAN_PAGES)
 	$(E) "  ASCIIDOCTOR"
