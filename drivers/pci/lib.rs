@@ -48,6 +48,7 @@ extern "C" {
 pub const PCI_VENDOR_ID_REDHAT: u16 = 0x1af4;
 pub const PCI_DEVICE_ID_ANY: u16 = 0xffff;
 
+/* 7.5.1. Type 0/1 Common Configuration Space */
 const PCI_CFG_VENDOR_ID: u8 = 0x00;
 const PCI_CFG_DEVICE_ID: u8 = 0x02;
 const PCI_CFG_COMMAND: u8 = 0x04;
