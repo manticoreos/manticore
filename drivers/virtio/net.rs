@@ -105,6 +105,8 @@ const VIRTIO_PCI_CAP_BAR: u8 = 4;
 const VIRTIO_PCI_CAP_OFFSET: u8 = 8;
 const VIRTIO_PCI_CAP_LENGTH: u8 = 12;
 
+const VIRTIO_RX_QUEUE_IDX: u16 = 0;
+
 type MacAddr = [u8; 6];
 
 #[repr(C)]
@@ -210,7 +212,7 @@ impl VirtioNetDevice {
                 ioport.write64(mmu::virt_to_phys(vq.raw_used_ring_ptr) as u64, QUEUE_USED);
 
                 // RX queue:
-                if queue == 0 {
+                if queue == VIRTIO_RX_QUEUE_IDX {
                     vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
                     let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(&dev));
                     pci_dev.enable_irq(queue);
@@ -270,7 +272,7 @@ impl VirtioNetDevice {
     }
 
     fn recv(&self) {
-        let vq = &self.vqs[0];
+        let vq = &self.vqs[VIRTIO_RX_QUEUE_IDX as usize];
         let last_seen_idx = vq.last_seen_used();
         let last_used_idx = vq.last_used_idx();
         if last_seen_idx != last_used_idx {
