@@ -13,7 +13,7 @@ use kernel::memory;
 use kernel::mmu;
 use kernel::print;
 use pci::{DeviceID, PCIDevice, PCIDriver, PCI_CAPABILITY_VENDOR, PCI_VENDOR_ID_REDHAT};
-use virtqueue;
+use virtqueue::{Virtqueue};
 
 const PCI_DEVICE_ID_VIRTIO_NET: u16 = 0x1041;
 
@@ -120,7 +120,7 @@ struct VirtioNetHdr {
 }
 
 struct VirtioNetDevice {
-    vqs: Vec<virtqueue::Virtqueue>,
+    vqs: Vec<Virtqueue>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
     mac_addr: Option<MacAddr>,
@@ -196,7 +196,7 @@ impl VirtioNetDevice {
 
             let size = unsafe { ioport.read16(QUEUE_SIZE) };
 
-            let vq = virtqueue::Virtqueue::new(size as usize);
+            let vq = Virtqueue::new(size as usize);
 
             unsafe {
                 ioport.write64(
@@ -314,7 +314,7 @@ impl VirtioNetDevice {
         }
     }
 
-    fn add_vq(&mut self, vq: virtqueue::Virtqueue) {
+    fn add_vq(&mut self, vq: Virtqueue) {
         self.vqs.push(vq);
     }
 }
