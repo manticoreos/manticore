@@ -5,7 +5,6 @@ use alloc::rc::Rc;
 use alloc::vec::Vec;
 use core::intrinsics::transmute;
 use core::mem;
-use intrusive_collections::LinkedList;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS};
 use kernel::event::{Event, EventNotifier, EVENTS};
 use kernel::ioport::IOPort;
@@ -121,7 +120,7 @@ struct VirtioNetHdr {
 }
 
 struct VirtioNetDevice {
-    vqs: LinkedList<virtqueue::VirtqueueAdapter>,
+    vqs: Vec<virtqueue::Virtqueue>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
     mac_addr: Option<MacAddr>,
@@ -197,7 +196,7 @@ impl VirtioNetDevice {
 
             let size = unsafe { ioport.read16(QUEUE_SIZE) };
 
-            let vq = Box::new(virtqueue::Virtqueue::new(size as usize));
+            let vq = virtqueue::Virtqueue::new(size as usize);
 
             unsafe {
                 ioport.write64(
@@ -306,7 +305,7 @@ impl VirtioNetDevice {
 
     fn new() -> Self {
         VirtioNetDevice {
-            vqs: LinkedList::new(virtqueue::VirtqueueAdapter::new()),
+            vqs: Vec::new(),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
             rx_page: memory::page_alloc_small() as usize,
@@ -315,8 +314,8 @@ impl VirtioNetDevice {
         }
     }
 
-    fn add_vq(&mut self, vq: Box<virtqueue::Virtqueue>) {
-        self.vqs.push_back(vq);
+    fn add_vq(&mut self, vq: virtqueue::Virtqueue) {
+        self.vqs.push(vq);
     }
 }
 
