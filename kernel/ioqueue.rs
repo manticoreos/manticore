@@ -8,7 +8,7 @@ use atomic_ring_buffer::AtomicRingBuffer;
 
 #[derive(Clone, Debug)]
 pub enum IOCmd {
-    PacketTX { addr: usize, len: usize },
+    PacketTX { addr: *mut u8, len: usize },
 }
 
 #[repr(C)]
@@ -17,7 +17,7 @@ pub enum IOCmd {
 /// NOTE! When modifying this data structure, please make sure it matches the C
 /// definition in `include/uapi/manticore/io_queue.h`.
 struct RawIOCmd {
-    addr: usize,
+    addr: *mut u8,
     len: usize,
 }
 
