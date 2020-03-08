@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+typedef void *io_queue_t;
+
 struct io_cmd {
 	void *addr;
 	size_t len;

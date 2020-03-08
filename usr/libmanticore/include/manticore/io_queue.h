@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
-int io_submit(void *addr, size_t len);
+#include <manticore/io_queue_abi.h>
+
+int io_submit(io_queue_t queue, void *addr, size_t len);
 
 #endif
