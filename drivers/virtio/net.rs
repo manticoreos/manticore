@@ -126,6 +126,7 @@ struct VirtioNetDevice {
     vqs: Vec<Virtqueue>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
+    tx_page: usize,
     mac_addr: Option<MacAddr>,
 }
 
@@ -334,6 +335,7 @@ impl VirtioNetDevice {
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
             rx_page: memory::page_alloc_small() as usize,
+            tx_page: memory::page_alloc_small() as usize,
             /* FIXME: Check if page allocator returned NULL.  */
             mac_addr: None,
         }
