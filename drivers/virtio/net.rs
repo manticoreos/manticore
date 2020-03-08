@@ -122,6 +122,7 @@ struct VirtioNetHdr {
 }
 
 struct VirtioNetDevice {
+    notify_cfg_ioport: IOPort,
     vqs: Vec<Virtqueue>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
@@ -162,7 +163,9 @@ impl VirtioNetDevice {
 
         pci_dev.enable_msix();
 
-        let mut dev = VirtioNetDevice::new();
+        let (_, notify_cfg_ioport) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG).unwrap();
+
+        let mut dev = VirtioNetDevice::new(notify_cfg_ioport);
 
         unsafe { EVENTS.register(dev.notifier.clone()); }
 
@@ -324,8 +327,9 @@ impl VirtioNetDevice {
         unsafe { (*dev).recv() };
     }
 
-    fn new() -> Self {
+    fn new(notify_cfg_ioport: IOPort) -> Self {
         VirtioNetDevice {
+            notify_cfg_ioport: notify_cfg_ioport,
             vqs: Vec::new(),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
