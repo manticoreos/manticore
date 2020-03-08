@@ -62,6 +62,8 @@ pub const VIRTQ_USED_F_NO_NOTIFY: u16 = 0x01;
 pub struct Virtqueue {
     /// Number of elements in the virtqueue.
     pub queue_size: usize,
+    /// Queue notification offset.
+    pub notify_off: u16,
     /// Last seen index in the used ring.
     pub last_seen_used: Cell<u16>,
     /// Raw pointer to the descriptor table.
@@ -83,7 +85,7 @@ impl Drop for Virtqueue {
 }
 
 impl Virtqueue {
-    pub fn new(queue_size: usize) -> Self {
+    pub fn new(queue_size: usize, notify_off: u16) -> Self {
         // FIXME: Ensure that virtqueue components are aligned.
         unsafe {
             let raw_descriptor_table_ptr = memory::kmem_zalloc(queue_size * 16);
@@ -100,6 +102,7 @@ impl Virtqueue {
             }
             Virtqueue {
                 queue_size: queue_size,
+                notify_off: notify_off,
                 last_seen_used: Cell::new(0),
                 raw_descriptor_table_ptr: raw_descriptor_table_ptr,
                 raw_available_ring_ptr: raw_available_ring_ptr,
