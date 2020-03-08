@@ -89,6 +89,7 @@ dependencies = [
  "intrusive-collections",
  "kernel",
  "pci",
+ "rlibc",
 ]
 
 [[package]]

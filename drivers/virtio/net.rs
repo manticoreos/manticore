@@ -12,6 +12,7 @@ use kernel::vm::{VMAddressSpace, VM_PROT_READ};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
+use kernel::ioqueue::{IOCmd};
 use pci::{DeviceID, PCIDevice, PCIDriver, PCI_CAPABILITY_VENDOR, PCI_VENDOR_ID_REDHAT};
 use virtqueue::{Virtqueue};
 
@@ -105,7 +106,11 @@ const VIRTIO_PCI_CAP_BAR: u8 = 4;
 const VIRTIO_PCI_CAP_OFFSET: u8 = 8;
 const VIRTIO_PCI_CAP_LENGTH: u8 = 12;
 
+/* 4.1.4.4 Notification structure layout */
+const VIRTIO_NOTIFY_OFF_MULTIPLIER: u8 = 16;
+
 const VIRTIO_RX_QUEUE_IDX: u16 = 0;
+const VIRTIO_TX_QUEUE_IDX: u16 = 1;
 
 type MacAddr = [u8; 6];
 
@@ -123,6 +128,7 @@ struct VirtioNetHdr {
 
 struct VirtioNetDevice {
     notify_cfg_ioport: IOPort,
+    notify_off_multiplier: u32,
     vqs: Vec<Virtqueue>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
@@ -164,9 +170,13 @@ impl VirtioNetDevice {
 
         pci_dev.enable_msix();
 
-        let (_, notify_cfg_ioport) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG).unwrap();
+        let notify_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG).unwrap();
 
-        let mut dev = VirtioNetDevice::new(notify_cfg_ioport);
+        let notify_off_multiplier = pci_dev.func.read_config_u32(notify_cfg_cap.offset + VIRTIO_NOTIFY_OFF_MULTIPLIER);
+
+        let notify_cfg_ioport = notify_cfg_cap.map(pci_dev).unwrap();
+
+        let mut dev = VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier);
 
         unsafe { EVENTS.register(dev.notifier.clone()); }
 
@@ -328,9 +338,10 @@ impl VirtioNetDevice {
         unsafe { (*dev).recv() };
     }
 
-    fn new(notify_cfg_ioport: IOPort) -> Self {
+    fn new(notify_cfg_ioport: IOPort, notify_off_multiplier: u32) -> Self {
         VirtioNetDevice {
             notify_cfg_ioport: notify_cfg_ioport,
+            notify_off_multiplier,
             vqs: Vec::new(),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
@@ -353,6 +364,27 @@ impl DeviceOps for VirtioNetDevice {
         let rx_buf_end = rx_buf_start + rx_buf_size;
         vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+    }
+
+    fn io_submit(&self, cmd: IOCmd) {
+        match cmd {
+            IOCmd::PacketTX { addr, len } => {
+                let hdr = VirtioNetHdr {
+                    flags: 0,
+                    gso_type: 0,
+                    hdr_len: 0,
+                    gso_size: 0,
+                    csum_start: 0,
+                    csum_offset: 0,
+                    num_buffers: 0,
+                };
+                unsafe { rlibc::memcpy(mem::transmute(self.tx_page), mem::transmute(&hdr), mem::size_of::<VirtioNetHdr>()); }
+                unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), addr, len); }
+                let vq = &self.vqs[VIRTIO_TX_QUEUE_IDX as usize];
+                unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize); }
+                unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
+            }
+        }
     }
 
     fn get_config(&self, opt: ConfigOption) -> Option<Vec<u8>> {

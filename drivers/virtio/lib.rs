@@ -11,6 +11,7 @@ extern crate pci;
 extern crate intrusive_collections;
 #[macro_use]
 extern crate kernel;
+extern crate rlibc;
 
 pub mod virtqueue;
 pub mod net;

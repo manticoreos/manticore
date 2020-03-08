@@ -9,6 +9,7 @@ use vm::VMAddressSpace;
 use null_terminated::NulStr;
 use errno::EINVAL;
 
+use ioqueue::IOCmd;
 use user_access;
 
 // Keep this up-to-date with include/uapi/manticore/config_abi.h.
@@ -38,6 +39,7 @@ intrusive_adapter!(DeviceAdapter = Box<Device>: Device { link: LinkedListLink })
 
 pub trait DeviceOps {
     fn subscribe(&self, vmspace: &mut VMAddressSpace);
+    fn io_submit(&self, cmd: IOCmd);
     fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>>;
 }
 
