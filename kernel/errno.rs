@@ -15,6 +15,6 @@ impl Error {
     }
 
     pub fn errno(&self) -> i32 {
-        self.0
+        -self.0
     }
 }
