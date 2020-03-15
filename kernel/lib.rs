@@ -38,7 +38,7 @@ pub use memory::page_alloc_small;
 pub use memory::page_free_small;
 pub use memory::page_alloc_large;
 pub use memory::page_free_large;
-pub use process::process_run;
+pub use process::process_spawn;
 
 use memory::KAllocator;
 

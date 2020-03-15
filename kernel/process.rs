@@ -80,7 +80,7 @@ extern "C" {
 
 /// Create a new process.
 #[no_mangle]
-pub unsafe extern "C" fn process_run(image_start: *const u8, image_size: usize) {
+pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize) {
     let mmu_map = mmu::mmu_current_map();
     let mut vmspace = VMAddressSpace::new(mmu_map);
 

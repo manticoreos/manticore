@@ -7,7 +7,7 @@
 void *initrd_start;
 void *initrd_end;
 
-extern void process_run(const char *image_start, unsigned long image_size);
+extern void process_spawn(const char *image_start, unsigned long image_size);
 
 void initrd_load(void)
 {
@@ -19,5 +19,5 @@ void initrd_load(void)
 
 	printf("Found initrd at %p (%lu bytes)\n", initrd_start, initrd_size);
 
-	process_run(initrd_start, initrd_size);
+	process_spawn(initrd_start, initrd_size);
 }
