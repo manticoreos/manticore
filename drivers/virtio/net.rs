@@ -423,7 +423,6 @@ impl DeviceOps for VirtioNetDevice {
                     match cmd {
                         IOCmd::PacketTX { addr, len } => {
                             let buf = unsafe { slice::from_raw_parts(addr, len) };
-                            println!("Packet TX = {:?}", buf);
                         },
                     }
                     self.io_submit(cmd);
