@@ -4,6 +4,8 @@
 _start:
 	xorq	%rbp, %rbp
 
+	call	__liblinux_setup
+
 	call	main
 
 	movq	%rax, %rdi
