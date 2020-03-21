@@ -5,7 +5,6 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use core::intrinsics::transmute;
 use core::mem;
-use core::slice;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS, CONFIG_IO_QUEUE};
 use kernel::event::{Event, EventListener, EventNotifier};
 use kernel::ioport::IOPort;
@@ -420,11 +419,6 @@ impl DeviceOps for VirtioNetDevice {
         if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
             loop {
                 if let Some(cmd) = io_queue.pop() {
-                    match cmd {
-                        IOCmd::PacketTX { addr, len } => {
-                            let buf = unsafe { slice::from_raw_parts(addr, len) };
-                        },
-                    }
                     self.io_submit(cmd);
                 } else {
                     break
