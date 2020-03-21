@@ -27,7 +27,7 @@ static void echo(int sockfd)
 	char buf[maxbuf];
 	struct sockaddr_storage addr = {};
 	socklen_t addrlen = sizeof(addr);
-	size_t nr = recvfrom(sockfd, buf, maxbuf, MSG_DONTWAIT, (struct sockaddr*) &addr, &addrlen);
+	ssize_t nr = recvfrom(sockfd, buf, maxbuf, MSG_DONTWAIT, (struct sockaddr*) &addr, &addrlen);
 	if (nr < 0) {
 		die("recv");
 	}
