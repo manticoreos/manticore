@@ -10,7 +10,6 @@ add_library(manticore
     src/syscalls/console_print.c
     src/syscalls/exit.c
     src/syscalls/get_config.c
-    src/syscalls/get_io_queue.c
     src/syscalls/getevents.c
     src/syscalls/subscribe.c
     src/syscalls/wait.c

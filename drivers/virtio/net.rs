@@ -5,14 +5,15 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use core::intrinsics::transmute;
 use core::mem;
-use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS};
+use core::slice;
+use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS, CONFIG_IO_QUEUE};
 use kernel::event::{Event, EventListener, EventNotifier};
 use kernel::ioport::IOPort;
-use kernel::vm::{VMAddressSpace, VM_PROT_READ};
+use kernel::ioqueue::{IOCmd, IOQueue};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
-use kernel::ioqueue::{IOCmd};
+use kernel::vm::{VMAddressSpace, VM_PROT_READ, VM_PROT_RW};
 use pci::{DeviceID, PCIDevice, PCIDriver, PCI_CAPABILITY_VENDOR, PCI_VENDOR_ID_REDHAT};
 use virtqueue::{Virtqueue};
 
@@ -134,6 +135,7 @@ struct VirtioNetDevice {
     rx_page: usize,
     tx_page: usize,
     mac_addr: Option<MacAddr>,
+    io_queue: RefCell<Option<IOQueue>>,
 }
 
 /// Virtio PCI capability structure.
@@ -160,6 +162,8 @@ impl VirtioPCICap {
 /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
 /// The virtual address of the receive packet buffer memory area that is mapped to user space.
 const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
+
+const VIRTIO_NET_IO_QUEUE_ADDR: usize = 0xA0000000;
 
 /// The name of this virtio device that is exported to user space.
 const VIRTIO_DEV_NAME: &str = "/dev/eth";
@@ -347,26 +351,12 @@ impl VirtioNetDevice {
             tx_page: memory::page_alloc_small() as usize,
             /* FIXME: Check if page allocator returned NULL.  */
             mac_addr: None,
+            io_queue: RefCell::new(None),
         }
     }
 
     fn add_vq(&mut self, vq: Virtqueue) {
         self.vqs.push(vq);
-    }
-}
-
-impl DeviceOps for VirtioNetDevice {
-    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
-        self.notifier.add_listener(listener);
-        let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
-        let rx_buf_size = 4096;
-        let rx_buf_end = rx_buf_start + rx_buf_size;
-        vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
-        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
-    }
-
-    fn subscribe(&self, _events: &'static str) {
-        // TODO: A process receives packets from all flows. Implement flow filtering.
     }
 
     fn io_submit(&self, cmd: IOCmd) {
@@ -389,11 +379,58 @@ impl DeviceOps for VirtioNetDevice {
             }
         }
     }
+}
+
+impl DeviceOps for VirtioNetDevice {
+    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
+        self.notifier.add_listener(listener);
+        let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
+        let rx_buf_size = 4096;
+        let rx_buf_end = rx_buf_start + rx_buf_size;
+        vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
+        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+
+        let io_buf_start = VIRTIO_NET_IO_QUEUE_ADDR;
+        let io_buf_size = 4096;
+        let io_buf_end = io_buf_start + io_buf_size;
+        vmspace.allocate(io_buf_start, io_buf_end, VM_PROT_RW).expect("allocate failed");
+        vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
+        let io_queue = IOQueue::new(io_buf_start, io_buf_size);
+        self.io_queue.replace(Some(io_queue));
+    }
+
+    fn subscribe(&self, _events: &'static str) {
+        // TODO: A process receives packets from all flows. Implement flow filtering.
+    }
 
     fn get_config(&self, opt: ConfigOption) -> Option<Vec<u8>> {
         match opt {
             CONFIG_ETHERNET_MAC_ADDRESS => { self.mac_addr.map(|a| a.to_vec() ) },
+            CONFIG_IO_QUEUE => {
+                if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
+                    return Some(io_queue.ring_buffer.raw_ptr().to_ne_bytes().to_vec())
+                }
+                return None;
+            },
             _ => { None }
+        }
+    }
+
+    fn process_io(&self) {
+        if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
+            loop {
+                if let Some(cmd) = io_queue.pop() {
+                    match cmd {
+                        IOCmd::PacketTX { addr, len } => {
+                            let buf = unsafe { slice::from_raw_parts(addr, len) };
+                            println!("Packet TX = {:?}", buf);
+                        },
+                    }
+                    self.io_submit(cmd);
+                } else {
+                    break
+                }
+            }
         }
     }
 }

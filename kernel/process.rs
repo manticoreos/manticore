@@ -5,7 +5,6 @@ use core::cell::{Cell, RefCell};
 use device::{NAMESPACE, Device, DeviceDesc, DeviceSpace};
 use event::{Event, EventListener, EventQueue};
 use errno::{Error, Result, EINVAL};
-use ioqueue::{IOQueue};
 use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
@@ -31,14 +30,13 @@ pub struct Process {
     pub device_space: RefCell<DeviceSpace>,
     pub page_fault_fixup: Cell<u64>,
     pub event_queue: RefCell<EventQueue>,
-    pub io_queue: RefCell<IOQueue>,
     pub link: LinkedListLink,
 }
 
 intrusive_adapter!(pub ProcessAdapter = Rc<Process>: Process { link: LinkedListLink });
 
 impl Process {
-    pub fn new(task_state: TaskState, vmspace: VMAddressSpace, event_queue: EventQueue, io_queue: IOQueue) -> Self {
+    pub fn new(task_state: TaskState, vmspace: VMAddressSpace, event_queue: EventQueue) -> Self {
         Process {
             state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
@@ -46,7 +44,6 @@ impl Process {
             device_space: RefCell::new(DeviceSpace::new()),
             page_fault_fixup: Cell::new(0),
             event_queue: RefCell::new(event_queue),
-            io_queue: RefCell::new(io_queue),
             link: LinkedListLink::new(),
         }
     }
@@ -111,17 +108,9 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     vmspace.populate(event_buf_start, event_buf_end).expect("populate failed");
     let event_queue = EventQueue::new(event_buf_start, event_buf_size);
 
-    /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
-    let io_buf_start = 0xA0000000;
-    let io_buf_size = 4096;
-    let io_buf_end = io_buf_start + io_buf_size;
-    vmspace.allocate(io_buf_start, io_buf_end, VM_PROT_RW).expect("allocate failed");
-    vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
-    let io_queue = IOQueue::new(io_buf_start, io_buf_size);
-
     let task_state = task_state_new(entry_point, stack_top);
 
-    let process = Rc::new(Process::new(task_state, vmspace, event_queue, io_queue));
+    let process = Rc::new(Process::new(task_state, vmspace, event_queue));
 
     sched::enqueue(process);
 }

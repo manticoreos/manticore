@@ -10,6 +10,7 @@ use intrusive_collections::LinkedList;
 use null_terminated::NulStr;
 use process::{Process, ProcessAdapter, ProcessState, TaskState};
 use user_access;
+use device;
 
 /// Current running process.
 static mut CURRENT: Option<Rc<Process>> = None;
@@ -144,6 +145,7 @@ pub extern "C" fn process_wait() {
     unsafe {
         if let Some(ref mut current) = CURRENT {
             current.state.replace(ProcessState::WAITING);
+            device::process_io();
             schedule();
         } else {
             panic!("No current process");
@@ -156,17 +158,6 @@ pub extern "C" fn process_getevents() -> usize {
     unsafe {
         if let Some(ref mut current) = CURRENT {
             return current.event_queue.borrow().ring_buffer.raw_ptr();
-        } else {
-            panic!("No current process");
-        }
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn process_get_io_queue() -> usize {
-    unsafe {
-        if let Some(ref mut current) = CURRENT {
-            return current.io_queue.borrow().ring_buffer.raw_ptr();
         } else {
             panic!("No current process");
         }

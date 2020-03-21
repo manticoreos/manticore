@@ -3,11 +3,11 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use event::EventListener;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
-use ioqueue::IOCmd;
 use vm::VMAddressSpace;
 
 // Keep this up-to-date with include/uapi/manticore/config_abi.h.
 pub const CONFIG_ETHERNET_MAC_ADDRESS: i32 = 0;
+pub const CONFIG_IO_QUEUE: i32 = 1;
 
 /// A device descriptor.
 pub struct DeviceDesc(i32);
@@ -36,8 +36,8 @@ impl DeviceDesc {
 pub trait DeviceOps {
     fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>);
     fn subscribe(&self, events: &'static str);
-    fn io_submit(&self, cmd: IOCmd);
     fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>>;
+    fn process_io(&self);
 }
 
 pub struct Device {
@@ -67,6 +67,10 @@ impl Device {
 
     pub fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>> {
         return self.ops.borrow().get_config(option);
+    }
+
+    pub fn process_io(&self) {
+        return self.ops.borrow().process_io();
     }
 }
 
@@ -131,5 +135,13 @@ impl DeviceSpace {
 pub fn register_device(device: Rc<Device>) {
     unsafe {
         NAMESPACE.add(device);
+    }
+}
+
+pub fn process_io() {
+    unsafe {
+        for dev in NAMESPACE.devices.iter() {
+            dev.process_io();
+        }
     }
 }

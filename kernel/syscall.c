@@ -44,13 +44,6 @@ static int sys_getevents(void **events)
 	return 0;
 }
 
-static int sys_get_io_queue(void **io_queue)
-{
-	*io_queue = process_get_io_queue();
-
-	return 0;
-}
-
 static int sys_get_config(int desc, int opt, void *buf, size_t len)
 {
 	return process_get_config(desc, opt, buf, len);
@@ -149,7 +142,6 @@ long syscall(int nr, ...)
 	SYSCALL2(console_print, const char *, size_t);
 	SYSCALL1(subscribe, const char *);
 	SYSCALL1(getevents, void **);
-	SYSCALL1(get_io_queue, void **);
 	SYSCALL4(get_config, int, int, void *, size_t);
 	SYSCALL2(acquire, const char *, int);
 	}

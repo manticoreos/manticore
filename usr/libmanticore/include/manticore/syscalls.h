@@ -12,7 +12,6 @@ ssize_t console_print(const char *text, size_t count);
 int acquire(const char *name, int flags);
 int subscribe(const char *event);
 int getevents(void **events);
-int get_io_queue(void **io_queue);
 int get_config(int desc, int opt, void *buf, size_t len);
 
 long syscall0(long number);
