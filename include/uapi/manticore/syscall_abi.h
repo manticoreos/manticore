@@ -9,6 +9,7 @@ enum {
 	SYS_getevents		= 5,
 	SYS_get_io_queue	= 6,
 	SYS_get_config		= 7,
+	SYS_acquire		= 8,
 };
 
 #endif

@@ -1,0 +1,34 @@
+acquire(2)
+=======
+
+NAME
+----
+acquire - Request access to a kernel-managed resource.
+
+SYNOPSIS
+--------
+
+#include <manticore/syscalls.h>
+
+int
+acquire(const char *name, int flags);
+
+DESCRIPTION
+-----------
+
+The acquire system call requests access to a kernel-managed resource.
+
+RETURN VALUE
+------------
+
+When successful, the acquire system call returns a resource descriptor.
+
+ERRORS
+------
+
+*EINVAL* Resource not found.
+
+STANDARDS
+---------
+
+The acquire system call is specific to Manticore.

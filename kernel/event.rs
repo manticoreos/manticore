@@ -12,10 +12,7 @@ use alloc::rc::Rc;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
-use errno::EINVAL;
-use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
-use device::subscribe_device;
-use vm::VMAddressSpace;
+use intrusive_collections::{KeyAdapter, RBTreeLink};
 use atomic_ring_buffer::AtomicRingBuffer;
 
 /// A kernel event.
@@ -97,34 +94,3 @@ impl EventNotifier {
         }
     }
 }
-
-/// The kernel events subsystem.
-pub struct Events {
-    notifiers: RBTree<EventNotifierAdapter>,
-}
-
-impl Events {
-    pub const fn new() -> Self {
-        Events {
-            notifiers: RBTree::new(EventNotifierAdapter::NEW),
-        }
-    }
-
-    pub fn register(&mut self, notifier: Rc<EventNotifier>) {
-        self.notifiers.insert(notifier);
-    }
-
-    pub fn subscribe(&mut self, name: &'static str, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> i32 {
-        subscribe_device(name, vmspace);
-        let cursor = self.notifiers.find_mut(name);
-        if let Some(notifier) = cursor.get() {
-            notifier.add_listener(listener);
-            return 0
-        }
-        return -EINVAL
-    }
-}
-
-/// The `EVENTS` object is used by kernel components to register notifiers and
-/// subscribe listeners.
-pub static mut EVENTS: Events = Events::new();

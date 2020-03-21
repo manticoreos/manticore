@@ -9,10 +9,11 @@
 void exit(int status) __attribute__ ((noreturn));
 int wait(void);
 ssize_t console_print(const char *text, size_t count);
+int acquire(const char *name, int flags);
 int subscribe(const char *event);
 int getevents(void **events);
 int get_io_queue(void **io_queue);
-int get_config(const char *dev_name, int opt, void *buf, size_t len);
+int get_config(int desc, int opt, void *buf, size_t len);
 
 long syscall0(long number);
 long syscall1(long number, long arg0);

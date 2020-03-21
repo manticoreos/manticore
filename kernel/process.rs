@@ -2,7 +2,9 @@ use alloc::rc::Rc;
 use core::intrinsics::transmute;
 use core::slice;
 use core::cell::{Cell, RefCell};
+use device::{NAMESPACE, Device, DeviceDesc, DeviceSpace};
 use event::{Event, EventListener, EventQueue};
+use errno::{Error, Result, EINVAL};
 use ioqueue::{IOQueue};
 use intrusive_collections::LinkedListLink;
 use memory;
@@ -22,11 +24,11 @@ pub enum ProcessState {
     WAITING,
 }
 
-#[derive(Debug)]
 pub struct Process {
     pub state: RefCell<ProcessState>,
     pub task_state: TaskState,
     pub vmspace: RefCell<VMAddressSpace>,
+    pub device_space: RefCell<DeviceSpace>,
     pub page_fault_fixup: Cell<u64>,
     pub event_queue: RefCell<EventQueue>,
     pub io_queue: RefCell<IOQueue>,
@@ -41,6 +43,7 @@ impl Process {
             state: RefCell::new(ProcessState::RUNNABLE),
             task_state: task_state,
             vmspace: RefCell::new(vmspace),
+            device_space: RefCell::new(DeviceSpace::new()),
             page_fault_fixup: Cell::new(0),
             event_queue: RefCell::new(event_queue),
             io_queue: RefCell::new(io_queue),
@@ -54,6 +57,14 @@ impl Process {
 
     pub fn stack_top(&self) -> u64 {
         unsafe { task_state_stack_top(self.task_state) }
+    }
+
+    pub fn acquire(&self, name: &'static str) -> Result<(Rc<Device>, DeviceDesc)> {
+        if let Some(device) = unsafe { NAMESPACE.lookup(name) } {
+            let desc = self.device_space.borrow_mut().attach(device.clone());
+            return Ok((device, desc));
+        }
+        return Err(Error::new(EINVAL));
     }
 }
 

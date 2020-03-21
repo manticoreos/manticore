@@ -1,12 +1,12 @@
 //! Virtio network device driver.
 
-use alloc::boxed::Box;
 use alloc::rc::Rc;
 use alloc::vec::Vec;
+use core::cell::RefCell;
 use core::intrinsics::transmute;
 use core::mem;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS};
-use kernel::event::{Event, EventNotifier, EVENTS};
+use kernel::event::{Event, EventListener, EventNotifier};
 use kernel::ioport::IOPort;
 use kernel::vm::{VMAddressSpace, VM_PROT_READ};
 use kernel::memory;
@@ -165,7 +165,7 @@ const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
 const VIRTIO_DEV_NAME: &str = "/dev/eth";
 
 impl VirtioNetDevice {
-    fn probe(pci_dev: &PCIDevice) -> Option<Device> {
+    fn probe(pci_dev: &PCIDevice) -> Option<Rc<Device>> {
         pci_dev.set_bus_master(true);
 
         pci_dev.enable_msix();
@@ -177,8 +177,6 @@ impl VirtioNetDevice {
         let notify_cfg_ioport = notify_cfg_cap.map(pci_dev).unwrap();
 
         let mut dev = VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier);
-
-        unsafe { EVENTS.register(dev.notifier.clone()); }
 
         let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG).unwrap();
 
@@ -289,7 +287,7 @@ impl VirtioNetDevice {
             }
         }
 
-        Some(Device::new(VIRTIO_DEV_NAME, Box::new(dev)))
+        Some(Rc::new(Device::new(VIRTIO_DEV_NAME, RefCell::new(Rc::new(dev)))))
     }
 
     fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<VirtioPCICap> {
@@ -358,12 +356,17 @@ impl VirtioNetDevice {
 }
 
 impl DeviceOps for VirtioNetDevice {
-    fn subscribe(&self, vmspace: &mut VMAddressSpace) {
+    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
+        self.notifier.add_listener(listener);
         let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
         let rx_buf_size = 4096;
         let rx_buf_end = rx_buf_start + rx_buf_size;
         vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+    }
+
+    fn subscribe(&self, _events: &'static str) {
+        // TODO: A process receives packets from all flows. Implement flow filtering.
     }
 
     fn io_submit(&self, cmd: IOCmd) {

@@ -1,77 +1,135 @@
-///! Driver model.
-
-use alloc::boxed::Box;
+use alloc::rc::Rc;
 use alloc::vec::Vec;
-use intrusive_collections::{LinkedList, LinkedListLink};
 use core::cell::RefCell;
-use core::cmp;
-use vm::VMAddressSpace;
-use null_terminated::NulStr;
-use errno::EINVAL;
-
+use event::EventListener;
+use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 use ioqueue::IOCmd;
-use user_access;
+use vm::VMAddressSpace;
 
 // Keep this up-to-date with include/uapi/manticore/config_abi.h.
 pub const CONFIG_ETHERNET_MAC_ADDRESS: i32 = 0;
 
-/// Device configuration option.
+/// A device descriptor.
+pub struct DeviceDesc(i32);
+
+/// A device configuration option.
 pub type ConfigOption = i32;
 
-/// Device.
-pub struct Device {
-    dev_name: &'static str,
-    _ops: RefCell<Box<dyn DeviceOps>>,
-    link: LinkedListLink,
-}
+impl DeviceDesc {
+    pub fn from_user(desc: i32) -> DeviceDesc {
+        DeviceDesc(desc)
+    }
 
-impl Device {
-    pub fn new(dev_name: &'static str, ops: Box<dyn DeviceOps>) -> Self {
-        Device {
-            dev_name: dev_name,
-            _ops: RefCell::new(ops),
-            link: LinkedListLink::new(),
+    pub fn to_user(&self) -> i32 {
+        self.0
+    }
+
+    pub fn to_idx(&self) -> Option<usize> {
+        if self.0 >= 0 {
+            Some(self.0 as usize)
+        } else {
+            None
         }
     }
 }
 
-intrusive_adapter!(DeviceAdapter = Box<Device>: Device { link: LinkedListLink });
-
 pub trait DeviceOps {
-    fn subscribe(&self, vmspace: &mut VMAddressSpace);
+    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>);
+    fn subscribe(&self, events: &'static str);
     fn io_submit(&self, cmd: IOCmd);
     fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>>;
 }
 
+pub struct Device {
+    name: &'static str,
+    ops: RefCell<Rc<dyn DeviceOps>>,
+    link: RBTreeLink,
+}
+
+intrusive_adapter!(pub DeviceAdapter = Rc<Device>: Device { link: RBTreeLink });
+
+impl Device {
+    pub fn new(name: &'static str, ops: RefCell<Rc<dyn DeviceOps>>) -> Self {
+        Device {
+            name: name,
+            ops: ops,
+            link: RBTreeLink::new(),
+        }
+    }
+
+    pub fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
+        self.ops.borrow().acquire(vmspace, listener);
+    }
+
+    pub fn subscribe(&self, events: &'static str) {
+        self.ops.borrow().subscribe(events);
+    }
+
+    pub fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>> {
+        return self.ops.borrow().get_config(option);
+    }
+}
+
+impl<'a> KeyAdapter<'a> for DeviceAdapter {
+    type Key = &'static str;
+
+    fn get_key(&self, x: &'a Device) -> Self::Key {
+        x.name
+    }
+}
+
+pub struct Namespace {
+    devices: RBTree<DeviceAdapter>,
+}
+
+impl Namespace {
+    pub const fn new() -> Self {
+        Namespace {
+            devices: RBTree::new(DeviceAdapter::NEW),
+        }
+    }
+
+    pub fn add(&mut self, device: Rc<Device>) {
+        self.devices.insert(device);
+    }
+
+    pub fn lookup(&self, name: &'static str) -> Option<Rc<Device>> {
+        let cursor = self.devices.find(name);
+        return cursor.clone_pointer();
+    }
+}
+
+pub static mut NAMESPACE: Namespace = Namespace::new();
+
+pub struct DeviceSpace {
+    desc_table: Vec<Rc<Device>>,
+}
+
+impl DeviceSpace {
+    pub fn new() -> Self {
+        DeviceSpace { desc_table: vec![] }
+    }
+
+    pub fn attach(&mut self, device: Rc<Device>) -> DeviceDesc {
+        let idx = self.desc_table.len();
+        self.desc_table.push(device);
+        return DeviceDesc::from_user(idx as i32);
+    }
+
+    pub fn lookup(&self, desc: DeviceDesc) -> Option<Rc<Device>> {
+        if let Some(idx) = desc.to_idx() {
+            if idx > self.desc_table.len() {
+                return None;
+            }
+            return Some(self.desc_table[idx].clone());
+        }
+        return None;
+    }
+}
+
 /// Register a device to the kernel.
-pub fn register_device(device: Device) {
+pub fn register_device(device: Rc<Device>) {
     unsafe {
-        DEVICE_LIST.push_back(Box::new(device));
+        NAMESPACE.add(device);
     }
 }
-
-pub fn subscribe_device(dev_name: &'static str, vmspace: &mut VMAddressSpace) {
-    unsafe {
-        for dev in DEVICE_LIST.iter() {
-            if dev.dev_name == dev_name {
-                dev._ops.borrow().subscribe(vmspace);
-            }
-        }
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn device_get_config(dev_name: &'static NulStr, opt: i32, buf: *mut u8, len: usize) -> i32 {
-    for dev in unsafe { DEVICE_LIST.iter() } {
-        if dev.dev_name == &dev_name[..] {
-            if let Some(value) = dev._ops.borrow().get_config(opt) {
-                let to_copy = cmp::min(len, value.len());
-                unsafe { user_access::memcpy_to_user(buf, value.as_ptr(), to_copy); }
-                return 0
-            }
-        }
-    }
-    return -EINVAL
-}
-
-static mut DEVICE_LIST: LinkedList<DeviceAdapter> = LinkedList::new(DeviceAdapter::NEW);
