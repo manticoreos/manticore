@@ -14,9 +14,9 @@ bitflags! {
         const VM_PROT_READ  = 0b00000001;
         const VM_PROT_WRITE = 0b00000010;
         const VM_PROT_EXEC  = 0b00000100;
-        const VM_PROT_RX    = VM_PROT_READ.bits | VM_PROT_EXEC.bits;
-        const VM_PROT_RW    = VM_PROT_READ.bits | VM_PROT_WRITE.bits;
-        const VM_PROT_RWX   = VM_PROT_READ.bits | VM_PROT_WRITE.bits | VM_PROT_EXEC.bits;
+        const VM_PROT_RX    = VMProt::VM_PROT_READ.bits | VMProt::VM_PROT_EXEC.bits;
+        const VM_PROT_RW    = VMProt::VM_PROT_READ.bits | VMProt::VM_PROT_WRITE.bits;
+        const VM_PROT_RWX   = VMProt::VM_PROT_READ.bits | VMProt::VM_PROT_WRITE.bits | VMProt::VM_PROT_EXEC.bits;
     }
 }
 
@@ -68,13 +68,13 @@ impl VMRegion {
 
     pub fn mmu_prot(&self) -> usize {
         let mut prot: usize = 0;
-        if self.prot.contains(VM_PROT_READ) {
+        if self.prot.contains(VMProt::VM_PROT_READ) {
             prot |= mmu::MMU_PROT_READ;
         }
-        if self.prot.contains(VM_PROT_WRITE) {
+        if self.prot.contains(VMProt::VM_PROT_WRITE) {
             prot |= mmu::MMU_PROT_WRITE;
         }
-        if self.prot.contains(VM_PROT_EXEC) {
+        if self.prot.contains(VMProt::VM_PROT_EXEC) {
             prot |= mmu::MMU_PROT_EXEC;
         }
         return prot;

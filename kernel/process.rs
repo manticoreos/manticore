@@ -9,7 +9,7 @@ use intrusive_collections::LinkedListLink;
 use memory;
 use mmu;
 use sched;
-use vm::{VMAddressSpace, VMProt, VM_PROT_EXEC, VM_PROT_READ, VM_PROT_RW, VM_PROT_WRITE};
+use vm::{VMAddressSpace, VMProt};
 use xmas_elf::program;
 use xmas_elf::ElfFile;
 use rlibc::memset;
@@ -97,14 +97,14 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     let stack_top = 0x40000000;
     let stack_size = memory::PAGE_SIZE_LARGE as usize;
     let stack_start = stack_top - stack_size;
-    vmspace.allocate(stack_start, stack_top, VM_PROT_RW).expect("allocate failed");
+    vmspace.allocate(stack_start, stack_top, VMProt::VM_PROT_RW).expect("allocate failed");
     vmspace.populate(stack_start, stack_top).expect("populate failed");
 
     /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
     let event_buf_start = 0x80000000;
     let event_buf_size = 4096;
     let event_buf_end = event_buf_start + event_buf_size;
-    vmspace.allocate(event_buf_start, event_buf_end, VM_PROT_RW).expect("allocate failed");
+    vmspace.allocate(event_buf_start, event_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
     vmspace.populate(event_buf_start, event_buf_end).expect("populate failed");
     let event_queue = EventQueue::new(event_buf_start, event_buf_size);
 
@@ -144,13 +144,13 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
 fn elf_phdr_flags_to_prot(flags: program::Flags) -> VMProt {
     let mut prot = VMProt::empty();
     if flags.is_read() {
-        prot |= VM_PROT_READ;
+        prot |= VMProt::VM_PROT_READ;
     }
     if flags.is_write() {
-        prot |= VM_PROT_WRITE;
+        prot |= VMProt::VM_PROT_WRITE;
     }
     if flags.is_execute() {
-        prot |= VM_PROT_EXEC;
+        prot |= VMProt::VM_PROT_EXEC;
     }
     return prot;
 }

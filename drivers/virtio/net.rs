@@ -12,7 +12,7 @@ use kernel::ioqueue::{IOCmd, IOQueue};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
-use kernel::vm::{VMAddressSpace, VM_PROT_READ, VM_PROT_RW};
+use kernel::vm::{VMAddressSpace, VMProt};
 use pci::{DeviceID, PCIDevice, PCIDriver, PCI_CAPABILITY_VENDOR, PCI_VENDOR_ID_REDHAT};
 use virtqueue::{Virtqueue};
 
@@ -208,7 +208,7 @@ impl VirtioNetDevice {
         //
         // 4. Negotiate features
         //
-        let features = VIRTIO_NET_F_MAC | VIRTIO_NET_F_MRG_RXBUF;
+        let features = Features::VIRTIO_NET_F_MAC | Features::VIRTIO_NET_F_MRG_RXBUF;
         unsafe { ioport.write32(features.bits(), DRIVER_FEATURE) };
 
         //
@@ -275,7 +275,7 @@ impl VirtioNetDevice {
 
         let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
 
-        if dev_features.contains(VIRTIO_NET_F_MAC) {
+        if dev_features.contains(Features::VIRTIO_NET_F_MAC) {
             if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
                 let dev_cfg_ioport = dev_cfg_cap.map(pci_dev).unwrap();
                 let mut mac: [u8; 6] = [0; 6];
@@ -386,13 +386,13 @@ impl DeviceOps for VirtioNetDevice {
         let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
         let rx_buf_size = 4096;
         let rx_buf_end = rx_buf_start + rx_buf_size;
-        vmspace.allocate(rx_buf_start, rx_buf_end, VM_PROT_READ).expect("allocate failed");
+        vmspace.allocate(rx_buf_start, rx_buf_end, VMProt::VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
 
         let io_buf_start = VIRTIO_NET_IO_QUEUE_ADDR;
         let io_buf_size = 4096;
         let io_buf_end = io_buf_start + io_buf_size;
-        vmspace.allocate(io_buf_start, io_buf_end, VM_PROT_RW).expect("allocate failed");
+        vmspace.allocate(io_buf_start, io_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
         vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
