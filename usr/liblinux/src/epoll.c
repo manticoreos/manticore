@@ -39,13 +39,15 @@ int epoll_create1(int flags)
 	return do_epoll_create(flags);
 }
 
+static struct epoll_event interest_set[1]; // FIXME: make bigger
+
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)
 {
 	if (epfd != EPOLL_FD) {
 		errno = EBADF;
 		return -1;
 	}
-	// TODO: We need to register event interest set.
+	interest_set[0] = *event;
 	return 0;
 }
 
@@ -88,6 +90,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 			};
 			if (net_input(&pk)) {
 				struct epoll_event *ep_event = &events[nr_events++];
+				*ep_event = interest_set[0]; // FIXME
 				ep_event->events = EPOLLIN;
 			}
 			break;
