@@ -4,12 +4,18 @@
 #include <manticore/syscalls.h>
 
 #include <assert.h>
+#include <arpa/inet.h>
 #include <linux/if_ether.h>
 #include <stdio.h>
 
 char __liblinux_mac_addr[ETH_ALEN];
 
 io_queue_t __liblinux_eth_ioqueue;
+
+// FIXME: This is the default QEMU SLIPR guest IP address. Make it configurable.
+#define HOST_IP_ADDR "10.0.2.15"
+
+uint32_t __liblinux_host_ip;
 
 void __liblinux_setup(void)
 {
@@ -24,4 +30,8 @@ void __liblinux_setup(void)
 
 	fprintf(stderr, "MAC address = %02x:%02x:%02x:%02x:%02x:%02x\n", __liblinux_mac_addr[0], __liblinux_mac_addr[1],
 		__liblinux_mac_addr[2], __liblinux_mac_addr[3], __liblinux_mac_addr[4], __liblinux_mac_addr[5]);
+
+	__liblinux_host_ip = inet_addr(HOST_IP_ADDR);
+
+	fprintf(stderr, "IP address = %s\n", HOST_IP_ADDR);
 }

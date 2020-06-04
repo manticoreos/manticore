@@ -11,4 +11,6 @@ extern io_queue_t __liblinux_eth_ioqueue;
 
 extern char __liblinux_mac_addr[ETH_ALEN];
 
+extern uint32_t __liblinux_host_ip;
+
 #endif
