@@ -6,6 +6,8 @@
 #include <manticore/events.h>
 #include <manticore/syscalls.h>
 
+#include "internal/net.h"
+
 #define EPOLL_FD	200
 
 static int nr_epoll_fds = 0;
@@ -79,16 +81,20 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 		uint32_t ep_events = 0;
 
 		switch (kern_event->type) {
-		case EVENT_PACKET_RX:
-			ep_events = EPOLLIN;
+		case EVENT_PACKET_RX: {
+			struct pbuf pbuf = {
+				.start = kern_event->addr,
+				.end = kern_event->addr + kern_event->len,
+			};
+			if (net_input(&pbuf)) {
+				struct epoll_event *ep_event = &events[nr_events++];
+				ep_event->events = EPOLLIN;
+			}
 			break;
+		}
 		default:
 			break;
 		}
-
-		struct epoll_event *ep_event = &events[nr_events++];
-		ep_event->events = ep_events;
-
 		atomic_ring_buffer_pop(queue, sizeof(struct event));
 	}
 	return nr_events;

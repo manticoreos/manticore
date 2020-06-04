@@ -7,6 +7,9 @@ add_library(linux
     src/arpa/inet.c
     src/epoll.c
     src/errno.c
+    src/internal/arp.c
+    src/internal/arp_cache.c
+    src/internal/net.c
     src/internal/setup.c
     src/socket.c
     src/stdio.c

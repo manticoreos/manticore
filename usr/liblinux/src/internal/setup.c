@@ -1,5 +1,7 @@
 #include "internal/setup.h"
 
+#include "internal/arp_cache.h"
+
 #include <manticore/config_abi.h>
 #include <manticore/syscalls.h>
 
@@ -16,6 +18,8 @@ io_queue_t __liblinux_eth_ioqueue;
 #define HOST_IP_ADDR "10.0.2.15"
 
 uint32_t __liblinux_host_ip;
+
+struct arp_cache __liblinux_arp_cache;
 
 void __liblinux_setup(void)
 {
@@ -34,4 +38,6 @@ void __liblinux_setup(void)
 	__liblinux_host_ip = inet_addr(HOST_IP_ADDR);
 
 	fprintf(stderr, "IP address = %s\n", HOST_IP_ADDR);
+
+	arp_cache_init(&__liblinux_arp_cache);
 }

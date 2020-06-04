@@ -70,6 +70,7 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags)
 ssize_t recvfrom(int sockfd, void *restrict buf, size_t len, int flags, struct sockaddr *restrict src_addr,
 		 socklen_t *restrict addrlen)
 {
+	/* FIXME: process packet data from I/O memory region (protocol processing) and copy message to "buf", signal OS that descriptor is now consumed. */
 	errno = EBADF;
 	return -1;
 }
