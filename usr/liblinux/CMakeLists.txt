@@ -9,6 +9,7 @@ add_library(linux
     src/errno.c
     src/internal/arp.c
     src/internal/arp_cache.c
+    src/internal/ip.c
     src/internal/net.c
     src/internal/setup.c
     src/internal/socket.c

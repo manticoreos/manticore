@@ -1,6 +1,7 @@
 #include "internal/net.h"
 
 #include "internal/setup.h"
+#include "internal/trace.h"
 
 #include <arpa/inet.h>
 #include <linux/if_ether.h>
@@ -17,6 +18,8 @@ static struct net_statistics stats;
 
 static bool net_input_one(struct packet_view *pk)
 {
+	LIBLINUX_TRACE(net_input);
+
 	struct ethhdr *ethh = pk->start;
 
 	if (packet_view_len(pk) < sizeof(*ethh)) {
@@ -26,7 +29,10 @@ static bool net_input_one(struct packet_view *pk)
 	}
 	packet_view_trim(pk, sizeof(*ethh));
 
-	if (ethh->h_proto == ntohs(ETH_P_ARP)) {
+	if (ethh->h_proto == ntohs(ETH_P_IP)) {
+		ip_input(pk);
+		return true;
+	} else if (ethh->h_proto == ntohs(ETH_P_ARP)) {
 		arp_input(pk);
 		return false;
 	} else {

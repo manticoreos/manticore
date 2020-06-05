@@ -23,4 +23,8 @@ struct sockaddr_in {
 	struct in_addr	sin_addr;
 };
 
+enum {
+	IPPROTO_UDP	= 17,
+};
+
 #endif

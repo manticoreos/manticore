@@ -2,6 +2,7 @@
 
 #include "internal/arp_cache.h"
 #include "internal/setup.h"
+#include "internal/trace.h"
 
 #include <arpa/inet.h>
 #include <linux/if_ether.h>
@@ -24,8 +25,11 @@ struct arp_ip4 {
 
 static void arp_reply(struct arphdr *request_arph)
 {
+	LIBLINUX_TRACE(arp_reply);
+
 	// FIXME: Use some generic TX buffer region
 	static char tx_buf[128];
+
 	struct arp_ip4 *request_arp = (void *)request_arph + sizeof(*request_arph);
 	struct ethhdr *reply_ethh = (void *) tx_buf;
 	struct arphdr *reply_arph = (void *) tx_buf + sizeof(*reply_ethh);
@@ -54,6 +58,8 @@ static void arp_reply(struct arphdr *request_arph)
 
 void arp_input(struct packet_view *pk)
 {
+	LIBLINUX_TRACE(arp_input);
+
 	struct arphdr *arph = pk->start;
 
 	switch (ntohs(arph->ar_op)) {
