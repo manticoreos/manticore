@@ -15,12 +15,13 @@ struct net_statistics {
 
 static struct net_statistics stats;
 
-bool net_input(struct pbuf *pbuf)
+static bool net_input_one(struct pbuf *pbuf)
 {
 	struct ethhdr *ethh = pbuf->start;
 
 	if (pbuf_len(pbuf) < sizeof(*ethh)) {
 		stats.packets_dropped++;
+		pbuf_trim_front(pbuf, pbuf_len(pbuf));
 		return false;
 	}
 	pbuf_trim_front(pbuf, sizeof(*ethh));
@@ -30,6 +31,18 @@ bool net_input(struct pbuf *pbuf)
 		return false;
 	} else {
 		stats.packets_dropped++;
+		pbuf_trim_front(pbuf, pbuf_len(pbuf));
 		return false;
 	}
+}
+
+bool net_input(struct pbuf *pbuf)
+{
+	bool ret = false;
+
+	while (pbuf_len(pbuf) > 0) {
+		ret |= net_input_one(pbuf);
+	}
+
+	return ret;
 }
