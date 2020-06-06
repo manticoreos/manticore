@@ -154,6 +154,9 @@ void init_memory_map(void)
 
 	while (offset < header->total_size) {
 		struct tag *tag = data + offset;
+		if (!tag || !tag->size) {
+			break;
+		}
 		switch (tag->tag) {
 		case BOOT_LOADER_NAME_TAG:
 			parse_boot_loader_name(tag, data + offset);
