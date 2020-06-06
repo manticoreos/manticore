@@ -1,6 +1,7 @@
 #ifndef __LIBLINUX_INTERNAL_NET_H
 #define __LIBLINUX_INTERNAL_NET_H
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -13,16 +14,18 @@ struct pbuf {
 	void *end;
 };
 
-/// Trims \size bytes from the packet buffer \pbuf.
-static inline void pbuf_trim_front(struct pbuf *pbuf, size_t size)
-{
-	pbuf->start += size;
-}
-
 /// Returns the length of the packet pointed to by \pbuf
 static inline size_t pbuf_len(struct pbuf *pbuf)
 {
 	return pbuf->end - pbuf->start;
+}
+
+/// Trims \size bytes from the packet buffer \pbuf.
+static inline void pbuf_trim_front(struct pbuf *pbuf, size_t size)
+{
+	assert(pbuf_len(pbuf) >= size);
+
+	pbuf->start += size;
 }
 
 /// Forward a packet buffer to the network stack.
