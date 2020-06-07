@@ -72,9 +72,6 @@ int main(int argc, char *argv[])
 		if (nr < 0) {
 			die("epoll_wait");
 		}
-#if 1
-		fprintf(stderr, "epoll_wait() returned %d events\n", nr);
-#endif
 		for (int i = 0; i < nr; i++) {
 			struct epoll_event *ev = &events[i];
 			echo(ev->data.fd);
