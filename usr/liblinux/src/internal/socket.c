@@ -10,6 +10,11 @@
 #include <netinet/in.h>
 #include <string.h>
 
+static const struct socket_operations udp_socket_ops = {
+    .recvfrom = udp_recvfrom,
+    .sendto = udp_sendto,
+};
+
 /* Maximum number of supported sockets.  */
 #define MAX_SOCKETS 8
 static struct socket sockets[MAX_SOCKETS];
@@ -20,7 +25,10 @@ static size_t nr_sockets;
 
 static struct socket_operations *find_socket_ops(int domain, int type, int protocol)
 {
-	return NULL;
+	if (domain != AF_INET || type != SOCK_DGRAM || protocol != 0) {
+		return NULL;
+	}
+	return &udp_socket_ops;
 }
 
 int socket_alloc(int domain, int type, int protocol)
