@@ -15,33 +15,33 @@ struct net_statistics {
 
 static struct net_statistics stats;
 
-static bool net_input_one(struct pbuf *pbuf)
+static bool net_input_one(struct packet_view *pk)
 {
-	struct ethhdr *ethh = pbuf->start;
+	struct ethhdr *ethh = pk->start;
 
-	if (pbuf_len(pbuf) < sizeof(*ethh)) {
+	if (packet_view_len(pk) < sizeof(*ethh)) {
 		stats.packets_dropped++;
-		pbuf_trim_front(pbuf, pbuf_len(pbuf));
+		packet_view_trim(pk, packet_view_len(pk));
 		return false;
 	}
-	pbuf_trim_front(pbuf, sizeof(*ethh));
+	packet_view_trim(pk, sizeof(*ethh));
 
 	if (ethh->h_proto == ntohs(ETH_P_ARP)) {
-		arp_input(pbuf);
+		arp_input(pk);
 		return false;
 	} else {
 		stats.packets_dropped++;
-		pbuf_trim_front(pbuf, pbuf_len(pbuf));
+		packet_view_trim(pk, packet_view_len(pk));
 		return false;
 	}
 }
 
-bool net_input(struct pbuf *pbuf)
+bool net_input(struct packet_view *pk)
 {
 	bool ret = false;
 
-	while (pbuf_len(pbuf) > 0) {
-		ret |= net_input_one(pbuf);
+	while (packet_view_len(pk) > 0) {
+		ret |= net_input_one(pk);
 	}
 
 	return ret;

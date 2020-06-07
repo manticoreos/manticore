@@ -52,9 +52,9 @@ static void arp_reply(struct arphdr *request_arph)
 	io_submit(__liblinux_eth_ioqueue, reply_ethh, sizeof(*reply_ethh) + sizeof(*reply_arph) + sizeof(*reply_arp));
 }
 
-void arp_input(struct pbuf *pbuf)
+void arp_input(struct packet_view *pk)
 {
-	struct arphdr *arph = pbuf->start;
+	struct arphdr *arph = pk->start;
 
 	switch (ntohs(arph->ar_op)) {
 	case ARPOP_REQUEST:

@@ -5,33 +5,34 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/// A packet buffer (pbuf) descriptor.
+/// A packet descriptor.
 ///
-/// A packet buffer descriptor specifies an (start, end) tuple that points to a
+/// A packet descriptor specifies an (start, end) tuple that points to a
 /// contiguous memory area that contains one packet.
-struct pbuf {
+struct packet_view {
 	void *start;
 	void *end;
 };
 
-/// Returns the length of the packet pointed to by \pbuf
-static inline size_t pbuf_len(struct pbuf *pbuf)
+/// Returns the length of the packet pointed to by \pk
+static inline size_t packet_view_len(struct packet_view *pk)
 {
-	return pbuf->end - pbuf->start;
+	return pk->end - pk->start;
 }
 
-/// Trims \size bytes from the packet buffer \pbuf.
-static inline void pbuf_trim_front(struct pbuf *pbuf, size_t size)
+/// Trims \size bytes from the packet descriptor \pk.
+static inline void packet_view_trim(struct packet_view *pk, size_t size)
 {
-	assert(pbuf_len(pbuf) >= size);
+	assert(packet_view_len(pk) >= size);
 
-	pbuf->start += size;
+	pk->start += size;
 }
 
-/// Forward a packet buffer to the network stack.
+/// Forward a packet descritpro to the network stack.
 ///
 /// \return @true if packet caused an epoll event; otherwise returns @false.
-bool net_input(struct pbuf *pbuf);
-void arp_input(struct pbuf *pbuf);
+bool net_input(struct packet_view *pk);
+
+void arp_input(struct packet_view *pk);
 
 #endif
