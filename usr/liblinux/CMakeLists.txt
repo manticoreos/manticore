@@ -11,6 +11,7 @@ add_library(linux
     src/internal/arp_cache.c
     src/internal/net.c
     src/internal/setup.c
+    src/internal/socket.c
     src/socket.c
     src/stdio.c
     src/stdlib.c
