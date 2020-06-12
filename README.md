@@ -16,6 +16,8 @@
   Manticore is a research operating system to explore <a href="http://penberg.org/parakernel-hotos19.pdf"><i>parakernels</i></a>.
 </p>
 
+[![asciicast](https://asciinema.org/a/WBQaRkKvKv35RDIWl0QXYNssw.svg)](https://asciinema.org/a/WBQaRkKvKv35RDIWl0QXYNssw)
+
 ## Table of Contents
 
 * [Introduction](#introduction)
