@@ -26,9 +26,16 @@ void console_write_char(char ch)
 	pl011_write_char(ch);
 }
 
-void console_write(const char *s)
+void console_write_str(const char *s)
 {
 	while (*s) {
+		pl011_write_char(*s++);
+	}
+}
+
+void console_write(const char *s, size_t count)
+{
+	while (count--) {
 		pl011_write_char(*s++);
 	}
 }
