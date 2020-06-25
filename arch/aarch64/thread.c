@@ -1,11 +1,38 @@
 #include <arch/thread.h>
 
+#include <kernel/kmem.h>
+
 void task_state_init(struct task_state *task_state, void *pc, void *sp)
 {
 	task_state->sp = sp;
 	task_state->pc = pc;
 }
 
+struct task_state *task_state_new(void *pc, void *sp)
+{
+	struct task_state *ret = kmem_alloc(sizeof(struct task_state));
+	if (ret) {
+		ret->flags = TIF_NEW;
+		ret->pc = pc;
+		ret->sp = sp;
+	}
+	return ret;
+}
+
+void task_state_delete(struct task_state *task_state)
+{
+	kmem_free(task_state, sizeof(struct task_state));
+}
+
+void *task_state_stack_top(struct task_state *task_state)
+{
+	return task_state->sp;
+}
+
+void *task_state_entry_point(struct task_state *task_state)
+{
+	return task_state->pc;
+}
 void switch_to(struct task_state *old, struct task_state *new)
 {
 	asm volatile(
