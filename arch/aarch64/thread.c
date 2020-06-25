@@ -33,6 +33,20 @@ void *task_state_entry_point(struct task_state *task_state)
 {
 	return task_state->pc;
 }
+
+void switch_to_first(struct task_state *new)
+{
+	asm volatile(
+		"ldp	x9, x10, %0\n"
+		"mov	sp, x9\n"
+		"br	x10\n"
+		"0:\n"
+		:
+		: "m"(new->sp)
+		: "x9", "x10", "x19", "x20", "x21", "x22", "x23", "x24", "x25", "x26", "x27", "x28", "x30",
+		  "memory");
+}
+
 void switch_to(struct task_state *old, struct task_state *new)
 {
 	asm volatile(
