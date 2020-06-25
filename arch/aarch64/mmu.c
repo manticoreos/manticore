@@ -18,7 +18,13 @@ void mmu_load_map(mmu_map_t map)
 	/* FIXME: not implemented.  */
 }
 
-int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, mmu_prot_t prot, mmu_flags_t flags)
+int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t prot, mmu_flags_t flags)
+{
+	/* FIXME: not implemented.  */
+	return -EINVAL;
+}
+
+int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t prot, mmu_flags_t flags)
 {
 	/* FIXME: not implemented.  */
 	return -EINVAL;
