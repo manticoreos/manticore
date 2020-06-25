@@ -17,7 +17,7 @@ struct socket_operations {
 };
 
 struct socket {
-	struct socket_operations *ops;
+	const struct socket_operations *ops;
 	uint16_t local_port;
 	char rx_buffer[1500]; /* FIXME make bigger */
 };

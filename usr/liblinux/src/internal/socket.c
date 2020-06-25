@@ -23,7 +23,7 @@ static size_t nr_sockets;
 /* The starting offset of socket file descriptors.  */
 #define SOCKET_FD_OFFSET 100
 
-static struct socket_operations *find_socket_ops(int domain, int type, int protocol)
+static const struct socket_operations *find_socket_ops(int domain, int type, int protocol)
 {
 	if (domain != AF_INET || type != SOCK_DGRAM || protocol != 0) {
 		return NULL;
@@ -37,7 +37,7 @@ int socket_alloc(int domain, int type, int protocol)
 		errno = EMFILE;
 		return -1;
 	}
-	struct socket_operations *ops = find_socket_ops(domain, type, protocol);
+	const struct socket_operations *ops = find_socket_ops(domain, type, protocol);
 	if (!ops) {
 		errno = EINVAL;
 		return -1;
