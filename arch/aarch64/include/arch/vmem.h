@@ -1,6 +1,8 @@
 #ifndef AARCH64_VMEM_H
 #define AARCH64_VMEM_H
 
+#include <arch/vmem-defs.h>
+
 #include <stdint.h>
 
 /// Physical address.
