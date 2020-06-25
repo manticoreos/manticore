@@ -9,12 +9,17 @@ phys_t virt_to_phys(virt_t addr)
 
 mmu_map_t mmu_current_map(void)
 {
-	/* Not supported. */
+	/* FIXME: not implemented.  */
 	return 0;
+}
+
+void mmu_load_map(mmu_map_t map)
+{
+	/* FIXME: not implemented.  */
 }
 
 int mmu_map_range(mmu_map_t map, virt_t vaddr, phys_t paddr, size_t size, mmu_prot_t prot, mmu_flags_t flags)
 {
-	/* Not supported. */
+	/* FIXME: not implemented.  */
 	return -EINVAL;
 }
