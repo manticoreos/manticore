@@ -33,6 +33,7 @@ objs += kernel/syscall.o
 objs += kernel/thread.o
 objs += kernel/user-copy.o
 objs += mm/kmem.o
+objs += mm/mmu.o
 
 #
 # The filename of the kernel static library. This static library is the output
