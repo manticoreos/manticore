@@ -1,3 +1,26 @@
-#!/bin/sh
+#!/bin/bash
 
-dnf install qemu-system-aarch64 gcc-aarch64-linux-gnu gcc-c++-aarch64-linux-gnu binutils-aarch64-linux-gnu
+set -e
+
+. /etc/os-release
+
+if [ "$ID" = "fedora" ]; then
+    packages=(
+        qemu-system-aarch64
+	gcc-aarch64-linux-gnu
+	gcc-c++-aarch64-linux-gnu
+	binutils-aarch64-linux-gnu
+    )
+    sudo dnf install --assumeyes --refresh ${packages[@]}
+elif [ "$ID" = "ubuntu" ]; then
+    packages=(
+	binutils-aarch64-linux-gnu
+	cpp-aarch64-linux-gnu
+	g++-aarch64-linux-gnu
+	gcc-aarch64-linux-gnu
+        qemu-system-arm
+    )
+    sudo DEBIAN_FRONTEND=noninteractive apt install --yes --quiet ${packages[@]}
+else
+    echo "Warning: '$ID' is not a supported OS."
+fi
