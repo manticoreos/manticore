@@ -1,7 +1,6 @@
 #include <arch/processor.h>
 #include <arch/vmem-defs.h>
 #include <arch/segment.h>
-#include <arch/mmu.h>
 #include <arch/msr.h>
 
 .section .boot

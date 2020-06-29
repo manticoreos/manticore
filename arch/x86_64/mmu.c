@@ -5,8 +5,8 @@
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
 
+#include <arch/processor.h>
 #include <arch/vmem.h>
-#include <arch/mmu.h>
 
 #include <string.h>
 
