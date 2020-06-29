@@ -1,6 +1,7 @@
 #ifndef KERNEL_MMU_H
 #define KERNEL_MMU_H 1
 
+#include <arch/mmu.h>
 #include <arch/vmem.h>
 
 #include <stddef.h>
@@ -16,9 +17,6 @@ typedef enum {
 	MMU_USER_PAGE = 1UL << 0,
 	MMU_NOCACHE = 1UL << 1,
 } mmu_flags_t;
-
-/// MMU translation map
-typedef uintptr_t mmu_map_t;
 
 void mmu_invalidate_tlb(void);
 mmu_map_t mmu_current_map(void);

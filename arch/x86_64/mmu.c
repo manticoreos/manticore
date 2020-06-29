@@ -178,12 +178,12 @@ void mmu_invalidate_tlb(void)
 
 mmu_map_t mmu_current_map(void)
 {
-	return x86_read_cr3();
+	return (mmu_map_t){cr3: x86_read_cr3()};
 }
 
 void mmu_load_map(mmu_map_t map)
 {
-	x86_write_cr3(map);
+	x86_write_cr3(map.cr3);
 }
 
 /// Converts paging structure indices to a virtual address.
@@ -221,7 +221,7 @@ static uint64_t mmu_flags_to_hw(mmu_flags_t flags)
 int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t prot, mmu_flags_t flags)
 {
 	uint64_t hw_flags = mmu_flags_to_hw(flags);
-	pml4e_t *pml4_table = paddr_to_ptr(map);
+	pml4e_t *pml4_table = paddr_to_ptr(map.cr3);
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
 	if (pml4e_is_none(pml4e)) {
@@ -271,7 +271,7 @@ int mmu_map_small_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t pro
 int mmu_map_large_page(mmu_map_t map, virt_t vaddr, phys_t paddr, mmu_prot_t prot, mmu_flags_t flags)
 {
 	uint64_t hw_flags = mmu_flags_to_hw(flags);
-	pml4e_t *pml4_table = paddr_to_ptr(map);
+	pml4e_t *pml4_table = paddr_to_ptr(map.cr3);
 	uint64_t pml4_idx = (vaddr >> PML4_INDEX_SHIFT) & PML4_INDEX_MASK;
 	pml4e_t pml4e = pml4_table[pml4_idx];
 	if (pml4e_is_none(pml4e)) {
@@ -359,7 +359,7 @@ static void mmu_dump_pml4e(unsigned pml4_idx, pml4e_t pml4e)
 
 void mmu_map_dump(mmu_map_t map)
 {
-	pml4e_t *pml4_table = paddr_to_ptr(map);
+	pml4e_t *pml4_table = paddr_to_ptr(map.cr3);
 	printf("PML4 table: %p\n", pml4_table);
 
 	for (unsigned pml4_idx = 0; pml4_idx < NR_PG_ENTRIES; pml4_idx++) {

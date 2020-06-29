@@ -10,7 +10,7 @@ phys_t virt_to_phys(virt_t addr)
 mmu_map_t mmu_current_map(void)
 {
 	/* FIXME: not implemented.  */
-	return 0;
+	return (mmu_map_t){ttbr0: 0, ttbr1: 0};
 }
 
 void mmu_load_map(mmu_map_t map)
