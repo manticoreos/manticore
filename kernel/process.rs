@@ -97,7 +97,7 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     let stack_top = 0x40000000;
     let stack_size = memory::PAGE_SIZE_LARGE as usize;
     let stack_start = stack_top - stack_size;
-    if let Err(e) = vmspace.allocate(stack_start, stack_top, VMProt::VM_PROT_RW) {
+    if let Err(e) = vmspace.allocate_fixed(stack_start, stack_top, VMProt::VM_PROT_RW) {
         return e.errno();
     }
     if let Err(e) = vmspace.populate(stack_start, stack_top) {
@@ -107,7 +107,7 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     let event_buf_start = 0x80000000;
     let event_buf_size = 4096;
     let event_buf_end = event_buf_start + event_buf_size;
-    if let Err(e) = vmspace.allocate(event_buf_start, event_buf_end, VMProt::VM_PROT_RW) {
+    if let Err(e) = vmspace.allocate_fixed(event_buf_start, event_buf_end, VMProt::VM_PROT_RW) {
         return e.errno();
     }
     if let Err(e) = vmspace.populate(event_buf_start, event_buf_end) {
@@ -135,7 +135,7 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
                 let start = phdr.virtual_addr() as usize;
                 let size = phdr.mem_size() as usize;
                 let end = memory::align_up((start + size) as u64, memory::PAGE_SIZE_SMALL) as usize;
-                vmspace.allocate(start, end, prot).expect("allocate failed");
+                vmspace.allocate_fixed(start, end, prot).expect("allocate failed");
                 let image_start: u64 = unsafe { transmute(image_start) };
                 let src_start: u64 = image_start + phdr.offset();
                 let src_end = src_start + phdr.file_size();

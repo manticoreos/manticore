@@ -116,7 +116,14 @@ impl VMAddressSpace {
         unsafe { mmu::mmu_load_map(self.mmu_map) };
     }
 
-    pub fn allocate(&mut self, start: usize, end: usize, prot: VMProt) -> Result<()> {
+    /// Allocates virtual memory at fixed location.
+    ///
+    /// # Arguments
+    ///
+    /// * `start` - The starting address of the allocated region
+    /// * `end` - The exclusive end address of the allocated region
+    /// * `prot` - The protection of the allocated region
+    pub fn allocate_fixed(&mut self, start: usize, end: usize, prot: VMProt) -> Result<()> {
         let size = end - start;
         if !memory::is_aligned(size as u64, memory::PAGE_SIZE_SMALL) {
             return Err(Error::new(EINVAL));

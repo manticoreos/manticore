@@ -386,13 +386,13 @@ impl DeviceOps for VirtioNetDevice {
         let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
         let rx_buf_size = 4096;
         let rx_buf_end = rx_buf_start + rx_buf_size;
-        vmspace.allocate(rx_buf_start, rx_buf_end, VMProt::VM_PROT_READ).expect("allocate failed");
+        vmspace.allocate_fixed(rx_buf_start, rx_buf_end, VMProt::VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
 
         let io_buf_start = VIRTIO_NET_IO_QUEUE_ADDR;
         let io_buf_size = 4096;
         let io_buf_end = io_buf_start + io_buf_size;
-        vmspace.allocate(io_buf_start, io_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
+        vmspace.allocate_fixed(io_buf_start, io_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
         vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
