@@ -7,7 +7,7 @@
 void *initrd_start;
 void *initrd_end;
 
-extern void process_spawn(const char *image_start, unsigned long image_size);
+extern int process_spawn(const char *image_start, unsigned long image_size);
 
 void initrd_load(void)
 {
@@ -19,5 +19,9 @@ void initrd_load(void)
 
 	printf("Found initrd at %p (%lu bytes)\n", initrd_start, initrd_size);
 
-	process_spawn(initrd_start, initrd_size);
+	int err = process_spawn(initrd_start, initrd_size);
+	if (err) {
+		printf("Failed to spawn initrd process: %d\n", err);
+		return;
+	}
 }

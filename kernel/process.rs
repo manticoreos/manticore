@@ -88,7 +88,7 @@ extern "C" {
 
 /// Create a new process.
 #[no_mangle]
-pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize) {
+pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize) -> i32 {
     let mmu_map = mmu::mmu_current_map();
     let mut vmspace = VMAddressSpace::new(mmu_map);
 
@@ -97,15 +97,22 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     let stack_top = 0x40000000;
     let stack_size = memory::PAGE_SIZE_LARGE as usize;
     let stack_start = stack_top - stack_size;
-    vmspace.allocate(stack_start, stack_top, VMProt::VM_PROT_RW).expect("allocate failed");
-    vmspace.populate(stack_start, stack_top).expect("populate failed");
-
+    if let Err(e) = vmspace.allocate(stack_start, stack_top, VMProt::VM_PROT_RW) {
+        return e.errno();
+    }
+    if let Err(e) = vmspace.populate(stack_start, stack_top) {
+        return e.errno();
+    }
     /* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
     let event_buf_start = 0x80000000;
     let event_buf_size = 4096;
     let event_buf_end = event_buf_start + event_buf_size;
-    vmspace.allocate(event_buf_start, event_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
-    vmspace.populate(event_buf_start, event_buf_end).expect("populate failed");
+    if let Err(e) = vmspace.allocate(event_buf_start, event_buf_end, VMProt::VM_PROT_RW) {
+        return e.errno();
+    }
+    if let Err(e) = vmspace.populate(event_buf_start, event_buf_end) {
+        return e.errno();
+    }
     let event_queue = EventQueue::new(event_buf_start, event_buf_size);
 
     let task_state = task_state_new(entry_point, stack_top);
@@ -113,6 +120,8 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     let process = Rc::new(Process::new(task_state, vmspace, event_queue));
 
     sched::enqueue(process);
+
+    return 0;
 }
 
 fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAddressSpace) -> usize {
