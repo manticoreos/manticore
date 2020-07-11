@@ -129,11 +129,12 @@ struct VirtioNetHdr {
 struct VirtioNetDevice {
     notify_cfg_ioport: IOPort,
     notify_off_multiplier: u32,
-    vqs: Vec<Virtqueue>,
+    vqs: RefCell<Vec<Virtqueue>>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
     tx_page: usize,
-    mac_addr: Option<MacAddr>,
+    mac_addr: RefCell<Option<MacAddr>>,
+    rx_buffer_addr: RefCell<Option<usize>>,
     io_queue: RefCell<Option<IOQueue>>,
 }
 
@@ -158,12 +159,6 @@ impl VirtioPCICap {
     }
 }
 
-/* FIXME: Implement a virtual memory allocator insted of open-coding addresses here. */
-/// The virtual address of the receive packet buffer memory area that is mapped to user space.
-const VIRTIO_NET_RX_BUFFER_ADDR: usize = 0x90000000;
-
-const VIRTIO_NET_IO_QUEUE_ADDR: usize = 0xA0000000;
-
 /// The name of this virtio device that is exported to user space.
 const VIRTIO_DEV_NAME: &str = "/dev/eth";
 
@@ -179,7 +174,7 @@ impl VirtioNetDevice {
 
         let notify_cfg_ioport = notify_cfg_cap.map(pci_dev).unwrap();
 
-        let mut dev = VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier);
+        let dev = Rc::new(VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier));
 
         let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG).unwrap();
 
@@ -231,6 +226,8 @@ impl VirtioNetDevice {
 
         println!("virtio-net: {} virtqueues found.", num_queues);
 
+        let mut vqs = Vec::new();
+
         for queue in 0..num_queues {
             unsafe { ioport.write16(queue as u16, QUEUE_SELECT) };
 
@@ -254,7 +251,7 @@ impl VirtioNetDevice {
                 // RX queue:
                 if queue == VIRTIO_RX_QUEUE_IDX {
                     vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
-                    let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(&dev));
+                    let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(Rc::as_ptr(&dev)));
                     pci_dev.enable_irq(queue);
                     ioport.write16(queue, QUEUE_MSIX_VECTOR);
                     println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
@@ -262,8 +259,10 @@ impl VirtioNetDevice {
                 ioport.write16(1 as u16, QUEUE_ENABLE);
             }
 
-            dev.add_vq(vq);
+            vqs.push(vq);
         }
+
+        dev.vqs.replace(vqs);
 
         //
         // 8. Set DRIVER_OK status bit
@@ -286,11 +285,11 @@ impl VirtioNetDevice {
                     "virtio-net: MAC address is {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
                     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]
                 );
-                dev.mac_addr = Some(mac);
+                dev.mac_addr.replace(Some(mac));
             }
         }
 
-        Some(Rc::new(Device::new(VIRTIO_DEV_NAME, RefCell::new(Rc::new(dev)))))
+        Some(Rc::new(Device::new(VIRTIO_DEV_NAME, RefCell::new(dev))))
     }
 
     fn find_capability(pci_dev: &PCIDevice, cfg_type: u8) -> Option<VirtioPCICap> {
@@ -307,7 +306,7 @@ impl VirtioNetDevice {
     }
 
     fn recv(&self) {
-        let vq = &self.vqs[VIRTIO_RX_QUEUE_IDX as usize];
+        let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
         let last_seen_idx = vq.last_seen_used();
         let last_used_idx = vq.last_used_idx();
         if last_seen_idx != last_used_idx {
@@ -320,11 +319,13 @@ impl VirtioNetDevice {
                 let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
                 assert!(unsafe { (*hdr).num_buffers } == 1);
 
-                let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
-                self.notifier.on_event(Event::PacketIO {
-                    addr: VIRTIO_NET_RX_BUFFER_ADDR + mem::size_of::<VirtioNetHdr>(),
-                    len: packet_len,
-                });
+                if let Some(rx_buffer_addr) = *self.rx_buffer_addr.borrow() {
+                    let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
+                    self.notifier.on_event(Event::PacketIO {
+                        addr: rx_buffer_addr + mem::size_of::<VirtioNetHdr>(),
+                        len: packet_len,
+                    });
+                }
 
                 vq.advance_last_seen_used();
 
@@ -343,19 +344,16 @@ impl VirtioNetDevice {
         VirtioNetDevice {
             notify_cfg_ioport: notify_cfg_ioport,
             notify_off_multiplier,
-            vqs: Vec::new(),
+            vqs: RefCell::new(Vec::new()),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
             rx_page: memory::page_alloc_small() as usize,
             tx_page: memory::page_alloc_small() as usize,
             /* FIXME: Check if page allocator returned NULL.  */
-            mac_addr: None,
+            mac_addr: RefCell::new(None),
+            rx_buffer_addr: RefCell::new(None),
             io_queue: RefCell::new(None),
         }
-    }
-
-    fn add_vq(&mut self, vq: Virtqueue) {
-        self.vqs.push(vq);
     }
 
     fn io_submit(&self, cmd: IOCmd) {
@@ -372,7 +370,7 @@ impl VirtioNetDevice {
                 };
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page), mem::transmute(&hdr), mem::size_of::<VirtioNetHdr>()); }
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), addr, len); }
-                let vq = &self.vqs[VIRTIO_TX_QUEUE_IDX as usize];
+                let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
                 unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize); }
                 unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
             }
@@ -383,16 +381,14 @@ impl VirtioNetDevice {
 impl DeviceOps for VirtioNetDevice {
     fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
         self.notifier.add_listener(listener);
-        let rx_buf_start = VIRTIO_NET_RX_BUFFER_ADDR;
-        let rx_buf_size = 4096;
-        let rx_buf_end = rx_buf_start + rx_buf_size;
-        vmspace.allocate_fixed(rx_buf_start, rx_buf_end, VMProt::VM_PROT_READ).expect("allocate failed");
-        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
 
-        let io_buf_start = VIRTIO_NET_IO_QUEUE_ADDR;
+        let rx_buf_size = 4096;
+        let (rx_buf_start, rx_buf_end) = vmspace.allocate(rx_buf_size, VMProt::VM_PROT_READ).expect("allocate failed");
+        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+        self.rx_buffer_addr.replace(Some(rx_buf_start));
+
         let io_buf_size = 4096;
-        let io_buf_end = io_buf_start + io_buf_size;
-        vmspace.allocate_fixed(io_buf_start, io_buf_end, VMProt::VM_PROT_RW).expect("allocate failed");
+        let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, VMProt::VM_PROT_RW).expect("allocate failed");
         vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
@@ -404,7 +400,7 @@ impl DeviceOps for VirtioNetDevice {
 
     fn get_config(&self, opt: ConfigOption) -> Option<Vec<u8>> {
         match opt {
-            CONFIG_ETHERNET_MAC_ADDRESS => { self.mac_addr.map(|a| a.to_vec() ) },
+            CONFIG_ETHERNET_MAC_ADDRESS => { self.mac_addr.borrow().as_ref().map(|a| a.to_vec() ) },
             CONFIG_IO_QUEUE => {
                 if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
                     return Some(io_queue.ring_buffer.raw_ptr().to_ne_bytes().to_vec())
