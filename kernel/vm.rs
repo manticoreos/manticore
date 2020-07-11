@@ -116,6 +116,38 @@ impl VMAddressSpace {
         unsafe { mmu::mmu_load_map(self.mmu_map) };
     }
 
+    /// Allocates virtual memory
+    ///
+    /// # Arguments
+    ///
+    /// * `size` - The size of the allocated region
+    /// * `prot` - The protection of the allocated region
+    pub fn allocate(&mut self, size: usize, prot: VMProt) -> Result<(usize, usize)> {
+        if !memory::is_aligned(size as u64, memory::PAGE_SIZE_SMALL) {
+            return Err(Error::new(EINVAL));
+        }
+        /* FIXME: We allocate immediately after the region that holds the highest address. Although
+           this approach is simple, it leaves holes in the address space if regions are
+           deallocated.  */
+        let upper_bound = self.vm_regions.upper_bound(Bound::Unbounded);
+        let upper_end = upper_bound.get().map_or(0, |region| region.end);
+        let start = memory::align_up(upper_end as u64, memory::PAGE_SIZE_SMALL) as usize;
+        let end = start + size;
+        {
+            let iter = self.vm_regions.range(
+                Bound::Included(&start),
+                Bound::Excluded(&end),
+            );
+            if iter.count() > 0 {
+                return Err(Error::new(EINVAL));
+            }
+        }
+        self.vm_regions.insert(
+            Box::new(VMRegion::new(start, end, prot)),
+        );
+        Ok((start, end))
+    }
+
     /// Allocates virtual memory at fixed location.
     ///
     /// # Arguments
