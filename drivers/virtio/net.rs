@@ -132,7 +132,9 @@ struct VirtioNetDevice {
     vqs: RefCell<Vec<Virtqueue>>,
     notifier: Rc<EventNotifier>,
     rx_page: usize,
+    rx_page_size: usize,
     tx_page: usize,
+    tx_page_size: usize,
     mac_addr: RefCell<Option<MacAddr>>,
     rx_buffer_addr: RefCell<Option<usize>>,
     io_queue: RefCell<Option<IOQueue>>,
@@ -250,7 +252,7 @@ impl VirtioNetDevice {
 
                 // RX queue:
                 if queue == VIRTIO_RX_QUEUE_IDX {
-                    vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize);
+                    vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, dev.rx_page_size);
                     let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(Rc::as_ptr(&dev)));
                     pci_dev.enable_irq(queue);
                     ioport.write16(queue, QUEUE_MSIX_VECTOR);
@@ -347,9 +349,11 @@ impl VirtioNetDevice {
             vqs: RefCell::new(Vec::new()),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),
             /* FIXME: Free allocated pages when driver is unloaded.  */
-            rx_page: memory::page_alloc_small() as usize,
-            tx_page: memory::page_alloc_small() as usize,
             /* FIXME: Check if page allocator returned NULL.  */
+            rx_page: memory::page_alloc_small() as usize,
+            rx_page_size: memory::PAGE_SIZE_SMALL as usize,
+            tx_page: memory::page_alloc_small() as usize,
+            tx_page_size: memory::PAGE_SIZE_SMALL as usize,
             mac_addr: RefCell::new(None),
             rx_buffer_addr: RefCell::new(None),
             io_queue: RefCell::new(None),
@@ -371,7 +375,7 @@ impl VirtioNetDevice {
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page), mem::transmute(&hdr), mem::size_of::<VirtioNetHdr>()); }
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), addr, len); }
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
-                unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, memory::PAGE_SIZE_SMALL as usize); }
+                unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
                 unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
             }
         }
@@ -382,8 +386,7 @@ impl DeviceOps for VirtioNetDevice {
     fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
         self.notifier.add_listener(listener);
 
-        let rx_buf_size = 4096;
-        let (rx_buf_start, rx_buf_end) = vmspace.allocate(rx_buf_size, VMProt::VM_PROT_READ).expect("allocate failed");
+        let (rx_buf_start, rx_buf_end) = vmspace.allocate(self.rx_page_size, VMProt::VM_PROT_READ).expect("allocate failed");
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
         self.rx_buffer_addr.replace(Some(rx_buf_start));
 
