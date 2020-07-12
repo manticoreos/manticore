@@ -21,10 +21,10 @@ void *atomic_ring_buffer_front(struct atomic_ring_buffer *queue)
 	return (void *)queue->data + tail;
 }
 
-void atomic_ring_buffer_pop(struct atomic_ring_buffer *queue, size_t element_size)
+void atomic_ring_buffer_pop(struct atomic_ring_buffer *queue)
 {
 	unsigned long tail = atomic_load_explicit(&queue->tail, memory_order_relaxed);
-	unsigned long next_tail = tail + element_size;
+	unsigned long next_tail = tail + queue->element_size;
 	if (next_tail == queue->capacity) {
 		next_tail = 0;
 	}
@@ -44,17 +44,17 @@ static void *memcpy_internal(void *dest, const void *src, size_t n)
        }
 }
 
-bool atomic_ring_buffer_emplace(struct atomic_ring_buffer *queue, void *element, size_t element_size)
+bool atomic_ring_buffer_emplace(struct atomic_ring_buffer *queue, void *element)
 {
 	uint64_t head = atomic_load_explicit(&queue->head, memory_order_relaxed);
-	uint64_t next_head = head + element_size;
+	uint64_t next_head = head + queue->element_size;
 	if (next_head == queue->capacity) {
 		next_head = 0;
 	}
 	if (next_head == atomic_load_explicit(&queue->tail, memory_order_acquire)) {
 		return false;
 	}
-	memcpy_internal(queue->data + head, element, element_size);
+	memcpy_internal(queue->data + head, element, queue->element_size);
 	atomic_store_explicit(&queue->head, next_head, memory_order_release);
 	return true;
 }

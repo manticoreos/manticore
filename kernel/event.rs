@@ -40,7 +40,7 @@ pub struct EventQueue {
 impl EventQueue {
     pub fn new(buf: usize, size: usize) -> EventQueue {
         EventQueue {
-            ring_buffer: AtomicRingBuffer::new(buf, size),
+            ring_buffer: AtomicRingBuffer::new::<RawEvent>(buf, size),
         }
     }
 

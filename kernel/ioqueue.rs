@@ -45,7 +45,7 @@ impl IOQueue {
     /// Constructs a new I/O queue in memory buffer `buf` of size `size`.
     pub fn new(buf: usize, size: usize) -> IOQueue {
         IOQueue {
-            ring_buffer: AtomicRingBuffer::new(buf, size),
+            ring_buffer: AtomicRingBuffer::new::<RawIOCmd>(buf, size),
         }
     }
 
@@ -60,7 +60,7 @@ impl IOQueue {
                 }
             };
             let (addr, len) = unsafe { ((*raw_io_cmd).addr, (*raw_io_cmd).len) };
-            self.ring_buffer.pop::<RawIOCmd>();
+            self.ring_buffer.pop();
             return opcode.map(|opcode| IOCmd {
                 opcode: opcode,
                 addr: addr,

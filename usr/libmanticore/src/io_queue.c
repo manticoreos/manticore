@@ -12,7 +12,7 @@ static int __io_queue_append(io_queue_t queue, enum io_opcode opcode, void *addr
 	    .addr = addr,
 	    .len = len,
 	};
-	atomic_ring_buffer_emplace(buf, &io_cmd, sizeof(struct io_cmd));
+	atomic_ring_buffer_emplace(buf, &io_cmd);
 
 	return 0;
 }

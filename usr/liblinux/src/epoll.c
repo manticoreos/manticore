@@ -98,7 +98,7 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 		default:
 			break;
 		}
-		atomic_ring_buffer_pop(queue, sizeof(struct event));
+		atomic_ring_buffer_pop(queue);
 	}
 	return nr_events;
 }

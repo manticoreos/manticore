@@ -9,16 +9,16 @@ pub struct AtomicRingBuffer {
 
 impl AtomicRingBuffer {
     /// Constructs a new atomic ring buffer in memory buffer `buf` of size `size`.
-    pub fn new(buf: usize, size: usize) -> Self {
+    pub fn new<T>(buf: usize, buf_size: usize) -> Self {
         AtomicRingBuffer {
-            raw_ptr: unsafe { atomic_ring_buffer_new(buf, size) },
+            raw_ptr: unsafe { atomic_ring_buffer_new(buf, buf_size, mem::size_of::<T>()) },
         }
     }
 
     /// Inserts an element `elem` to this ring buffer.
     pub fn emplace<T>(&self, elem: &T) -> usize {
         unsafe {
-            atomic_ring_buffer_emplace(self.raw_ptr, mem::transmute(elem), mem::size_of::<T>())
+            atomic_ring_buffer_emplace(self.raw_ptr, mem::transmute(elem))
         }
     }
 
@@ -33,9 +33,9 @@ impl AtomicRingBuffer {
     }
 
     /// Removes the first element of this ring buffer.
-    pub fn pop<T>(&self) {
+    pub fn pop(&self) {
         unsafe {
-            atomic_ring_buffer_pop(self.raw_ptr, mem::size_of::<T>());
+            atomic_ring_buffer_pop(self.raw_ptr);
         }
     }
 
@@ -46,8 +46,8 @@ impl AtomicRingBuffer {
 }
 
 extern "C" {
-    pub fn atomic_ring_buffer_new(buf: usize, size: usize) -> usize;
-    pub fn atomic_ring_buffer_emplace(ring_buffer: usize, event: usize, size: usize) -> usize;
+    pub fn atomic_ring_buffer_new(buf: usize, buf_size: usize, element_size: usize) -> usize;
+    pub fn atomic_ring_buffer_emplace(ring_buffer: usize, event: usize) -> usize;
     pub fn atomic_ring_buffer_front(queue: usize) -> usize;
-    pub fn atomic_ring_buffer_pop(queue: usize, element_size: usize);
+    pub fn atomic_ring_buffer_pop(queue: usize);
 }

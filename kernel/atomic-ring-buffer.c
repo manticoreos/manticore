@@ -8,15 +8,21 @@
 
 #include <kernel/atomic-ring-buffer.h>
 
+#include <kernel/align.h>
+
 #include <stdatomic.h>
 #include <stddef.h>
 #include <string.h>
 
-struct atomic_ring_buffer *atomic_ring_buffer_new(void *buf, size_t size)
+struct atomic_ring_buffer *atomic_ring_buffer_new(void *buf, size_t buf_size, size_t element_size)
 {
 	struct atomic_ring_buffer *ret = buf;
 	memset(ret, 0, sizeof(struct atomic_ring_buffer));
-	ret->capacity = size - sizeof(struct atomic_ring_buffer);
+	ret->element_size = element_size;
+
+	size_t capacity = buf_size - sizeof(struct atomic_ring_buffer);
+	ret->capacity = capacity - (capacity % element_size);
+
 	return ret;
 }
 
@@ -37,27 +43,27 @@ void *atomic_ring_buffer_front(struct atomic_ring_buffer *queue)
 	return (void *)queue->data + tail;
 }
 
-void atomic_ring_buffer_pop(struct atomic_ring_buffer *queue, size_t element_size)
+void atomic_ring_buffer_pop(struct atomic_ring_buffer *queue)
 {
 	unsigned long tail = atomic_load_explicit(&queue->tail, memory_order_relaxed);
-	unsigned long next_tail = tail + element_size;
+	unsigned long next_tail = tail + queue->element_size;
 	if (next_tail == queue->capacity) {
 		next_tail = 0;
 	}
 	atomic_store_explicit(&queue->tail, next_tail, memory_order_release);
 }
 
-bool atomic_ring_buffer_emplace(struct atomic_ring_buffer *queue, void *element, size_t element_size)
+bool atomic_ring_buffer_emplace(struct atomic_ring_buffer *queue, void *element)
 {
 	uint64_t head = atomic_load_explicit(&queue->head, memory_order_relaxed);
-	uint64_t next_head = head + element_size;
+	uint64_t next_head = head + queue->element_size;
 	if (next_head == queue->capacity) {
 		next_head = 0;
 	}
 	if (next_head == atomic_load_explicit(&queue->tail, memory_order_acquire)) {
 		return false;
 	}
-	memcpy(queue->data + head, element, element_size);
+	memcpy(queue->data + head, element, queue->element_size);
 	atomic_store_explicit(&queue->head, next_head, memory_order_release);
 	return true;
 }
