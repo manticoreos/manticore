@@ -170,17 +170,17 @@ impl VirtioNetDevice {
 
         pci_dev.enable_msix();
 
-        let notify_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG).unwrap();
+        let notify_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG)?;
 
         let notify_off_multiplier = pci_dev.func.read_config_u32(notify_cfg_cap.offset + VIRTIO_NOTIFY_OFF_MULTIPLIER);
 
-        let notify_cfg_ioport = notify_cfg_cap.map(pci_dev).unwrap();
+        let notify_cfg_ioport = notify_cfg_cap.map(pci_dev)?;
 
         let dev = Rc::new(VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier));
 
-        let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG).unwrap();
+        let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG)?;
 
-        let ioport = common_cfg_cap.map(pci_dev).unwrap();
+        let ioport = common_cfg_cap.map(pci_dev)?;
 
         println!("virtio-net: using PCI BAR{} for device configuration", common_cfg_cap.bar_idx);
 
