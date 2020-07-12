@@ -358,7 +358,7 @@ impl VirtioNetDevice {
         }
     }
 
-    fn io_submit(&self, cmd: IOCmd) {
+    fn process_io_one(&self, cmd: IOCmd) {
         match cmd.opcode {
             Opcode::Submit => {
                 let hdr = VirtioNetHdr {
@@ -422,7 +422,7 @@ impl DeviceOps for VirtioNetDevice {
         if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
             loop {
                 if let Some(cmd) = io_queue.pop() {
-                    self.io_submit(cmd);
+                    self.process_io_one(cmd);
                 } else {
                     break
                 }
