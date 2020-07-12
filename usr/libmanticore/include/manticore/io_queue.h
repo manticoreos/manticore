@@ -7,4 +7,6 @@
 
 int io_submit(io_queue_t queue, void *addr, size_t len);
 
+int io_complete(io_queue_t queue, void *addr, size_t len);
+
 #endif
