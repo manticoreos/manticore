@@ -8,6 +8,7 @@ int io_submit(io_queue_t queue, void *addr, size_t len)
 {
 	struct atomic_ring_buffer *buf = queue;
 	struct io_cmd io_cmd = {
+		.opcode = IO_OPCODE_SUBMIT,
 		.addr = addr,
 		.len = len,
 	};

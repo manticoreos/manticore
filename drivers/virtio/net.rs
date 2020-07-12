@@ -9,7 +9,7 @@ use kernel::errno::Result;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS, CONFIG_IO_QUEUE};
 use kernel::event::{Event, EventListener, EventNotifier};
 use kernel::ioport::IOPort;
-use kernel::ioqueue::{IOCmd, IOQueue};
+use kernel::ioqueue::{IOCmd, Opcode, IOQueue};
 use kernel::memory;
 use kernel::mmu;
 use kernel::print;
@@ -362,8 +362,8 @@ impl VirtioNetDevice {
     }
 
     fn io_submit(&self, cmd: IOCmd) {
-        match cmd {
-            IOCmd::PacketTX { addr, len } => {
+        match cmd.opcode {
+            Opcode::Submit => {
                 let hdr = VirtioNetHdr {
                     flags: 0,
                     gso_type: 0,
@@ -374,7 +374,7 @@ impl VirtioNetDevice {
                     num_buffers: 0,
                 };
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page), mem::transmute(&hdr), mem::size_of::<VirtioNetHdr>()); }
-                unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), addr, len); }
+                unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), cmd.addr, cmd.len); }
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
                 unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
                 unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
