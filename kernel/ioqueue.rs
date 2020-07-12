@@ -9,6 +9,7 @@ use atomic_ring_buffer::AtomicRingBuffer;
 #[derive(Clone, Debug)]
 pub enum Opcode {
     Submit,
+    Complete,
 }
 
 #[derive(Clone, Debug)]
@@ -30,6 +31,7 @@ struct RawIOCmd {
 }
 
 const RAW_IO_OPCODE_SUBMIT: u32 = 0x01;
+const RAW_IO_OPCODE_COMPLETE: u32 = 0x02;
 
 #[derive(Debug)]
 /// An I/O command submission queue.
@@ -53,6 +55,7 @@ impl IOQueue {
             let opcode = unsafe {
                 match (*raw_io_cmd).opcode {
                     RAW_IO_OPCODE_SUBMIT => Some(Opcode::Submit),
+                    RAW_IO_OPCODE_COMPLETE => Some(Opcode::Complete),
                     _ => None,
                 }
             };

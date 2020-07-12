@@ -8,6 +8,7 @@ typedef void *io_queue_t;
 
 enum io_opcode {
 	IO_OPCODE_SUBMIT = 0x1,
+	IO_OPCODE_COMPLETE = 0x2,
 };
 
 struct io_cmd {

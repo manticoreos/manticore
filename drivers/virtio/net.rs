@@ -378,6 +378,9 @@ impl VirtioNetDevice {
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
                 unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
                 unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
+            },
+            Opcode::Complete => {
+                /* TODO: Reuse the memory buffer.  */
             }
         }
     }
