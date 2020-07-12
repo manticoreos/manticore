@@ -312,26 +312,28 @@ impl VirtioNetDevice {
         let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
         let last_seen_idx = vq.last_seen_used();
         let last_used_idx = vq.last_used_idx();
-        if last_seen_idx != last_used_idx {
-            /* FIXME: Fix loop when indexes wrap around.  */
-            assert!(last_seen_idx < last_used_idx);
-            for idx in last_seen_idx..last_used_idx {
-                let (buf_addr, buf_len) = vq.get_used_buf(idx % vq.queue_size as u16);
-
-                let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
-                let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
-                assert!(unsafe { (*hdr).num_buffers } == 1);
-
-                if let Some(rx_buffer_addr) = *self.rx_buffer_addr.borrow() {
-                    let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
-                    self.notifier.on_event(Event::PacketIO {
-                        addr: rx_buffer_addr + mem::size_of::<VirtioNetHdr>(),
-                        len: packet_len,
-                    });
-                }
-
-                vq.advance_last_seen_used();
+        let mut idx = last_seen_idx;
+        loop {
+            if idx == last_used_idx {
+                break
             }
+            let (buf_addr, buf_len) = vq.get_used_buf(idx % vq.queue_size as u16);
+
+            let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
+            let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
+            assert!(unsafe { (*hdr).num_buffers } == 1);
+
+            if let Some(rx_buffer_addr) = *self.rx_buffer_addr.borrow() {
+                let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
+                self.notifier.on_event(Event::PacketIO {
+                    addr: rx_buffer_addr + mem::size_of::<VirtioNetHdr>(),
+                    len: packet_len,
+                });
+            }
+
+            vq.advance_last_seen_used();
+
+            idx += 1;
         }
     }
 
