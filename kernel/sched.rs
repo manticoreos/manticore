@@ -94,7 +94,9 @@ pub extern "C" fn process_acquire(name: &'static NulStr) -> i32 {
         if let Some(ref current) = CURRENT {
             return match current.acquire(&name[..]) {
                 Ok((device, desc)) => {
-                    device.acquire(&mut current.vmspace.borrow_mut(), current.clone());
+                    if let Err(e) = device.acquire(&mut current.vmspace.borrow_mut(), current.clone()) {
+                        return e.errno()
+                    }
                     desc.to_user()
                 },
                 Err(e) => e.errno(),

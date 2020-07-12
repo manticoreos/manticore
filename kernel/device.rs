@@ -1,6 +1,7 @@
 use alloc::rc::Rc;
 use alloc::vec::Vec;
 use core::cell::RefCell;
+use errno::Result;
 use event::EventListener;
 use intrusive_collections::{KeyAdapter, RBTree, RBTreeLink};
 use vm::VMAddressSpace;
@@ -34,7 +35,7 @@ impl DeviceDesc {
 }
 
 pub trait DeviceOps {
-    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>);
+    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()>;
     fn subscribe(&self, events: &'static str);
     fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>>;
     fn process_io(&self);
@@ -57,8 +58,8 @@ impl Device {
         }
     }
 
-    pub fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
-        self.ops.borrow().acquire(vmspace, listener);
+    pub fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()> {
+        return self.ops.borrow().acquire(vmspace, listener);
     }
 
     pub fn subscribe(&self, events: &'static str) {

@@ -5,6 +5,7 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use core::intrinsics::transmute;
 use core::mem;
+use kernel::errno::Result;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS, CONFIG_IO_QUEUE};
 use kernel::event::{Event, EventListener, EventNotifier};
 use kernel::ioport::IOPort;
@@ -383,18 +384,20 @@ impl VirtioNetDevice {
 }
 
 impl DeviceOps for VirtioNetDevice {
-    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) {
+    fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()> {
         self.notifier.add_listener(listener);
 
-        let (rx_buf_start, rx_buf_end) = vmspace.allocate(self.rx_page_size, VMProt::VM_PROT_READ).expect("allocate failed");
-        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page).expect("populate failed");
+        let (rx_buf_start, rx_buf_end) = vmspace.allocate(self.rx_page_size, VMProt::VM_PROT_READ)?;
+        vmspace.map(rx_buf_start, rx_buf_end, self.rx_page)?;
         self.rx_buffer_addr.replace(Some(rx_buf_start));
 
         let io_buf_size = 4096;
-        let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, VMProt::VM_PROT_RW).expect("allocate failed");
+        let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, VMProt::VM_PROT_RW)?;
         vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
+
+        return Ok(());
     }
 
     fn subscribe(&self, _events: &'static str) {
