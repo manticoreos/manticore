@@ -331,9 +331,6 @@ impl VirtioNetDevice {
                 }
 
                 vq.advance_last_seen_used();
-
-                /* FIXME: We reuse the same buffer, but user space has not consumed it yet.  */
-                vq.add_buf_idx(0);
             }
         }
     }
@@ -380,7 +377,8 @@ impl VirtioNetDevice {
                 unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
             },
             Opcode::Complete => {
-                /* TODO: Reuse the memory buffer.  */
+                let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
+                vq.add_buf_idx(0);
             }
         }
     }
