@@ -46,9 +46,14 @@ bool net_input(struct packet_view *pk)
 {
 	bool ret = false;
 
+	void *addr = pk->start;
+
+	size_t len = pk->end - pk->start;
+
 	while (packet_view_len(pk) > 0) {
 		ret |= net_input_one(pk);
 	}
+	io_complete(__liblinux_eth_ioqueue, addr, len);
 
 	return ret;
 }
