@@ -128,6 +128,7 @@ struct VirtioNetHdr {
 }
 
 struct VirtioNetDevice {
+    pci_dev: Rc<PCIDevice>,
     notify_cfg_ioport: IOPort,
     notify_off_multiplier: u32,
     vqs: RefCell<Vec<Virtqueue>>,
@@ -177,11 +178,11 @@ impl VirtioNetDevice {
 
         let notify_cfg_ioport = notify_cfg_cap.map(&pci_dev)?;
 
-        let dev = Rc::new(VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier));
+        let dev = Rc::new(VirtioNetDevice::new(pci_dev, notify_cfg_ioport, notify_off_multiplier));
 
-        let common_cfg_cap = VirtioNetDevice::find_capability(&pci_dev, VIRTIO_PCI_CAP_COMMON_CFG)?;
+        let common_cfg_cap = VirtioNetDevice::find_capability(&dev.pci_dev, VIRTIO_PCI_CAP_COMMON_CFG)?;
 
-        let ioport = common_cfg_cap.map(&pci_dev)?;
+        let ioport = common_cfg_cap.map(&dev.pci_dev)?;
 
         println!("virtio-net: using PCI BAR{} for device configuration", common_cfg_cap.bar_idx);
 
@@ -254,8 +255,8 @@ impl VirtioNetDevice {
                 // RX queue:
                 if queue == VIRTIO_RX_QUEUE_IDX {
                     vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, dev.rx_page_size);
-                    let vector = pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(Rc::as_ptr(&dev)));
-                    pci_dev.enable_irq(queue);
+                    let vector = dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(Rc::as_ptr(&dev)));
+                    dev.pci_dev.enable_irq(queue);
                     ioport.write16(queue, QUEUE_MSIX_VECTOR);
                     println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
                 }
@@ -278,8 +279,8 @@ impl VirtioNetDevice {
         let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
 
         if dev_features.contains(Features::VIRTIO_NET_F_MAC) {
-            if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(&pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
-                let dev_cfg_ioport = dev_cfg_cap.map(&pci_dev).unwrap();
+            if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(&dev.pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
+                let dev_cfg_ioport = dev_cfg_cap.map(&dev.pci_dev).unwrap();
                 let mut mac: [u8; 6] = [0; 6];
                 for i in 0..mac.len() {
                     mac[i] = unsafe { dev_cfg_ioport.read8(i) };
@@ -342,8 +343,9 @@ impl VirtioNetDevice {
         unsafe { (*dev).recv() };
     }
 
-    fn new(notify_cfg_ioport: IOPort, notify_off_multiplier: u32) -> Self {
+    fn new(pci_dev: Rc<PCIDevice>, notify_cfg_ioport: IOPort, notify_off_multiplier: u32) -> Self {
         VirtioNetDevice {
+            pci_dev: pci_dev,
             notify_cfg_ioport: notify_cfg_ioport,
             notify_off_multiplier,
             vqs: RefCell::new(Vec::new()),
