@@ -115,6 +115,7 @@ $(KERNEL_LIB): $(KERNEL_LIB_SRC)
 usr/echod/echod.iso: $(KERNEL_IMAGE)
 	$(E) "  MAKE    " $@
 	$(Q) make -s -C usr/echod
+.PHONY: usr/echod/echod.iso
 
 man: $(MAN_PAGES)
 	$(E) "  ASCIIDOCTOR"
