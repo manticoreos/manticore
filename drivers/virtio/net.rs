@@ -387,7 +387,8 @@ impl VirtioNetDevice {
     }
 
     fn notify(&self, queue: &Virtqueue) {
-        unsafe { self.notify_cfg_ioport.write16(queue.queue_idx, (self.notify_off_multiplier * queue.notify_off as u32) as usize); }
+        let notify_off = (self.notify_off_multiplier * queue.notify_off as u32) as usize;
+        unsafe { self.notify_cfg_ioport.write16(queue.queue_idx, notify_off); }
     }
 }
 
