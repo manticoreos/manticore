@@ -20,11 +20,11 @@ ssize_t udp_recvfrom(struct socket *sk, void *restrict buf, size_t len, int flag
 {
 	LIBLINUX_TRACE(udp_recvfrom);
 
-	struct iphdr *iph = sk->rx_buffer;
+	struct iphdr *iph = (void *) sk->rx_buffer;
 
 	// FIXME: check pbuf length
 
-	struct udphdr *udph = sk->rx_buffer + sizeof(struct iphdr);
+	struct udphdr *udph = (void *) sk->rx_buffer + sizeof(struct iphdr);
 
 	uint16_t udp_len = ntohs(udph->len);
 
