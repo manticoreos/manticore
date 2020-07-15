@@ -381,6 +381,7 @@ impl VirtioNetDevice {
             Opcode::Complete => {
                 let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
                 vq.add_buf_idx(0);
+                self.notify(vq);
             }
         }
     }
