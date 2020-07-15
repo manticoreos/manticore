@@ -60,6 +60,8 @@ pub const VIRTQ_USED_F_NO_NOTIFY: u16 = 0x01;
 /// Virtqueue.
 #[derive(Debug)]
 pub struct Virtqueue {
+    /// Queue index.
+    pub queue_idx: u16,
     /// Number of elements in the virtqueue.
     pub queue_size: usize,
     /// Queue notification offset.
@@ -85,7 +87,7 @@ impl Drop for Virtqueue {
 }
 
 impl Virtqueue {
-    pub fn new(queue_size: usize, notify_off: u16) -> Self {
+    pub fn new(queue_idx: u16, queue_size: usize, notify_off: u16) -> Self {
         // FIXME: Ensure that virtqueue components are aligned.
         unsafe {
             let raw_descriptor_table_ptr = memory::kmem_zalloc(queue_size * 16);
@@ -101,6 +103,7 @@ impl Virtqueue {
                 panic!("out of memory");
             }
             Virtqueue {
+                queue_idx: queue_idx,
                 queue_size: queue_size,
                 notify_off: notify_off,
                 last_seen_used: Cell::new(0),

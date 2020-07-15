@@ -238,7 +238,7 @@ impl VirtioNetDevice {
 
             let notify_off = unsafe { ioport.read16(QUEUE_NOTIFY_OFF) };
 
-            let vq = Virtqueue::new(size as usize, notify_off);
+            let vq = Virtqueue::new(queue, size as usize, notify_off);
 
             unsafe {
                 ioport.write64(
