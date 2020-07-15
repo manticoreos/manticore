@@ -3,7 +3,6 @@
 use alloc::rc::Rc;
 use alloc::vec::Vec;
 use core::cell::RefCell;
-use core::intrinsics::transmute;
 use core::mem;
 use kernel::errno::Result;
 use kernel::device::{ConfigOption, Device, DeviceOps, CONFIG_ETHERNET_MAC_ADDRESS, CONFIG_IO_QUEUE};
@@ -255,7 +254,7 @@ impl VirtioNetDevice {
                 // RX queue:
                 if queue == VIRTIO_RX_QUEUE_IDX {
                     vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, dev.rx_page_size);
-                    let vector = dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, transmute(Rc::as_ptr(&dev)));
+                    let vector = dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, mem::transmute(Rc::as_ptr(&dev)));
                     dev.pci_dev.enable_irq(queue);
                     ioport.write16(queue, QUEUE_MSIX_VECTOR);
                     println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
@@ -321,7 +320,7 @@ impl VirtioNetDevice {
             let (buf_addr, buf_len) = vq.get_used_buf(idx % vq.queue_size as u16);
 
             let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
-            let hdr: *const VirtioNetHdr = unsafe { transmute(buf_vaddr) };
+            let hdr: *const VirtioNetHdr = unsafe { mem::transmute(buf_vaddr) };
             assert!(unsafe { (*hdr).num_buffers } == 1);
 
             if let Some(rx_buffer_addr) = *self.rx_buffer_addr.borrow() {
@@ -339,7 +338,7 @@ impl VirtioNetDevice {
     }
 
     extern "C" fn interrupt(arg: usize) {
-        let dev: *mut VirtioNetDevice = unsafe { transmute(arg) };
+        let dev: *mut VirtioNetDevice = unsafe { mem::transmute(arg) };
         unsafe { (*dev).recv() };
     }
 
