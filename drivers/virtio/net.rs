@@ -365,16 +365,7 @@ impl VirtioNetDevice {
     fn process_io_one(&self, cmd: IOCmd) {
         match cmd.opcode {
             Opcode::Submit => {
-                let hdr = VirtioNetHdr {
-                    flags: 0,
-                    gso_type: 0,
-                    hdr_len: 0,
-                    gso_size: 0,
-                    csum_start: 0,
-                    csum_offset: 0,
-                    num_buffers: 0,
-                };
-                unsafe { rlibc::memcpy(mem::transmute(self.tx_page), mem::transmute(&hdr), mem::size_of::<VirtioNetHdr>()); }
+                unsafe { rlibc::memset(mem::transmute(self.tx_page), 0, mem::size_of::<VirtioNetHdr>()); }
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), cmd.addr, cmd.len); }
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
                 unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
