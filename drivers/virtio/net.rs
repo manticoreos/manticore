@@ -213,7 +213,7 @@ impl VirtioNetDevice {
         let mut vqs = Vec::new();
 
         for queue in 0..num_queues {
-            unsafe { ioport.write16(queue as u16, QUEUE_SELECT) };
+            unsafe { ioport.write16(queue, QUEUE_SELECT) };
 
             let size = unsafe { ioport.read16(QUEUE_SIZE) };
 
