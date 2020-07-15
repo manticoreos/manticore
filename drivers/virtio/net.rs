@@ -404,7 +404,7 @@ impl DeviceOps for VirtioNetDevice {
 
         let io_buf_size = 4096;
         let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, VMProt::VM_PROT_RW)?;
-        vmspace.populate(io_buf_start, io_buf_end).expect("populate failed");
+        vmspace.populate(io_buf_start, io_buf_end)?;
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
 
