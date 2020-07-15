@@ -124,8 +124,8 @@ struct VirtioNetDevice {
 
 /// Virtio PCI capability structure.
 struct VirtioPCICap {
-  pub offset: u8,
-  pub bar_idx: u8,
+    pub offset: u8,
+    pub bar_idx: u8,
 }
 
 impl VirtioPCICap {
