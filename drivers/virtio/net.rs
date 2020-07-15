@@ -376,13 +376,17 @@ impl VirtioNetDevice {
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), cmd.addr, cmd.len); }
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
                 unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
-                unsafe { self.notify_cfg_ioport.write16(VIRTIO_TX_QUEUE_IDX, (self.notify_off_multiplier * vq.notify_off as u32) as usize); }
+                self.notify(vq);
             },
             Opcode::Complete => {
                 let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
                 vq.add_buf_idx(0);
             }
         }
+    }
+
+    fn notify(&self, queue: &Virtqueue) {
+        unsafe { self.notify_cfg_ioport.write16(queue.queue_idx, (self.notify_off_multiplier * queue.notify_off as u32) as usize); }
     }
 }
 
