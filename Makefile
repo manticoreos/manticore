@@ -127,7 +127,7 @@ clean: archclean
 	$(Q) rm -f arch/$(ARCH)/kernel.ld
 	$(Q) rm -rf target
 	$(Q) rm -rf $(DEPS)
-	$(Q) make -C usr/echod clean
+	$(Q) make --silent -C usr/echod clean
 
 .PHONY: all clean
 
