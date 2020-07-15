@@ -20,46 +20,30 @@ const PCI_DEVICE_ID_VIRTIO_NET: u16 = 0x1041;
 
 #[allow(dead_code)]
 const DEVICE_FEATURE_SELECT: usize = 0x00;
-#[allow(dead_code)]
 const DEVICE_FEATURE: usize = 0x04;
 #[allow(dead_code)]
 const DRIVER_FEATURE_SELECT: usize = 0x08;
-#[allow(dead_code)]
 const DRIVER_FEATURE: usize = 0x0c;
 #[allow(dead_code)]
 const MSIX_CONFIG: usize = 0x10;
-#[allow(dead_code)]
 const NUM_QUEUES: usize = 0x12;
-#[allow(dead_code)]
 const DEVICE_STATUS: usize = 0x14;
 #[allow(dead_code)]
 const CONFIG_GENERATION: usize = 0x15;
-#[allow(dead_code)]
 const QUEUE_SELECT: usize = 0x16;
-#[allow(dead_code)]
 const QUEUE_SIZE: usize = 0x18;
-#[allow(dead_code)]
 const QUEUE_MSIX_VECTOR: usize = 0x1a;
-#[allow(dead_code)]
 const QUEUE_ENABLE: usize = 0x1c;
-#[allow(dead_code)]
 const QUEUE_NOTIFY_OFF: usize = 0x1e;
-#[allow(dead_code)]
 const QUEUE_DESC: usize = 0x20;
-#[allow(dead_code)]
 const QUEUE_AVAIL: usize = 0x28;
-#[allow(dead_code)]
 const QUEUE_USED: usize = 0x30;
 
-#[allow(dead_code)]
 const VIRTIO_ACKNOWLEDGE: u8 = 1;
-#[allow(dead_code)]
 const VIRTIO_DRIVER: u8 = 2;
 #[allow(dead_code)]
 const VIRTIO_FAILED: u8 = 128;
-#[allow(dead_code)]
 const VIRTIO_FEATURES_OK: u8 = 8;
-#[allow(dead_code)]
 const VIRTIO_DRIVER_OK: u8 = 4;
 #[allow(dead_code)]
 const DEVICE_NEEDS_RESET: u8 = 64;
@@ -89,13 +73,10 @@ bitflags! {
     }
 }
 
-#[allow(dead_code)]
 const VIRTIO_PCI_CAP_COMMON_CFG: u8 = 1;
-#[allow(dead_code)]
 const VIRTIO_PCI_CAP_NOTIFY_CFG: u8 = 2;
 #[allow(dead_code)]
 const VIRTIO_PCI_CAP_ISR_CFG: u8 = 3;
-#[allow(dead_code)]
 const VIRTIO_PCI_CAP_DEVICE_CFG: u8 = 4;
 #[allow(dead_code)]
 const VIRTIO_PCI_CAP_PCI_CFG: u8 = 5;
