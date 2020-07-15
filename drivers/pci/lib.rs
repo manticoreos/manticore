@@ -305,7 +305,7 @@ pub struct PCIDevice {
 }
 
 impl PCIDevice {
-    pub fn parse_config(func: PCIFunction, header_type: u8) -> PCIDevice {
+    pub fn probe(func: PCIFunction, header_type: u8) -> Rc<PCIDevice> {
         let vendor_id = func.read_config_u16(PCI_CFG_VENDOR_ID);
         let device_id = func.read_config_u16(PCI_CFG_DEVICE_ID);
         let revision_id = func.read_config_u8(PCI_CFG_REVISION_ID);
@@ -340,7 +340,7 @@ impl PCIDevice {
         cmd |= PCI_CMD_BAR_IO_ENABLE;
         func.write_config_u16(PCI_CFG_COMMAND, cmd);
 
-        PCIDevice {
+        let pci_dev = Rc::new(PCIDevice {
             func: func,
             dev_id: DeviceID {
                 vendor_id: vendor_id,
@@ -353,23 +353,19 @@ impl PCIDevice {
             },
             bars: bars,
             msix: msix,
-        }
-    }
-
-    pub fn probe(&self) {
-        unsafe {
-            for driver in PCI_DRIVER_LIST.iter() {
-                if driver.dev_id.vendor_id != self.dev_id.vendor_id {
-                    continue
-                }
-                if driver.dev_id.device_id != self.dev_id.device_id {
-                    continue
-                }
-                if let Some(dev) = (driver.probe)(self) {
-                    register_device(dev);
-                }
+        });
+        for driver in unsafe { PCI_DRIVER_LIST.iter() } {
+            if driver.dev_id.vendor_id != pci_dev.dev_id.vendor_id {
+                continue
+            }
+            if driver.dev_id.device_id != pci_dev.dev_id.device_id {
+                continue
+            }
+            if let Some(dev) = (driver.probe)(pci_dev.clone()) {
+                register_device(dev);
             }
         }
+        return pci_dev;
     }
 
     pub fn set_bus_master(&self, master: bool) {
@@ -513,7 +509,7 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
             continue;
         }
         result = true;
-        let dev = PCIDevice::parse_config(func, header_type);
+        let dev = PCIDevice::probe(func, header_type);
         println!(
             "  {:02x}:{:02x}.{:x} {:02x}{:02x}: {:04x}:{:04x} (rev {:x}) {}",
             dev.func.bus_id,
@@ -526,12 +522,11 @@ fn pci_probe_slot(bus_id: u16, slot_id: u16) -> bool {
             dev.dev_id.revision_id,
             if dev.msix.is_some() { "[msix]" } else { "" },
         );
-        dev.probe();
     }
     return result;
 }
 
-type PCIProbe = fn(&PCIDevice) -> Option<Rc<Device>>;
+type PCIProbe = fn(Rc<PCIDevice>) -> Option<Rc<Device>>;
 
 pub struct PCIDriver {
     dev_id: DeviceID,

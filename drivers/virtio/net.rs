@@ -166,22 +166,22 @@ impl VirtioPCICap {
 const VIRTIO_DEV_NAME: &str = "/dev/eth";
 
 impl VirtioNetDevice {
-    fn probe(pci_dev: &PCIDevice) -> Option<Rc<Device>> {
+    fn probe(pci_dev: Rc<PCIDevice>) -> Option<Rc<Device>> {
         pci_dev.set_bus_master(true);
 
         pci_dev.enable_msix();
 
-        let notify_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG)?;
+        let notify_cfg_cap = VirtioNetDevice::find_capability(&pci_dev, VIRTIO_PCI_CAP_NOTIFY_CFG)?;
 
         let notify_off_multiplier = pci_dev.func.read_config_u32(notify_cfg_cap.offset + VIRTIO_NOTIFY_OFF_MULTIPLIER);
 
-        let notify_cfg_ioport = notify_cfg_cap.map(pci_dev)?;
+        let notify_cfg_ioport = notify_cfg_cap.map(&pci_dev)?;
 
         let dev = Rc::new(VirtioNetDevice::new(notify_cfg_ioport, notify_off_multiplier));
 
-        let common_cfg_cap = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG)?;
+        let common_cfg_cap = VirtioNetDevice::find_capability(&pci_dev, VIRTIO_PCI_CAP_COMMON_CFG)?;
 
-        let ioport = common_cfg_cap.map(pci_dev)?;
+        let ioport = common_cfg_cap.map(&pci_dev)?;
 
         println!("virtio-net: using PCI BAR{} for device configuration", common_cfg_cap.bar_idx);
 
@@ -278,8 +278,8 @@ impl VirtioNetDevice {
         let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
 
         if dev_features.contains(Features::VIRTIO_NET_F_MAC) {
-            if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
-                let dev_cfg_ioport = dev_cfg_cap.map(pci_dev).unwrap();
+            if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(&pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
+                let dev_cfg_ioport = dev_cfg_cap.map(&pci_dev).unwrap();
                 let mut mac: [u8; 6] = [0; 6];
                 for i in 0..mac.len() {
                     mac[i] = unsafe { dev_cfg_ioport.read8(i) };
