@@ -289,14 +289,34 @@ int snprintf(char *str, size_t size, const char *fmt, ...)
 	return ret;
 }
 
+int printf(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	int ret = vprintf(fmt, ap);
+	va_end(ap);
+
+	return ret;
+}
+
 int fprintf(FILE *stream, const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	int ret = vfprintf(stream, fmt, ap);
+	va_end(ap);
+}
+
+int vprintf(const char *fmt, va_list ap)
+{
+	return vfprintf(stdout, fmt, ap);
+}
+
+int vfprintf(FILE *stream, const char *fmt, va_list ap)
 {
 	char text[1024];
 
-	va_list ap;
-	va_start(ap, fmt);
 	int ret = vsprintf(text, fmt, ap);
-	va_end(ap);
 
 	/* FIXME: We must write to 'stream', not to console...  */
 	console_print(text, ret);
