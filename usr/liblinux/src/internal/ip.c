@@ -15,6 +15,12 @@
 
 #define WARN(str) fprintf(stderr, "warning: %s\n", str)
 
+struct ip_statistics {
+	uint64_t	ip_datagrams_dropped;
+};
+
+static struct ip_statistics stats;
+
 ssize_t udp_recvfrom(struct socket *sk, void *restrict buf, size_t len, int flags, struct sockaddr *restrict src_addr,
 		     socklen_t *restrict addrlen)
 {
@@ -253,15 +259,14 @@ void ip_input(struct packet_view *pk)
 	const struct iphdr *iph = pk->start;
 
 	if (packet_view_len(pk) < sizeof(*iph)) {
-		return;
+		goto drop_datagram;
 	}
-
 	uint16_t ip_len = ntohs(iph->tot_len);
 	if (ip_len < sizeof(*iph)) {
-		return;
+		goto drop_datagram;
 	}
 	if (iph->version != 4) {
-		return;
+		goto drop_datagram;
 	}
 	/* FIXME: verify checksum */
 
@@ -272,7 +277,11 @@ void ip_input(struct packet_view *pk)
 		udp_input(pk);
 		break;
 	default:
-		WARN("dropping packet, unknown header");
-		break;
+		goto drop_datagram;
 	}
+	return;
+
+drop_datagram:
+	stats.ip_datagrams_dropped++;
+	return;
 }
