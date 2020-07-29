@@ -36,7 +36,6 @@ static inline void packet_view_trim(struct packet_view *pk, size_t size)
 /// \return @true if packet caused an epoll event; otherwise returns @false.
 bool net_input(struct packet_view *pk);
 
-void arp_input(struct packet_view *pk);
 bool net_input(struct packet_view *pk);
 bool ip_input(struct packet_view *pk);
 void arp_input(struct packet_view *pk);
