@@ -251,10 +251,15 @@ static void udp_input(struct packet_view *pk)
 	packet_view_trim(pk, sizeof(struct iphdr) + udp_len);
 }
 
-void ip_input(struct packet_view *pk)
+/* Returns true if datagram is fragmented.  */
+static inline bool ip_is_fragment(uint16_t frag_off)
+{
+	return frag_off & IP_MF || frag_off & IP_OFFMASK;
+}
+
+bool ip_input(struct packet_view *pk)
 {
 	LIBLINUX_TRACE(ip_input);
-
 
 	const struct iphdr *iph = pk->start;
 
@@ -268,9 +273,13 @@ void ip_input(struct packet_view *pk)
 	if (iph->version != 4) {
 		goto drop_datagram;
 	}
-	/* FIXME: verify checksum */
+	/* FIXME: datagram reassembly */
+	uint16_t ip_frag_off = ntohs(iph->frag_off);
+	if (ip_is_fragment(ip_frag_off)) {
+		goto drop_datagram;
+	}
 
-	/* FIXME: fragmentation */
+	/* FIXME: verify checksum */
 
 	switch (iph->protocol) {
 	case IPPROTO_UDP:
@@ -279,9 +288,9 @@ void ip_input(struct packet_view *pk)
 	default:
 		goto drop_datagram;
 	}
-	return;
+	return true;
 
 drop_datagram:
 	stats.ip_datagrams_dropped++;
-	return;
+	return false;
 }

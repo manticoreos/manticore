@@ -30,8 +30,7 @@ static bool net_input_one(struct packet_view *pk)
 	packet_view_trim(pk, sizeof(*ethh));
 
 	if (ethh->h_proto == ntohs(ETH_P_IP)) {
-		ip_input(pk);
-		return true;
+		return ip_input(pk);
 	} else if (ethh->h_proto == ntohs(ETH_P_ARP)) {
 		arp_input(pk);
 		return false;

@@ -38,7 +38,7 @@ bool net_input(struct packet_view *pk);
 
 void arp_input(struct packet_view *pk);
 bool net_input(struct packet_view *pk);
-void ip_input(struct packet_view *pk);
+bool ip_input(struct packet_view *pk);
 void arp_input(struct packet_view *pk);
 
 ssize_t udp_recvfrom(struct socket *sk, void *restrict buf, size_t len, int flags, struct sockaddr *restrict src_addr, socklen_t *restrict addrlen);
