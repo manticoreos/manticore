@@ -19,6 +19,16 @@ fn set_current(proc: Rc<Process>) {
     unsafe { CURRENT = Some(proc) };
 }
 
+fn get_current() -> Rc<Process> {
+    unsafe {
+        if let Some(ref current) = CURRENT {
+            return current.clone();
+        } else {
+            panic!("No current process");
+        }
+    }
+}
+
 fn take_current() -> Option<Rc<Process>> {
     unsafe { CURRENT.take() }
 }
@@ -90,80 +100,57 @@ extern "C" {
 
 #[no_mangle]
 pub extern "C" fn process_acquire(name: &'static NulStr) -> i32 {
-    unsafe {
-        if let Some(ref current) = CURRENT {
-            return match current.acquire(&name[..]) {
-                Ok((device, desc)) => {
-                    if let Err(e) = device.acquire(&mut current.vmspace.borrow_mut(), current.clone()) {
-                        return e.errno()
-                    }
-                    desc.to_user()
-                },
-                Err(e) => e.errno(),
-            };
-        } else {
-            panic!("No current process");
+    let current = get_current();
+    return match current.acquire(&name[..]) {
+        Ok((device, desc)) => {
+            if let Err(e) = device.acquire(&mut current.vmspace.borrow_mut(), current.clone()) {
+                return e.errno();
+            }
+            desc.to_user()
         }
-    }
+        Err(e) => e.errno(),
+    };
 }
 
 #[no_mangle]
 pub extern "C" fn process_subscribe(raw_desc: i32, events: &'static NulStr) -> i32 {
-    unsafe {
-        if let Some(ref current) = CURRENT {
-            let desc = DeviceDesc::from_user(raw_desc);
-            if let Some(device) = current.device_space.borrow().lookup(desc) {
-                device.subscribe(&events[..]);
-            }
-            return -EINVAL;
-        } else {
-            panic!("No current process");
-        }
+    let current = get_current();
+    let desc = DeviceDesc::from_user(raw_desc);
+    if let Some(device) = current.device_space.borrow().lookup(desc) {
+        device.subscribe(&events[..]);
     }
+    return -EINVAL;
 }
 
 #[no_mangle]
 pub extern "C" fn process_get_config(raw_desc: i32, opt: i32, buf: *mut u8, len: usize) -> i32 {
-    unsafe {
-        if let Some(ref current) = CURRENT {
-            let desc = DeviceDesc::from_user(raw_desc);
-            if let Some(device) = current.device_space.borrow().lookup(desc) {
-                if let Some(value) = device.get_config(opt) {
-                    let to_copy = cmp::min(len, value.len());
-                    user_access::memcpy_to_user(buf, value.as_ptr(), to_copy);
-                    return 0
-                }
+    let current = get_current();
+    let desc = DeviceDesc::from_user(raw_desc);
+    if let Some(device) = current.device_space.borrow().lookup(desc) {
+        if let Some(value) = device.get_config(opt) {
+            let to_copy = cmp::min(len, value.len());
+            unsafe {
+                user_access::memcpy_to_user(buf, value.as_ptr(), to_copy);
             }
-            return -EINVAL;
-        } else {
-            panic!("No current process");
+            return 0;
         }
     }
+    return -EINVAL;
 }
 
 /// Make the current process wait for an event.
 #[no_mangle]
 pub extern "C" fn process_wait() {
-    unsafe {
-        if let Some(ref mut current) = CURRENT {
-            current.state.replace(ProcessState::WAITING);
-            device::process_io();
-            schedule();
-        } else {
-            panic!("No current process");
-        }
-    }
+    let current = get_current();
+    current.state.replace(ProcessState::WAITING);
+    device::process_io();
+    schedule();
 }
 
 #[no_mangle]
 pub extern "C" fn process_getevents() -> usize {
-    unsafe {
-        if let Some(ref mut current) = CURRENT {
-            return current.event_queue.borrow().ring_buffer.raw_ptr();
-        } else {
-            panic!("No current process");
-        }
-    }
+    let current = get_current();
+    return current.event_queue.borrow().ring_buffer.raw_ptr();
 }
 
 #[no_mangle]
