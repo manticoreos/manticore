@@ -1,0 +1,43 @@
+vmspace_alloc(2)
+==================
+
+NAME
+----
+vmspace_alloc - Allocate memory from the virtual memory address space.
+
+SYNOPSIS
+--------
+
+#include <manticore/syscalls.h>
+#include <manticore/vmspace.h>
+
+int
+vmspace_alloc(struct vmspace_region *vmr, size_t size);
+
+DESCRIPTION
+-----------
+
+The vmspace_alloc system call allocates memory from process virtual memory address space.
+
+ // Virtual memory space region.
+ struct vmspace_region {
+         // Size of the virtual memory space region in bytes (input).
+         uint64_t        size;
+         // Start address of the virtual memory space region (output).
+         uint64_t        start;
+ };
+
+RETURN VALUE
+------------
+
+When successful, the vmspace_alloc system call returns zero.
+
+ERRORS
+------
+
+*ENOMEM* Not enough memory available.
+
+STANDARDS
+---------
+
+The vmspace_alloc system call is specific to Manticore.

@@ -12,6 +12,7 @@ add_library(manticore
     src/syscalls/get_config.c
     src/syscalls/getevents.c
     src/syscalls/subscribe.c
+    src/syscalls/vmspace_alloc.c
     src/syscalls/wait.c
 )
 

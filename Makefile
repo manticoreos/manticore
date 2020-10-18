@@ -71,6 +71,7 @@ KERNEL_LIB_SRC += manticore.rs
 #
 MAN_PAGES += man/exit.txt
 MAN_PAGES += man/get_config.txt
+MAN_PAGES += man/vmspace_alloc.txt
 MAN_PAGES += man/wait.txt
 
 ifdef TEST

@@ -9,6 +9,7 @@ enum {
 	SYS_getevents		= 5,
 	SYS_get_config		= 7,
 	SYS_acquire		= 8,
+	SYS_vmspace_alloc	= 9,
 };
 
 #endif

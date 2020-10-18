@@ -6,6 +6,8 @@
 
 #include <stddef.h>
 
+struct vmspace_region;
+
 void exit(int status) __attribute__ ((noreturn));
 int wait(void);
 ssize_t console_print(const char *text, size_t count);
@@ -13,6 +15,7 @@ int acquire(const char *name, int flags);
 int subscribe(const char *event);
 int getevents(void **events);
 int get_config(int desc, int opt, void *buf, size_t len);
+int vmspace_alloc(struct vmspace_region *, size_t size);
 
 long syscall0(long number);
 long syscall1(long number, long arg0);

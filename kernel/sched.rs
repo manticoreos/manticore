@@ -9,6 +9,7 @@ use errno::EINVAL;
 use intrusive_collections::LinkedList;
 use null_terminated::NulStr;
 use process::{Process, ProcessAdapter, ProcessState, TaskState};
+use vm::VMProt;
 use user_access;
 use device;
 
@@ -147,6 +148,18 @@ pub extern "C" fn process_wait() {
 pub extern "C" fn process_getevents() -> usize {
     let current = get_current();
     return current.event_queue.borrow().ring_buffer.raw_ptr();
+}
+
+#[no_mangle]
+pub extern "C" fn process_vmspace_alloc(size: u64, vmr_start: *mut u64) -> i32 {
+    let current = get_current();
+    return match current.vmspace.borrow_mut().allocate(size as usize, VMProt::VM_PROT_RW) {
+        Ok((start, _)) => {
+            unsafe { *vmr_start = start as u64 };
+            0
+        },
+        Err(e) => e.errno(),
+    };
 }
 
 #[no_mangle]

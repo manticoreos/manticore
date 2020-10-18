@@ -7,6 +7,8 @@
 #include <kernel/sched.h>
 #include <kernel/user-access.h>
 
+#include <uapi/manticore/vmspace_abi.h>
+
 #include <stdarg.h>
 #include <stddef.h>
 
@@ -87,6 +89,27 @@ static ssize_t sys_console_print(const char /* __user */ *ubuf, size_t count)
 	return off;
 }
 
+static int sys_vmspace_alloc(struct vmspace_region /* __user */ *uvmr, size_t size)
+{
+	struct vmspace_region vmr;
+	int err;
+
+	if (size != sizeof(vmr)) {
+		return -EINVAL;
+	}
+	err = memcpy_from_user(&vmr, uvmr, sizeof(vmr));
+	if (err) {
+		return err;
+	}
+	uint64_t start = 0;
+	err = process_vmspace_alloc(vmr.size, &start);
+	if (err) {
+		return err;
+	}
+	vmr.start = start;
+	return memcpy_to_user(uvmr, &vmr, sizeof(vmr));
+}
+
 #define SYSCALL0(fn)                                                                                                   \
 	case (SYS_##fn):                                                                                               \
 		do {                                                                                                   \
@@ -144,6 +167,7 @@ long syscall(int nr, ...)
 	SYSCALL1(getevents, void **);
 	SYSCALL4(get_config, int, int, void *, size_t);
 	SYSCALL2(acquire, const char *, int);
+	SYSCALL2(vmspace_alloc, struct vmspace_region *, size_t);
 	}
 	return -ENOSYS;
 }
