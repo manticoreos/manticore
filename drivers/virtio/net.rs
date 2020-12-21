@@ -369,7 +369,7 @@ impl DeviceOps for VirtioNetDevice {
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));
 
-        return Ok(());
+        Ok(())
     }
 
     fn subscribe(&self, _events: &'static str) {
@@ -383,7 +383,7 @@ impl DeviceOps for VirtioNetDevice {
                 if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
                     return Some(io_queue.ring_buffer.raw_ptr().to_ne_bytes().to_vec())
                 }
-                return None;
+                None
             },
             _ => { None }
         }
