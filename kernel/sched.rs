@@ -121,15 +121,13 @@ pub extern "C" fn process_subscribe(raw_desc: i32, events: &'static NulStr) -> i
 }
 
 #[no_mangle]
-pub extern "C" fn process_get_config(raw_desc: i32, opt: i32, buf: *mut u8, len: usize) -> i32 {
+pub unsafe extern "C" fn process_get_config(raw_desc: i32, opt: i32, buf: *mut u8, len: usize) -> i32 {
     let current = get_current();
     let desc = DeviceDesc::from_user(raw_desc);
     if let Some(device) = current.device_space.borrow().lookup(desc) {
         if let Some(value) = device.get_config(opt) {
             let to_copy = cmp::min(len, value.len());
-            unsafe {
-                user_access::memcpy_to_user(buf, value.as_ptr(), to_copy);
-            }
+            user_access::memcpy_to_user(buf, value.as_ptr(), to_copy);
             return 0;
         }
     }
