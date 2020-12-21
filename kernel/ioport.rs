@@ -15,14 +15,14 @@ impl IOPort {
     /// not fit the original I/O port, `None` is returned.
     pub fn remap(&self, offset: usize, new_size: u32) -> Option<IOPort> {
         match self {
-            &IOPort::Memory { base_addr, size } => {
-                if offset > (base_addr + size as usize) as usize {
+            IOPort::Memory { base_addr, size } => {
+                if offset > (base_addr + *size as usize) as usize {
                     return None
                 }
                 Some(IOPort::Memory { base_addr: base_addr + offset, size: new_size })
             },
-            &IOPort::IO { iobase, size } => {
-                if offset > (iobase as u32 + size) as usize {
+            IOPort::IO { iobase, size } => {
+                if offset > (*iobase as u32 + *size) as usize {
                     return None
                 }
                 Some(IOPort::IO { iobase: iobase + offset as u16, size: new_size })
@@ -32,80 +32,80 @@ impl IOPort {
 
     pub fn read8(&self, offset: usize) -> u8 {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_read8((base_addr + offset) as u64) }
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_read8(iobase + (offset as u16)) }
             }
         }
     }
     pub fn write8(&self, value: u8, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_write8(value, (base_addr + offset) as u64) };
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_write8(value, iobase + (offset as u16)) };
             }
         }
     }
     pub fn read16(&self, offset: usize) -> u16 {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_read16((base_addr + offset) as u64) }
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_read16(iobase + (offset as u16)) }
             }
         }
     }
     pub fn write16(&self, value: u16, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_write16(value, (base_addr + offset) as u64) };
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_write16(value, iobase + (offset as u16)) };
             }
         }
     }
     pub fn read32(&self, offset: usize) -> u32 {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_read32((base_addr + offset) as u64) }
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_read32(iobase + (offset as u16)) }
             }
         }
     }
     pub fn write32(&self, value: u32, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_write32(value, (base_addr + offset) as u64) };
             }
-            &IOPort::IO { iobase, .. } => {
+            IOPort::IO { iobase, .. } => {
                 unsafe { pio_write32(value, iobase + (offset as u16)) };
             }
         }
     }
     pub fn read64(&self, offset: usize) -> u64 {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_read64((base_addr + offset) as u64) }
             }
-            &IOPort::IO { .. } => {
+            IOPort::IO { .. } => {
                 unimplemented!();
             }
         }
     }
     pub fn write64(&self, value: u64, offset: usize) {
         match self {
-            &IOPort::Memory { base_addr, .. } => {
+            IOPort::Memory { base_addr, .. } => {
                 unsafe { mmio_write64(value, (base_addr + offset) as u64); }
             }
-            &IOPort::IO { .. } => {
+            IOPort::IO { .. } => {
                 unimplemented!();
             }
         }
