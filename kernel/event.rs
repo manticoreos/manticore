@@ -47,7 +47,7 @@ impl EventQueue {
     pub fn emplace(&mut self, event: Event) {
         let raw_event = match event {
             Event::PacketIO { addr, len } => {
-                RawEvent { type_: EVENT_PACKET_RX, addr: addr, len: len }
+                RawEvent { type_: EVENT_PACKET_RX, addr, len }
             }
         };
         self.ring_buffer.emplace(&raw_event);
@@ -78,7 +78,7 @@ impl<'a> KeyAdapter<'a> for EventNotifierAdapter {
 impl EventNotifier {
     pub fn new(name: &'static str) -> Self {
         Self {
-            name: name,
+            name,
             listeners: RefCell::new(vec![]),
             link: RBTreeLink::new(),
         }

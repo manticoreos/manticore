@@ -51,11 +51,7 @@ intrusive_adapter!(pub DeviceAdapter = Rc<Device>: Device { link: RBTreeLink });
 
 impl Device {
     pub fn new(name: &'static str, ops: RefCell<Rc<dyn DeviceOps>>) -> Self {
-        Device {
-            name: name,
-            ops: ops,
-            link: RBTreeLink::new(),
-        }
+        Device { name, ops, link: RBTreeLink::new(), }
     }
 
     pub fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()> {

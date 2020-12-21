@@ -51,9 +51,9 @@ impl Drop for VMRegion {
 impl VMRegion {
     pub fn new(start: usize, end: usize, prot: VMProt) -> Self {
         VMRegion {
-            start: start,
-            end: end,
-            prot: prot,
+            start,
+            end,
+            prot,
             page: Cell::new(None),
             link: RBTreeLink::new(),
         }
@@ -104,7 +104,7 @@ impl VMAddressSpace {
     pub fn new(mmu_map: usize) -> Self {
         VMAddressSpace {
             vm_regions: RBTree::new(VMRegionAdapter::new()),
-            mmu_map: mmu_map,
+            mmu_map,
         }
     }
 

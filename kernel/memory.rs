@@ -46,8 +46,8 @@ impl MemorySegment {
     /// Constructs a new `MemorySegment`.
     const fn new(base: u64, size: u64) -> MemorySegment {
         MemorySegment {
-            base: base,
-            size: size,
+            base,
+            size,
             segments_link: RBTreeLink::new(),
         }
     }

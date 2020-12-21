@@ -39,7 +39,7 @@ impl Process {
     pub fn new(task_state: TaskState, vmspace: VMAddressSpace, event_queue: EventQueue) -> Self {
         Process {
             state: RefCell::new(ProcessState::RUNNABLE),
-            task_state: task_state,
+            task_state,
             vmspace: RefCell::new(vmspace),
             device_space: RefCell::new(DeviceSpace::new()),
             page_fault_fixup: Cell::new(0),

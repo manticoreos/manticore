@@ -61,11 +61,7 @@ impl IOQueue {
             };
             let (addr, len) = unsafe { ((*raw_io_cmd).addr, (*raw_io_cmd).len) };
             self.ring_buffer.pop();
-            return opcode.map(|opcode| IOCmd {
-                opcode: opcode,
-                addr: addr,
-                len: len,
-            });
+            return opcode.map(|opcode| IOCmd { opcode, addr, len, });
         } else {
             None
         }
