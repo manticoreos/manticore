@@ -315,8 +315,8 @@ impl VirtioNetDevice {
 
     fn new(pci_dev: Rc<PCIDevice>, notify_cfg_ioport: IOPort, notify_off_multiplier: u32) -> Self {
         VirtioNetDevice {
-            pci_dev: pci_dev,
-            notify_cfg_ioport: notify_cfg_ioport,
+            pci_dev,
+            notify_cfg_ioport,
             notify_off_multiplier,
             vqs: RefCell::new(Vec::new()),
             notifier: Rc::new(EventNotifier::new(VIRTIO_DEV_NAME)),

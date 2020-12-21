@@ -103,13 +103,13 @@ impl Virtqueue {
                 panic!("out of memory");
             }
             Virtqueue {
-                queue_idx: queue_idx,
-                queue_size: queue_size,
-                notify_off: notify_off,
+                queue_idx,
+                queue_size,
+                notify_off,
                 last_seen_used: Cell::new(0),
-                raw_descriptor_table_ptr: raw_descriptor_table_ptr,
-                raw_available_ring_ptr: raw_available_ring_ptr,
-                raw_used_ring_ptr: raw_used_ring_ptr,
+                raw_descriptor_table_ptr,
+                raw_available_ring_ptr,
+                raw_used_ring_ptr,
                 link: LinkedListLink::new(),
             }
         }
@@ -154,7 +154,7 @@ impl Virtqueue {
             (*self.descriptor_table())[idx as usize] = VirtqDesc {
                 addr: addr as u64,
                 len: len as u32,
-                flags: flags,
+                flags,
                 next: 0,
             };
             self.add_buf_idx(idx);

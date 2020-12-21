@@ -111,8 +111,8 @@ pub struct DeviceID {
 impl DeviceID {
     pub const fn new(vendor_id: u16, device_id: u16) -> Self {
         DeviceID {
-            vendor_id: vendor_id,
-            device_id: device_id,
+            vendor_id,
+            device_id,
             revision_id: 0,
             header_type: 0,
             class_code: 0,
@@ -151,13 +151,13 @@ impl BAR {
                 let addr = ioremap(base_addr as usize, size as usize);
                 return IOPort::Memory {
                     base_addr: addr as usize,
-                    size: size,
+                    size,
                 };
             }
             &BAR::IO { iobase, size, .. } => {
                 return IOPort::IO {
                     iobase: iobase as u16,
-                    size: size,
+                    size,
                 };
             }
         }
@@ -191,9 +191,9 @@ impl BAR {
                         func.write_config_u32(offset, raw_bar);
                         let prefetchable = raw_bar & 0b1000 != 0;
                         BAR::Memory {
-                            base_addr: base_addr,
-                            size: size,
-                            prefetchable: prefetchable,
+                            base_addr,
+                            size,
+                            prefetchable,
                             locatable: locatable.clone(),
                         }
                     };
@@ -212,7 +212,7 @@ impl BAR {
                 func.write_config_u32(offset, raw_bar);
                 BAR::IO {
                     iobase: (raw_bar & !0x03) as u16,
-                    size: size,
+                    size,
                 }
             };
             (Some(bar), bar_idx + 1)
@@ -230,9 +230,9 @@ pub struct PCIFunction {
 impl PCIFunction {
     pub fn new(bus_id: u16, slot_id: u16, func_id: u16) -> Self {
         PCIFunction {
-            bus_id: bus_id,
-            slot_id: slot_id,
-            func_id: func_id,
+            bus_id,
+            slot_id,
+            func_id,
         }
     }
 
@@ -341,18 +341,18 @@ impl PCIDevice {
         func.write_config_u16(PCI_CFG_COMMAND, cmd);
 
         let pci_dev = Rc::new(PCIDevice {
-            func: func,
+            func,
             dev_id: DeviceID {
-                vendor_id: vendor_id,
-                device_id: device_id,
-                revision_id: revision_id,
-                header_type: header_type,
-                class_code: class_code,
-                subclass: subclass,
-                prog_if: prog_if,
+                vendor_id,
+                device_id,
+                revision_id,
+                header_type,
+                class_code,
+                subclass,
+                prog_if,
             },
-            bars: bars,
-            msix: msix,
+            bars,
+            msix,
         });
         for driver in unsafe { PCI_DRIVER_LIST.iter() } {
             if driver.dev_id.vendor_id != pci_dev.dev_id.vendor_id {
@@ -539,8 +539,8 @@ intrusive_adapter!(PCIDriverAdapter = UnsafeRef<PCIDriver>: PCIDriver { link: Li
 impl PCIDriver {
     pub const fn new(dev_id: DeviceID, probe: PCIProbe) -> Self {
         PCIDriver {
-            dev_id: dev_id,
-            probe: probe,
+            dev_id,
+            probe,
             link: LinkedListLink::new(),
         }
     }
