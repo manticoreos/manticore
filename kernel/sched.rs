@@ -79,15 +79,13 @@ pub extern "C" fn schedule() {
             next.vmspace.borrow().switch_to();
             unsafe { switch_to_first(next_ts) };
         }
+    } else if let Some(prev) = prev {
+        unsafe {
+            switch_to(prev.task_state, idle_task);
+        }
     } else {
-        if let Some(prev) = prev {
-            unsafe {
-                switch_to(prev.task_state, idle_task);
-            }
-        } else {
-            unsafe {
-                switch_to_first(idle_task);
-            }
+        unsafe {
+            switch_to_first(idle_task);
         }
     }
 }
