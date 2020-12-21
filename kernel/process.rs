@@ -88,8 +88,8 @@ extern "C" {
 
 /// Create a new process.
 #[no_mangle]
-pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize) -> i32 {
-    let mmu_map = mmu::mmu_current_map();
+pub extern "C" fn process_spawn(image_start: *const u8, image_size: usize) -> i32 {
+    let mmu_map = unsafe { mmu::mmu_current_map() };
     let mut vmspace = VMAddressSpace::new(mmu_map);
 
     let entry_point = parse_elf_image(image_start, image_size, &mut vmspace);
@@ -115,7 +115,7 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
     }
     let event_queue = EventQueue::new(event_buf_start, event_buf_size);
 
-    let task_state = task_state_new(entry_point, stack_top);
+    let task_state = unsafe { task_state_new(entry_point, stack_top) };
 
     let process = Rc::new(Process::new(task_state, vmspace, event_queue));
 
