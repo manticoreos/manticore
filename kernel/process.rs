@@ -129,19 +129,16 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
     let elf_file = ElfFile::new(&buf).unwrap();
     let ph_iter = elf_file.program_iter();
     for phdr in ph_iter {
-        match phdr.get_type().unwrap() {
-            program::Type::Load => {
-                let prot = elf_phdr_flags_to_prot(phdr.flags());
-                let start = phdr.virtual_addr() as usize;
-                let size = phdr.mem_size() as usize;
-                let end = memory::align_up((start + size) as u64, memory::PAGE_SIZE_SMALL) as usize;
-                vmspace.allocate_fixed(start, end, prot).expect("allocate failed");
-                let image_start: u64 = unsafe { transmute(image_start) };
-                let src_start: u64 = image_start + phdr.offset();
-                let src_end = src_start + phdr.file_size();
-                vmspace.populate_from(start, end, src_start as usize, src_end as usize).expect("populate_from failed");
-            }
-            _ => {}
+        if let program::Type::Load = phdr.get_type().unwrap() {
+            let prot = elf_phdr_flags_to_prot(phdr.flags());
+            let start = phdr.virtual_addr() as usize;
+            let size = phdr.mem_size() as usize;
+            let end = memory::align_up((start + size) as u64, memory::PAGE_SIZE_SMALL) as usize;
+            vmspace.allocate_fixed(start, end, prot).expect("allocate failed");
+            let image_start: u64 = unsafe { transmute(image_start) };
+            let src_start: u64 = image_start + phdr.offset();
+            let src_end = src_start + phdr.file_size();
+            vmspace.populate_from(start, end, src_start as usize, src_end as usize).expect("populate_from failed");
         }
     }
     if let Some(section) = elf_file.find_section_by_name(".bss") {
