@@ -391,12 +391,8 @@ impl DeviceOps for VirtioNetDevice {
 
     fn process_io(&self) {
         if let Some(io_queue) = self.io_queue.borrow_mut().as_mut() {
-            loop {
-                if let Some(cmd) = io_queue.pop() {
-                    self.process_io_one(cmd);
-                } else {
-                    break
-                }
+            while let Some(cmd) = io_queue.pop() {
+                self.process_io_one(cmd);
             }
         }
     }
