@@ -421,8 +421,8 @@ impl PCIDevice {
     pub fn write_msix_entry(&self, id: u16, addr: u64, data: u32) {
         if let Some(ioport) = self.get_msix_table() {
             let entry_addr = self.get_entry_addr(id);
-            unsafe { ioport.write64(addr, entry_addr + MSIX_ENTRY_ADDR) };
-            unsafe { ioport.write32(data, entry_addr + MSIX_ENTRY_DATA) };
+            ioport.write64(addr, entry_addr + MSIX_ENTRY_ADDR);
+            ioport.write32(data, entry_addr + MSIX_ENTRY_DATA);
         }
     }
 
@@ -442,7 +442,7 @@ impl PCIDevice {
         if let Some(ioport) = self.get_msix_table() {
             let entry_addr = self.get_entry_addr(id);
             let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
-            return unsafe { ioport.read32(ctrl) };
+            return ioport.read32(ctrl);
         }
         return 0;
     }
@@ -451,7 +451,7 @@ impl PCIDevice {
         if let Some(ioport) = self.get_msix_table() {
             let entry_addr = self.get_entry_addr(id);
             let ctrl = entry_addr + MSIX_ENTRY_CONTROL;
-            unsafe { ioport.write32(ctrl_data, ctrl) };
+            ioport.write32(ctrl_data, ctrl);
         }
     }
 

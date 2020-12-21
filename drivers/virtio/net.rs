@@ -170,78 +170,70 @@ impl VirtioNetDevice {
         // 1. Reset device
         //
         let mut status: u8 = 0;
-        unsafe { ioport.write8(status, DEVICE_STATUS) };
+        ioport.write8(status, DEVICE_STATUS);
 
         //
         // 2. Set ACKNOWLEDGE status bit
         //
         status |= VIRTIO_ACKNOWLEDGE;
-        unsafe { ioport.write8(status, DEVICE_STATUS) };
+        ioport.write8(status, DEVICE_STATUS);
 
         //
         // 3. Set DRIVER status bit
         //
         status |= VIRTIO_DRIVER;
-        unsafe { ioport.write8(status, DEVICE_STATUS) };
+        ioport.write8(status, DEVICE_STATUS);
 
         //
         // 4. Negotiate features
         //
         let features = Features::VIRTIO_NET_F_MAC | Features::VIRTIO_NET_F_MRG_RXBUF;
-        unsafe { ioport.write32(features.bits(), DRIVER_FEATURE) };
+        ioport.write32(features.bits(), DRIVER_FEATURE);
 
         //
         // 5. Set the FEATURES_OK status bit
         //
         status |= VIRTIO_FEATURES_OK;
-        unsafe { ioport.write8(status, DEVICE_STATUS) };
+        ioport.write8(status, DEVICE_STATUS);
 
         //
         // 6. Re-read device status to ensure the FEATURES_OK bit is still set
         //
-        if unsafe { ioport.read8(DEVICE_STATUS) } & VIRTIO_FEATURES_OK != VIRTIO_FEATURES_OK {
+        if ioport.read8(DEVICE_STATUS) & VIRTIO_FEATURES_OK != VIRTIO_FEATURES_OK {
             panic!("Device does not support our subset of features");
         }
 
         //
         // 7. Perform device-specific setup
         //
-        let num_queues = unsafe { ioport.read16(NUM_QUEUES) };
+        let num_queues = ioport.read16(NUM_QUEUES);
 
         println!("virtio-net: {} virtqueues found.", num_queues);
 
         let mut vqs = Vec::new();
 
         for queue in 0..num_queues {
-            unsafe { ioport.write16(queue, QUEUE_SELECT) };
+            ioport.write16(queue, QUEUE_SELECT);
 
-            let size = unsafe { ioport.read16(QUEUE_SIZE) };
+            let size = ioport.read16(QUEUE_SIZE);
 
-            let notify_off = unsafe { ioport.read16(QUEUE_NOTIFY_OFF) };
+            let notify_off = ioport.read16(QUEUE_NOTIFY_OFF);
 
             let vq = Virtqueue::new(queue, size as usize, notify_off);
 
-            unsafe {
-                ioport.write64(
-                    mmu::virt_to_phys(vq.raw_descriptor_table_ptr) as u64,
-                    QUEUE_DESC,
-                );
-                ioport.write64(
-                    mmu::virt_to_phys(vq.raw_available_ring_ptr) as u64,
-                    QUEUE_AVAIL,
-                );
-                ioport.write64(mmu::virt_to_phys(vq.raw_used_ring_ptr) as u64, QUEUE_USED);
+            ioport.write64(unsafe { mmu::virt_to_phys(vq.raw_descriptor_table_ptr) as u64 }, QUEUE_DESC);
+            ioport.write64(unsafe { mmu::virt_to_phys(vq.raw_available_ring_ptr) as u64 }, QUEUE_AVAIL);
+            ioport.write64(unsafe { mmu::virt_to_phys(vq.raw_used_ring_ptr) as u64 }, QUEUE_USED);
 
-                // RX queue:
-                if queue == VIRTIO_RX_QUEUE_IDX {
-                    vq.add_inbuf(mmu::virt_to_phys(dev.rx_page as usize) as usize, dev.rx_page_size);
-                    let vector = dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, mem::transmute(Rc::as_ptr(&dev)));
-                    dev.pci_dev.enable_irq(queue);
-                    ioport.write16(queue, QUEUE_MSIX_VECTOR);
-                    println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
-                }
-                ioport.write16(1 as u16, QUEUE_ENABLE);
+            // RX queue:
+            if queue == VIRTIO_RX_QUEUE_IDX {
+                vq.add_inbuf(unsafe { mmu::virt_to_phys(dev.rx_page as usize) as usize }, dev.rx_page_size);
+                let vector = unsafe { dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, mem::transmute(Rc::as_ptr(&dev))) };
+                dev.pci_dev.enable_irq(queue);
+                ioport.write16(queue, QUEUE_MSIX_VECTOR);
+                println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
             }
+            ioport.write16(1 as u16, QUEUE_ENABLE);
 
             vqs.push(vq);
         }
@@ -252,18 +244,16 @@ impl VirtioNetDevice {
         // 8. Set DRIVER_OK status bit
         //
         status |= VIRTIO_DRIVER_OK;
-        unsafe {
-            ioport.write8(status, DEVICE_STATUS);
-        }
+        ioport.write8(status, DEVICE_STATUS);
 
-        let dev_features = Features::from_bits_truncate(unsafe { ioport.read32(DEVICE_FEATURE) });
+        let dev_features = Features::from_bits_truncate(ioport.read32(DEVICE_FEATURE));
 
         if dev_features.contains(Features::VIRTIO_NET_F_MAC) {
             if let Some(dev_cfg_cap) = VirtioNetDevice::find_capability(&dev.pci_dev, VIRTIO_PCI_CAP_DEVICE_CFG) {
                 let dev_cfg_ioport = dev_cfg_cap.map(&dev.pci_dev).unwrap();
                 let mut mac: [u8; 6] = [0; 6];
                 for i in 0..mac.len() {
-                    mac[i] = unsafe { dev_cfg_ioport.read8(i) };
+                    mac[i] = dev_cfg_ioport.read8(i);
                 }
                 println!(
                     "virtio-net: MAC address is {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
@@ -361,7 +351,7 @@ impl VirtioNetDevice {
 
     fn notify(&self, queue: &Virtqueue) {
         let notify_off = (self.notify_off_multiplier * queue.notify_off as u32) as usize;
-        unsafe { self.notify_cfg_ioport.write16(queue.queue_idx, notify_off); }
+        self.notify_cfg_ioport.write16(queue.queue_idx, notify_off);
     }
 }
 
