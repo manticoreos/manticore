@@ -88,7 +88,7 @@ impl MemoryArena {
                 if seg.size > size {
                     let new_seg = seg.split(size);
                     let reference = UnsafeRef::from_raw(new_seg);
-                    cur.replace_with(reference.clone()).expect("memory segment replacement failed");
+                    cur.replace_with(reference).expect("memory segment replacement failed");
                 } else {
                     cur.remove();
                 }
@@ -138,7 +138,7 @@ impl MemoryArena {
 
     unsafe fn add_to_freelist(&mut self, seg: &MemorySegment) {
         let reference = UnsafeRef::from_raw(seg);
-        self.segments.insert(reference.clone());
+        self.segments.insert(reference);
     }
 
     #[allow(dead_code)]
