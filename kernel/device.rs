@@ -55,7 +55,7 @@ impl Device {
     }
 
     pub fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()> {
-        return self.ops.borrow().acquire(vmspace, listener);
+        self.ops.borrow().acquire(vmspace, listener)
     }
 
     pub fn subscribe(&self, events: &'static str) {
@@ -63,11 +63,11 @@ impl Device {
     }
 
     pub fn get_config(&self, option: ConfigOption) -> Option<Vec<u8>> {
-        return self.ops.borrow().get_config(option);
+        self.ops.borrow().get_config(option)
     }
 
     pub fn process_io(&self) {
-        return self.ops.borrow().process_io();
+        self.ops.borrow().process_io()
     }
 }
 
@@ -96,7 +96,7 @@ impl Namespace {
 
     pub fn lookup(&self, name: &'static str) -> Option<Rc<Device>> {
         let cursor = self.devices.find(name);
-        return cursor.clone_pointer();
+        cursor.clone_pointer()
     }
 }
 
@@ -114,7 +114,7 @@ impl DeviceSpace {
     pub fn attach(&mut self, device: Rc<Device>) -> DeviceDesc {
         let idx = self.desc_table.len();
         self.desc_table.push(device);
-        return DeviceDesc::from_user(idx as i32);
+        DeviceDesc::from_user(idx as i32)
     }
 
     pub fn lookup(&self, desc: DeviceDesc) -> Option<Rc<Device>> {
@@ -124,7 +124,7 @@ impl DeviceSpace {
             }
             return Some(self.desc_table[idx].clone());
         }
-        return None;
+        None
     }
 }
 

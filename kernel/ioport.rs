@@ -33,10 +33,10 @@ impl IOPort {
     pub fn read8(&self, offset: usize) -> u8 {
         match self {
             &IOPort::Memory { base_addr, .. } => {
-                return unsafe { mmio_read8((base_addr + offset) as u64) };
+                unsafe { mmio_read8((base_addr + offset) as u64) }
             }
             &IOPort::IO { iobase, .. } => {
-                return unsafe { pio_read8(iobase + (offset as u16)) };
+                unsafe { pio_read8(iobase + (offset as u16)) }
             }
         }
     }
@@ -53,10 +53,10 @@ impl IOPort {
     pub fn read16(&self, offset: usize) -> u16 {
         match self {
             &IOPort::Memory { base_addr, .. } => {
-                return unsafe { mmio_read16((base_addr + offset) as u64) };
+                unsafe { mmio_read16((base_addr + offset) as u64) }
             }
             &IOPort::IO { iobase, .. } => {
-                return unsafe { pio_read16(iobase + (offset as u16)) };
+                unsafe { pio_read16(iobase + (offset as u16)) }
             }
         }
     }
@@ -73,10 +73,10 @@ impl IOPort {
     pub fn read32(&self, offset: usize) -> u32 {
         match self {
             &IOPort::Memory { base_addr, .. } => {
-                return unsafe { mmio_read32((base_addr + offset) as u64) };
+                unsafe { mmio_read32((base_addr + offset) as u64) }
             }
             &IOPort::IO { iobase, .. } => {
-                return unsafe { pio_read32(iobase + (offset as u16)) };
+                unsafe { pio_read32(iobase + (offset as u16)) }
             }
         }
     }
@@ -93,7 +93,7 @@ impl IOPort {
     pub fn read64(&self, offset: usize) -> u64 {
         match self {
             &IOPort::Memory { base_addr, .. } => {
-                return unsafe { mmio_read64((base_addr + offset) as u64) };
+                unsafe { mmio_read64((base_addr + offset) as u64) }
             }
             &IOPort::IO { .. } => {
                 unimplemented!();

@@ -77,7 +77,7 @@ impl VMRegion {
         if self.prot.contains(VMProt::VM_PROT_EXEC) {
             prot |= mmu::MMU_PROT_EXEC;
         }
-        return prot;
+        prot
     }
 }
 
@@ -184,7 +184,7 @@ impl VMAddressSpace {
             cur.remove();
             Ok(())
         } else {
-            return Err(Error::new(EINVAL));
+            Err(Error::new(EINVAL))
         }
     }
 
@@ -209,9 +209,9 @@ impl VMAddressSpace {
             if err != 0 {
                 return Err(Error::new(err));
             }
-            return Ok(());
+            Ok(())
         } else {
-            return Err(Error::new(EINVAL));
+            Err(Error::new(EINVAL))
         }
     }
 
@@ -244,9 +244,9 @@ impl VMAddressSpace {
             if err != 0 {
                 return Err(Error::new(err));
             }
-            return Ok(());
+            Ok(())
         } else {
-            return Err(Error::new(EINVAL));
+            Err(Error::new(EINVAL))
         }
     }
 
@@ -286,9 +286,9 @@ impl VMAddressSpace {
                     return Err(Error::new(err));
                 }
             }
-            return Ok(());
+            Ok(())
         } else {
-            return Err(Error::new(EINVAL));
+            Err(Error::new(EINVAL))
         }
     }
 }

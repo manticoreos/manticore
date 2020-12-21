@@ -22,7 +22,7 @@ fn set_current(proc: Rc<Process>) {
 fn get_current() -> Rc<Process> {
     unsafe {
         if let Some(ref current) = CURRENT {
-            return current.clone();
+            current.clone()
         } else {
             panic!("No current process");
         }
@@ -101,7 +101,7 @@ extern "C" {
 #[no_mangle]
 pub extern "C" fn process_acquire(name: &'static NulStr) -> i32 {
     let current = get_current();
-    return match current.acquire(&name[..]) {
+    match current.acquire(&name[..]) {
         Ok((device, desc)) => {
             if let Err(e) = device.acquire(&mut current.vmspace.borrow_mut(), current.clone()) {
                 return e.errno();
@@ -109,7 +109,7 @@ pub extern "C" fn process_acquire(name: &'static NulStr) -> i32 {
             desc.to_user()
         }
         Err(e) => e.errno(),
-    };
+    }
 }
 
 #[no_mangle]
@@ -119,7 +119,7 @@ pub extern "C" fn process_subscribe(raw_desc: i32, events: &'static NulStr) -> i
     if let Some(device) = current.device_space.borrow().lookup(desc) {
         device.subscribe(&events[..]);
     }
-    return -EINVAL;
+    -EINVAL
 }
 
 #[no_mangle]
@@ -135,7 +135,7 @@ pub extern "C" fn process_get_config(raw_desc: i32, opt: i32, buf: *mut u8, len:
             return 0;
         }
     }
-    return -EINVAL;
+    -EINVAL
 }
 
 /// Make the current process wait for an event.
@@ -168,9 +168,9 @@ pub extern fn page_fault_get_fixup() -> u64
 {
     unsafe {
         if let Some(ref mut current) = CURRENT {
-            return current.page_fault_fixup.get()
+            current.page_fault_fixup.get()
         } else {
-            return 0
+            0
         }
     }
 }

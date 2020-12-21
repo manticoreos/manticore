@@ -61,7 +61,7 @@ impl Process {
             let desc = self.device_space.borrow_mut().attach(device.clone());
             return Ok((device, desc));
         }
-        return Err(Error::new(EINVAL));
+        Err(Error::new(EINVAL))
     }
 }
 
@@ -121,7 +121,7 @@ pub unsafe extern "C" fn process_spawn(image_start: *const u8, image_size: usize
 
     sched::enqueue(process);
 
-    return 0;
+    0
 }
 
 fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAddressSpace) -> usize {
@@ -147,7 +147,7 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
     if let Some(section) = elf_file.find_section_by_name(".bss") {
         unsafe { memset(transmute(section.address()), 0, section.size() as usize) };
     }
-    return elf_file.header.pt2.entry_point() as usize;
+    elf_file.header.pt2.entry_point() as usize
 }
 
 fn elf_phdr_flags_to_prot(flags: program::Flags) -> VMProt {
@@ -161,5 +161,5 @@ fn elf_phdr_flags_to_prot(flags: program::Flags) -> VMProt {
     if flags.is_execute() {
         prot |= VMProt::VM_PROT_EXEC;
     }
-    return prot;
+    prot
 }

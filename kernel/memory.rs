@@ -59,7 +59,7 @@ impl MemorySegment {
         unsafe {
             let seg : &mut MemorySegment = transmute(self.base + size);
             *seg = MemorySegment::new(self.base + size, self.size - size);
-            return seg;
+            seg
         }
     }
 }
@@ -92,9 +92,9 @@ impl MemoryArena {
                 } else {
                     cur.remove();
                 }
-                return transmute(ret);
+                transmute(ret)
             }
-            None => return transmute(0u64),
+            None => transmute(0u64)
         }
     }
 
@@ -106,9 +106,10 @@ impl MemoryArena {
             let coalesced = cursor.get().map_or(false, |next| {
                 if addr + size == next.base {
                     size += next.size;
-                    return true
+                    true
+                } else {
+                    false
                 }
-                return false
             });
             if coalesced {
                 cursor.remove();
@@ -121,9 +122,10 @@ impl MemoryArena {
                 if prev.base + prev.size == addr {
                     addr = prev.base;
                     size += prev.size;
-                    return true
+                    true
+                } else {
+                    false
                 }
-                return false
             });
             if coalesced {
                 cursor.remove();
@@ -206,7 +208,7 @@ pub extern "C" fn page_alloc_init() {}
 #[no_mangle]
 pub extern "C" fn page_alloc_small() -> *mut u8 {
     unsafe {
-        return KERNEL_SMALL_PAGE_ARENA.alloc(PAGE_SIZE_SMALL);
+        KERNEL_SMALL_PAGE_ARENA.alloc(PAGE_SIZE_SMALL)
     }
 }
 
@@ -214,7 +216,7 @@ pub extern "C" fn page_alloc_small() -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn page_free_small(addr: *mut u8) {
     unsafe {
-        return KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_SMALL);
+        KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_SMALL)
     }
 }
 
@@ -222,7 +224,7 @@ pub extern "C" fn page_free_small(addr: *mut u8) {
 #[no_mangle]
 pub extern "C" fn page_alloc_large() -> *mut u8 {
     unsafe {
-        return KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_LARGE);
+        KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_LARGE)
     }
 }
 
@@ -230,7 +232,7 @@ pub extern "C" fn page_alloc_large() -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn page_free_large(addr: *mut u8) {
     unsafe {
-        return KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_LARGE);
+        KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_LARGE)
     }
 }
 
