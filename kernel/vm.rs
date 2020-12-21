@@ -61,7 +61,7 @@ impl VMRegion {
 
     pub fn delete(&self) {
         if let Some(page) = self.page.get() {
-            memory::page_free_small(page as *mut u8);
+            unsafe { memory::page_free_small(page as *mut u8); }
             self.page.set(None);
         }
     }

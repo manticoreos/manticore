@@ -214,26 +214,20 @@ pub extern "C" fn page_alloc_small() -> *mut u8 {
 
 /// Free a small page.
 #[no_mangle]
-pub extern "C" fn page_free_small(addr: *mut u8) {
-    unsafe {
-        KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_SMALL)
-    }
+pub unsafe extern "C" fn page_free_small(addr: *mut u8) {
+    KERNEL_SMALL_PAGE_ARENA.free(addr, PAGE_SIZE_SMALL);
 }
 
 /// Allocate a large page.
 #[no_mangle]
-pub extern "C" fn page_alloc_large() -> *mut u8 {
-    unsafe {
-        KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_LARGE)
-    }
+pub unsafe extern "C" fn page_alloc_large() -> *mut u8 {
+    KERNEL_LARGE_PAGE_ARENA.alloc(PAGE_SIZE_LARGE)
 }
 
 /// Free a large page.
 #[no_mangle]
-pub extern "C" fn page_free_large(addr: *mut u8) {
-    unsafe {
-        KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_LARGE)
-    }
+pub unsafe extern "C" fn page_free_large(addr: *mut u8) {
+    KERNEL_LARGE_PAGE_ARENA.free(addr, PAGE_SIZE_LARGE)
 }
 
 pub struct KAllocator;
