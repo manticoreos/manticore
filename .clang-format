@@ -8,4 +8,5 @@ AllowShortLoopsOnASingleLine: false
 BinPackParameters: true
 BreakBeforeBraces: Linux
 IndentCaseLabels: false
+SpaceAfterCStyleCast: true
 ColumnLimit: 120
