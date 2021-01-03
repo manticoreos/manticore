@@ -343,7 +343,7 @@ impl VirtioNetDevice {
             },
             Opcode::Complete => {
                 let vq = &self.vqs.borrow()[VIRTIO_RX_QUEUE_IDX as usize];
-                vq.add_buf_idx(0);
+                vq.add_inbuf(unsafe { mmu::virt_to_phys(self.rx_page as usize) as usize }, self.rx_page_size);
                 self.notify(vq);
             }
         }
