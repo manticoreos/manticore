@@ -168,7 +168,7 @@ struct iphdr *iphdr_append(struct packet_buf *pk, uint16_t tot_len, uint8_t prot
 		iph->tos = 0;
 		iph->tot_len = htons(tot_len);
 		iph->id = 0;
-		iph->frag_off = 0;
+		iph->frag_off = htons(IP_DF);
 		iph->ttl = 64;
 		iph->protocol = proto;
 		iph->check = 0;
