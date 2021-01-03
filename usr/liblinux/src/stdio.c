@@ -333,3 +333,12 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
 	/* FIXME: Return number of characters printed.  */
 	return 0;
 }
+
+int putchar(int c)
+{
+	char ch = (char) c;
+
+	console_print(&ch, 1);
+
+	return c;
+}
