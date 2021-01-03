@@ -338,7 +338,7 @@ impl VirtioNetDevice {
                 unsafe { rlibc::memset(mem::transmute(self.tx_page), 0, mem::size_of::<VirtioNetHdr>()); }
                 unsafe { rlibc::memcpy(mem::transmute(self.tx_page + mem::size_of::<VirtioNetHdr>()), cmd.addr, cmd.len); }
                 let vq = &self.vqs.borrow()[VIRTIO_TX_QUEUE_IDX as usize];
-                unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, self.tx_page_size); }
+                unsafe { vq.add_outbuf(mmu::virt_to_phys(self.tx_page as usize) as usize, mem::size_of::<VirtioNetHdr>() + cmd.len); }
                 self.notify(vq);
             },
             Opcode::Complete => {
