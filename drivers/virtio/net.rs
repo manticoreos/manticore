@@ -104,7 +104,6 @@ struct VirtioNetHdr {
     gso_size: u16,
     csum_start: u16,
     csum_offset: u16,
-    num_buffers: u16,
 }
 
 struct VirtioNetDevice {
@@ -187,7 +186,7 @@ impl VirtioNetDevice {
         //
         // 4. Negotiate features
         //
-        let features = Features::VIRTIO_NET_F_MAC | Features::VIRTIO_NET_F_MRG_RXBUF;
+        let features = Features::VIRTIO_NET_F_MAC;
         ioport.write32(features.bits(), DRIVER_FEATURE);
 
         //
@@ -291,8 +290,7 @@ impl VirtioNetDevice {
             let (buf_addr, buf_len) = vq.get_used_buf(idx % vq.queue_size as u16);
 
             let buf_vaddr = unsafe { mmu::phys_to_virt(buf_addr) };
-            let hdr: *const VirtioNetHdr = unsafe { mem::transmute(buf_vaddr) };
-            assert!(unsafe { (*hdr).num_buffers } == 1);
+            let _hdr: *const VirtioNetHdr = unsafe { mem::transmute(buf_vaddr) };
 
             if let Some(rx_buffer_addr) = *self.rx_buffer_addr.borrow() {
                 let packet_len = buf_len - mem::size_of::<VirtioNetHdr>();
