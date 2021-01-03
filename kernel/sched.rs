@@ -151,10 +151,10 @@ pub extern "C" fn process_getevents() -> usize {
 }
 
 #[no_mangle]
-pub extern "C" fn process_vmspace_alloc(size: u64, vmr_start: *mut u64) -> i32 {
+pub extern "C" fn process_vmspace_alloc(size: u64, align: u64, vmr_start: *mut u64) -> i32 {
     let current = get_current();
     let mut vmspace = current.vmspace.borrow_mut();
-    let (start, end) = match vmspace.allocate(size as usize, VMProt::VM_PROT_RW) {
+    let (start, end) = match vmspace.allocate(size as usize, align as usize, VMProt::VM_PROT_RW) {
         Ok(area) => {
             area
         },

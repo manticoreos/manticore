@@ -122,7 +122,7 @@ impl VMAddressSpace {
     ///
     /// * `size` - The size of the allocated region
     /// * `prot` - The protection of the allocated region
-    pub fn allocate(&mut self, size: usize, prot: VMProt) -> Result<(usize, usize)> {
+    pub fn allocate(&mut self, size: usize, align: usize, prot: VMProt) -> Result<(usize, usize)> {
         if !memory::is_aligned(size as u64, memory::PAGE_SIZE_SMALL) {
             return Err(Error::new(EINVAL));
         }
@@ -131,7 +131,7 @@ impl VMAddressSpace {
            deallocated.  */
         let upper_bound = self.vm_regions.upper_bound(Bound::Unbounded);
         let upper_end = upper_bound.get().map_or(0, |region| region.end);
-        let start = memory::align_up(upper_end as u64, memory::PAGE_SIZE_SMALL) as usize;
+        let start = memory::align_up(upper_end as u64, align as u64) as usize;
         let end = start + size;
         {
             let iter = self.vm_regions.range(

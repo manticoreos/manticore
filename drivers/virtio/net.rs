@@ -359,12 +359,12 @@ impl DeviceOps for VirtioNetDevice {
     fn acquire(&self, vmspace: &mut VMAddressSpace, listener: Rc<dyn EventListener>) -> Result<()> {
         self.notifier.add_listener(listener);
 
-        let (rx_buf_start, rx_buf_end) = vmspace.allocate(self.rx_page_size, VMProt::VM_PROT_READ)?;
+        let (rx_buf_start, rx_buf_end) = vmspace.allocate(self.rx_page_size, memory::PAGE_SIZE_SMALL as usize, VMProt::VM_PROT_READ)?;
         vmspace.map(rx_buf_start, rx_buf_end, self.rx_page)?;
         self.rx_buffer_addr.replace(Some(rx_buf_start));
 
         let io_buf_size = 4096;
-        let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, VMProt::VM_PROT_RW)?;
+        let (io_buf_start, io_buf_end) = vmspace.allocate(io_buf_size, memory::PAGE_SIZE_SMALL as usize, VMProt::VM_PROT_RW)?;
         vmspace.populate(io_buf_start, io_buf_end)?;
         let io_queue = IOQueue::new(io_buf_start, io_buf_size);
         self.io_queue.replace(Some(io_queue));

@@ -3,6 +3,7 @@
 #include <kernel/types.h>
 #include <kernel/console.h>
 #include <kernel/errno.h>
+#include <kernel/page-alloc.h>
 #include <kernel/panic.h>
 #include <kernel/sched.h>
 #include <kernel/user-access.h>
@@ -101,8 +102,11 @@ static int sys_vmspace_alloc(struct vmspace_region /* __user */ *uvmr, size_t si
 	if (err) {
 		return err;
 	}
+	if (!vmr.align) {
+		vmr.align = PAGE_SIZE_SMALL;
+	}
 	uint64_t start = 0;
-	err = process_vmspace_alloc(vmr.size, &start);
+	err = process_vmspace_alloc(vmr.size, vmr.align, &start);
 	if (err) {
 		return err;
 	}

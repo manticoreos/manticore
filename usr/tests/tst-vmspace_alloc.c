@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 {
 	struct vmspace_region vmr = {
 		.size = 4096,
+		.align = 4096,
 	};
 	assert(vmspace_alloc(&vmr, sizeof(vmr)) == 0);
 	assert(vmr.start != 0);
