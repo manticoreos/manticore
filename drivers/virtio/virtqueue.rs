@@ -14,12 +14,17 @@ use kernel::memory;
 #[repr(C)]
 #[derive(Debug)]
 pub struct VirtqDesc {
+    /// The guest-physical address of a buffer.
     pub addr: u64,
+    /// The length of the buffer.
     pub len: u32,
+    /// VirtqDesc flags.
     pub flags: u16,
+    /// Index to the next chained descriptor if VIRTQ_DESC_F_NEXT flag is set.
     pub next: u16,
 }
 
+/// Virtqueue descriptor flags.
 pub const VIRTQ_DESC_F_NEXT: u16 = 1;
 pub const VIRTQ_DESC_F_WRITE: u16 = 2;
 pub const VIRTQ_DESC_F_INDIRECT: u16 = 4;
