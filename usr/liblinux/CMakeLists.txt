@@ -1,6 +1,6 @@
 project(liblinux LANGUAGES C ASM)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fno-stack-protector -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fno-stack-protector -g -fno-builtin-malloc -D__MANTICORE_OS__")
 
 add_library(linux
     src/arch/x86/crt0.S
@@ -13,6 +13,7 @@ add_library(linux
     src/internal/net.c
     src/internal/setup.c
     src/internal/socket.c
+    src/malloc.c
     src/socket.c
     src/stdio.c
     src/stdlib.c

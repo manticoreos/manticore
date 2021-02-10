@@ -21,6 +21,8 @@ uint32_t __liblinux_host_ip;
 
 struct arp_cache __liblinux_arp_cache;
 
+extern void __liblinux_malloc_init(void);
+
 void __liblinux_setup(void)
 {
 	int eth_desc = acquire("/dev/eth", 0);
@@ -40,4 +42,6 @@ void __liblinux_setup(void)
 	fprintf(stderr, "IP address = %s\n", HOST_IP_ADDR);
 
 	arp_cache_init(&__liblinux_arp_cache);
+
+	__liblinux_malloc_init();
 }
