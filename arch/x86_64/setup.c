@@ -1,6 +1,7 @@
 #include <arch/setup.h>
 
 #include <kernel/page-alloc.h>
+#include <kernel/platform.h>
 #include <kernel/memory.h>
 #include <kernel/virtio.h>
 #include <kernel/panic.h>
@@ -85,7 +86,7 @@ void arch_early_setup(void)
 	init_idt();
 	init_task();
 	init_syscall();
-	init_memory_map();
+	parse_platform_config();
 	init_mmu_map();
 	init_apic();
 	setup_nxe();

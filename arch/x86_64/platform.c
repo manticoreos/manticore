@@ -1,9 +1,10 @@
-#include <kernel/memory.h>
+#include <kernel/platform.h>
 
 #include <kernel/page-alloc.h>
 #include <kernel/printf.h>
 #include <kernel/initrd.h>
 #include <kernel/align.h>
+#include <kernel/memory.h>
 
 #include <arch/vmem-defs.h>
 #include <arch/vmem.h>
@@ -144,7 +145,7 @@ static void parse_memory_map(struct tag *tag, void *data)
  */
 extern void *boot_data;
 
-void init_memory_map(void)
+void parse_platform_config(void)
 {
 	void *data = boot_data;
 	size_t offset = 0;

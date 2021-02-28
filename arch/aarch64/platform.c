@@ -1,6 +1,7 @@
-#include <kernel/memory.h>
+#include <kernel/platform.h>
 
 #include <kernel/page-alloc.h>
+#include <kernel/memory.h>
 #include <kernel/printf.h>
 #include <kernel/align.h>
 #include <kernel/panic.h>
@@ -10,7 +11,7 @@
 
 void *dtb;
 
-void init_memory_map(void)
+void parse_platform_config(void)
 {
 	if (!dtb) {
 		panic("No FDT found");
