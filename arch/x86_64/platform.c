@@ -20,6 +20,7 @@ enum {
 	BIOS_BOOT_DEVICE_TAG	= 5,
 	MEMORY_MAP_TAG		= 6,
 	ELF_SYMBOLS_TAG		= 9,
+	ACPI_V1_RSDP_TAG	= 14,
 };
 
 struct header {
@@ -140,6 +141,13 @@ static void parse_memory_map(struct tag *tag, void *data)
 	}
 }
 
+extern void acpi_parse_config(void *);
+
+static void parse_acpi_v1_rsdp(struct tag *tag, void *data)
+{
+	acpi_parse_config(data + sizeof(*tag));
+}
+
 /*
  * Boot data section provided by the Multiboot 2 compatible boot loader:
  */
@@ -167,6 +175,9 @@ void parse_platform_config(void)
 			break;
 		case MEMORY_MAP_TAG:
 			parse_memory_map(tag, data + offset);
+			break;
+		case ACPI_V1_RSDP_TAG:
+			parse_acpi_v1_rsdp(tag, data + offset);
 			break;
 		default:
 			break;
