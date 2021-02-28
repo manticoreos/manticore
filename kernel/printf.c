@@ -185,6 +185,11 @@ static const char *format(const char *fmt, va_list ap, fmt_putchar_t putchar, vo
 			format_str(s, strlen(s), &fmt_state, putchar, priv);
 			goto out;
 		}
+		case 'c': {
+			int ch = va_arg(ap, int);
+			putchar(ch, priv);
+			goto out;
+		}
 		case 's': {
 			const char *s = va_arg(ap, const char *);
 			if (!s) {
