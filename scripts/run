@@ -57,7 +57,7 @@ class Qemu:
 
     def __init__(self, qemu_exec):
         self.qemu_exec = qemu_exec
-        self.opts = ["-enable-kvm", "-cpu", "host,+x2apic", "-nographic"]
+        self.opts = ["-enable-kvm", "-cpu", "host,+x2apic", "-nographic", "-no-reboot"]
 
     def configure_cpus(self, cpus):
         self.cpus = cpus
