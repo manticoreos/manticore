@@ -1,6 +1,6 @@
 #include <arch/vmem-defs.h>
 
-ENTRY(start)
+ENTRY(start32)
 SECTIONS
 {
     . = 0x8000;

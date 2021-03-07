@@ -13,8 +13,8 @@
  * CPU into 32-bit protected mode.
  */
 .align 16
-.globl start
-start:
+.globl start32
+start32:
 	/* Disable interrupts */
 	cli
 
