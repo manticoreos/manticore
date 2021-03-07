@@ -1,6 +1,7 @@
 #ifndef X86_APIC_H
 #define X86_APIC_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 struct msi_message {
@@ -9,6 +10,8 @@ struct msi_message {
 };
 
 void apic_compose_msi_msg(struct msi_message *msg, uint8_t vector, uint8_t dest_id);
+
+bool apic_is_bsp(void);
 
 void init_apic(void);
 

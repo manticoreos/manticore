@@ -86,6 +86,11 @@ static inline bool probe_x2apic(void)
 	return ecx & X86_CPUID_FEATURE_ECX_X2APIC;
 }
 
+bool apic_is_bsp(void)
+{
+	return (rdmsr(X86_IA32_APIC_BASE) & X86_IA32_APIC_BASE_BSP) == X86_IA32_APIC_BASE_BSP;
+}
+
 void init_apic(void)
 {
 	if (!probe_x2apic()) {

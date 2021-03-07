@@ -4,6 +4,7 @@
 #include <kernel/const.h>
 
 #define X86_IA32_APIC_BASE	0x0000001b
+#define X86_IA32_APIC_BASE_BSP	_UL_BIT(8)
 #define X86_IA32_APIC_BASE_EXTD	_UL_BIT(10)
 #define X86_IA32_APIC_BASE_EN	_UL_BIT(11)
 
