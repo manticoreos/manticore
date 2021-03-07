@@ -5,54 +5,6 @@
 
 .section .boot
 
-.align 8
-.global boot_gdt
-boot_gdt:
-	.quad 0
-
-	/* Kernel code segment: */
-	.quad X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L, 0, 0xfffff)
-
-	/* Kernel data segment: */
-	.quad X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB, 0, 0xfffff)
-boot_gdt_end:
-
-boot_gdt_desc32:
-	.short boot_gdt_end - boot_gdt - 1
-	.long boot_gdt
-
-.align 8
-boot_gdt_desc64:
-	.short boot_gdt_end - boot_gdt - 1
-	.quad boot_gdt + KERNEL_VMA
-
-/*
- * Boot page mapping has two mappings: (1) identity mapping for first 1
- * GB of physical memory for bootstrap and (2) higher-half kernel
- * mapping once the kernel is up and running.
- */
-.align 4096
-boot_pml4e:
-	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
-	.fill 510, 8, 0
-	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
-boot_pdpte:
-	.quad boot_pde + (X86_PE_RW | X86_PE_P)
-	.fill 509, 8, 0
-	.quad boot_pde + (X86_PE_RW | X86_PE_P)
-	.quad 0
-boot_pde:
-	pfn = 0
-	.rept 512
-		.quad (pfn << 21) + (X86_PE_PS | X86_PE_RW | X86_PE_P)
-		pfn = pfn + 1
-	.endr
-
-.align 8
-.globl boot_data
-boot_data:
-	.fill 1, 8, 0
-
 .code32
 
 /*
@@ -136,6 +88,54 @@ start64:
 	cli
 halt:	hlt
 	jmp halt
+
+.align 8
+.global boot_gdt
+boot_gdt:
+	.quad 0
+
+	/* Kernel code segment: */
+	.quad X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L, 0, 0xfffff)
+
+	/* Kernel data segment: */
+	.quad X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB, 0, 0xfffff)
+boot_gdt_end:
+
+boot_gdt_desc32:
+	.short boot_gdt_end - boot_gdt - 1
+	.long boot_gdt
+
+.align 8
+boot_gdt_desc64:
+	.short boot_gdt_end - boot_gdt - 1
+	.quad boot_gdt + KERNEL_VMA
+
+/*
+ * Boot page mapping has two mappings: (1) identity mapping for first 1
+ * GB of physical memory for bootstrap and (2) higher-half kernel
+ * mapping once the kernel is up and running.
+ */
+.align 4096
+boot_pml4e:
+	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
+	.fill 510, 8, 0
+	.quad boot_pdpte + (X86_PE_RW | X86_PE_P)
+boot_pdpte:
+	.quad boot_pde + (X86_PE_RW | X86_PE_P)
+	.fill 509, 8, 0
+	.quad boot_pde + (X86_PE_RW | X86_PE_P)
+	.quad 0
+boot_pde:
+	pfn = 0
+	.rept 512
+		.quad (pfn << 21) + (X86_PE_PS | X86_PE_RW | X86_PE_P)
+		pfn = pfn + 1
+	.endr
+
+.align 8
+.globl boot_data
+boot_data:
+	.fill 1, 8, 0
 
 .bss
 
