@@ -18,6 +18,11 @@
 #define X86_GDT_DB		(_ULL(1) << (32+22))
 #define X86_GDT_G		(_ULL(1) << (32+23))
 
-#define X86_GDT_ENTRY(flags) (flags)
+#define X86_GDT_ENTRY(flags, base, limit)	\
+	((((base) & _ULL(0xff000000)) << 32)	\
+         | (flags)				\
+         | (((limit) & _ULL(0xf0000)) << 32)	\
+         | (((base) & _ULL(0x00ffffff)) << 16) 	\
+         | (((limit) & _ULL(0x0ffff))))
 
 #endif

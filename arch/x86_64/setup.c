@@ -24,14 +24,14 @@
 uint64_t gdt[] __attribute__ ((aligned (8))) = {
 	0,
 	/* Kernel code segment: */
-	X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L),
+	X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L, 0, 0xfffff),
 	/* Kernel data segment: */
-	X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB),
+	X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB, 0, 0xfffff),
 
 	/* Userspace data segment: */
-	X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_DB),
+	X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_DB, 0, 0xfffff),
 	/* Userspace code segment: */
-	X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_L),
+	X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(3) | X86_GDT_L, 0, 0xfffff),
 
 	/* TSS: */
 	0,
