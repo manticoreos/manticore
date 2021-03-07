@@ -11,10 +11,10 @@ boot_gdt:
 	.quad 0
 
 	/* Kernel code segment: */
-	.quad X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L
+	.quad X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_L)
 
 	/* Kernel data segment: */
-	.quad X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB
+	.quad X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB)
 boot_gdt_end:
 
 boot_gdt_desc32:
