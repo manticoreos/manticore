@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#define GDT_ENTRY(value) (((uint64_t) value) << 32)
+#define GDT_ENTRY(flags) (flags)
 
 uint64_t gdt[] __attribute__ ((aligned (8))) = {
 	0,
