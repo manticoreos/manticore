@@ -7,6 +7,17 @@
 
 .code16
 
+/*
+ * This is the 16-bit real mode entry point to the kernel.
+ *
+ * Please note that this entry point is used in the SMP bootstrap
+ * sequence to start up application processor (APs). The boostrap
+ * processor starts up with the `start32` entry point jumped to by a
+ * boot loader.
+ *
+ * NOTE! Keep this entry point address page-aligned to ensure it can be
+ * called by the startup IPI.
+ */
 .globl start16
 start16:
 	/* Disable interrupts.  */
@@ -28,9 +39,10 @@ start16:
 .code32
 
 /*
- * This is the boostrap entry point to the kernel. The assumption here
- * is that the kernel was loaded by a bootloader that already put the
- * CPU into 32-bit protected mode.
+ * This is the 32-bit protected mode entry point to the kernel.
+ *
+ * This is the boostrap processor (BSP) entry point jumped to by the
+ * boot loader.
  */
 .align 16
 .globl start32
