@@ -5,6 +5,26 @@
 
 .section .boot
 
+.code16
+
+.globl start16
+start16:
+	/* Disable interrupts.  */
+	cli
+
+	/* TODO: enable A20 gate */
+
+	/* Setup 32-bit GDT */
+	lgdt	boot_gdt_desc32
+
+	/* Enable protected mode. */
+	movl	%eax, %cr0
+	orl	$X86_CR0_PE, %eax
+	movl	%eax, %cr0
+
+	/* Switch to protected mode.  */
+	ljmp    $0x18, $start32
+
 .code32
 
 /*
@@ -99,6 +119,9 @@ boot_gdt:
 
 	/* Kernel data segment: */
 	.quad X86_GDT_ENTRY(X86_GDT_TYPE_DATA | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB, 0, 0xfffff)
+
+	/* Kernel code segment (32-bit): */
+	.quad X86_GDT_ENTRY(X86_GDT_TYPE_CODE | X86_GDT_P | X86_GDT_S | X86_GDT_DPL(0) | X86_GDT_DB | X86_GDT_G, 0, 0xfffff)
 boot_gdt_end:
 
 boot_gdt_desc32:
