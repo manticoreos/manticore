@@ -98,9 +98,11 @@ void init_apic(void)
 		return;
 	}
 	_apic_base = rdmsr(X86_IA32_APIC_BASE);
+	wrmsr(X86_IA32_APIC_BASE, _apic_base | X86_IA32_APIC_BASE_EXTD | X86_IA32_APIC_BASE_EN);
+
+	_apic_base &= ~X86_IA32_APIC_BASE_BSP;
 	printf("Found x2APIC at %lx\n", _apic_base);
 
-	wrmsr(X86_IA32_APIC_BASE, _apic_base | X86_IA32_APIC_BASE_EXTD | X86_IA32_APIC_BASE_EN);
 	apic_write(ACPI_LVT_LINT0, 0);
 	apic_write(APIC_SPIV, 0x1ff);
 
