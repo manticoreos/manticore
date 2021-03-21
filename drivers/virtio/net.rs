@@ -228,6 +228,9 @@ impl VirtioNetDevice {
             if queue == VIRTIO_RX_QUEUE_IDX {
                 vq.add_inbuf(unsafe { mmu::virt_to_phys(dev.rx_page as usize) as usize }, dev.rx_page_size);
                 let vector = unsafe { dev.pci_dev.register_irq(queue, VirtioNetDevice::interrupt, mem::transmute(Rc::as_ptr(&dev))) };
+                if vector < 0 {
+                    panic!("Unable to allocate IRQ");
+                }
                 dev.pci_dev.enable_irq(queue);
                 ioport.write16(queue, QUEUE_MSIX_VECTOR);
                 println!("virtio-net: virtqueue {} is using IRQ vector {}", queue, vector);
