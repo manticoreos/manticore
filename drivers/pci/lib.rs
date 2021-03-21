@@ -409,6 +409,9 @@ impl PCIDevice {
 
     pub fn register_irq(&self, entry: u16, handler: extern "C" fn(arg: usize), arg: usize) -> i32 {
         let vector = unsafe { request_irq(handler, transmute(arg)) };
+        if vector < 0 {
+            return vector
+        }
         let msi_msg = MSIMessage::compose(vector as u8);
         self.write_msix_entry(entry, msi_msg.msg_addr, msi_msg.msg_data);
         vector
