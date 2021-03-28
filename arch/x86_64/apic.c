@@ -5,6 +5,7 @@
 #include <arch/msr.h>
 
 #include <kernel/printf.h>
+#include <kernel/panic.h>
 #include <kernel/irq.h>
 
 #include <stdbool.h>
@@ -69,6 +70,9 @@ void end_of_interrupt(void)
 static void apic_timer_init(void)
 {
 	irq_vector_t vector = request_irq(apic_timer_intr, NULL);
+	if (vector < 0) {
+		panic("Unable to initialize APIC timer.");
+	}
 	apic_write(APIC_LVT_TIMER, vector | APIC_LVT_TIMER_PERIODIC);
 	apic_write(APIC_TIMER_DC, 0x3);
 	/* TODO: Configure timer counter using unit of time. */
