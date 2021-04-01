@@ -1,3 +1,9 @@
+/*
+ * Advanced programmable interrupt controller (APIC) driver for x86
+ *
+ * The APIC is local to a CPU, and is responsible for interrupt handling,
+ * timers, and inter-process interrupts (IPIs).
+ */
 #include <arch/apic.h>
 
 #include <arch/cpu.h>
