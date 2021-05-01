@@ -1,0 +1,6 @@
+#!/bin/bash
+
+TEST="$1"
+ISO="$(basename $TEST).iso"
+
+./scripts/mkiso -k kernel.elf -i $TEST $ISO && ./scripts/run $ISO 
