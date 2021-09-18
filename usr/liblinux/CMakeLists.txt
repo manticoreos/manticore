@@ -5,6 +5,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fno-stack-protector -g -fno-builtin-mal
 add_library(linux
     src/arch/x86/crt0.S
     src/arpa/inet.c
+    src/assert.c
     src/epoll.c
     src/errno.c
     src/internal/arp.c

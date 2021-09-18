@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define assert(expr)                                                                                                   \
-	do {                                                                                                           \
-		if (!(expr)) {                                                                                         \
-			fprintf(stderr, "%s:%d: %s: Assertion `" #expr "' failed.\n", __FILE__, __LINE__, __func__);   \
-			exit(1);                                                                                       \
-		}                                                                                                      \
+void __assert_fail(const char *expr, const char *file, unsigned int line, const char *function);
+
+#define assert(expr)                                                        \
+	do {                                                                \
+		if (!(expr)) {                                              \
+			__assert_fail(#expr, __FILE__, __LINE__, __func__); \
+		}                                                           \
 	} while (0)
 
 #endif
