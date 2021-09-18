@@ -4,7 +4,6 @@
 
 #![feature(allocator_api)]
 #![feature(box_syntax)]
-#![feature(const_fn)]
 #![feature(asm)]
 #![no_std]
 

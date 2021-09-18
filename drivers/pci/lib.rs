@@ -3,7 +3,7 @@
 //!
 
 #![no_std]
-#![feature(const_fn)]
+#![feature(const_fn_fn_ptr_basics)]
 
 extern crate alloc;
 #[macro_use]
