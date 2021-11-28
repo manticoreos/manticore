@@ -19,6 +19,8 @@
 #define MULTIBOOT_TAG_INFO_REQUEST 1
 #define MULTIBOOT_TAG_INFO_REQUEST_LEN (multiboot2_info_request_end - multiboot2_info_request_start)
 
+#define MULTIBOOT_TAG_FRAMEBUFFER 5
+
 #define MULTIBOOT_TAG_MEMORY_MAP 6
 
 .align 8
@@ -35,6 +37,14 @@ multiboot2_info_request_start:
 .long MULTIBOOT_TAG_INFO_REQUEST_LEN
 .long MULTIBOOT_TAG_MEMORY_MAP
 multiboot2_info_request_end:
+
+.align 8
+.short MULTIBOOT_TAG_FRAMEBUFFER
+.short 0
+.long 20
+.long 0
+.long 0
+.long 0
 
 .align 8
 .short MULTIBOOT_TAG_END
