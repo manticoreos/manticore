@@ -116,6 +116,7 @@ enum {
 
 static void dump_exception_frame(struct exception_frame *ef)
 {
+	printf("Error code: %08lx\n", ef->error_code);
 	printf("Registers:\n");
 	printf("  RIP=%016lx CS=%016lx RFLAGS=%016lx RSP=%016lx SS=%016lx\n",
 		ef->rip, ef->cs, ef->rflags, ef->rsp, ef->ss);
