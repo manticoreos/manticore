@@ -57,7 +57,13 @@ class Qemu:
 
     def __init__(self, qemu_exec):
         self.qemu_exec = qemu_exec
-        self.opts = ["-enable-kvm", "-cpu", "host,+x2apic", "-nographic", "-no-reboot"]
+        self.opts = ["-enable-kvm", "-cpu", "host,+x2apic", "-no-reboot"]
+
+    def configure_framebuffer(self, framebuffer):
+        if framebuffer:
+            self.opts += ["-serial", "stdio"]
+        else:
+            self.opts += ["-nographic"]
 
     def configure_cpus(self, cpus):
         self.cpus = cpus
@@ -134,6 +140,8 @@ class Qemu:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("image", help="OS image to run in a virtual machine")
+    parser.add_argument("-f", "--framebuffer",
+                        action="store_true", help="enable framebuffer")
     parser.add_argument("-c", "--cpus", type=int, default=1,
                         help="number of CPUs in the virtual machine")
     parser.add_argument("-n", "--network", type=str, default="user",
@@ -153,6 +161,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     qemu = Qemu(args.qemu_exec)
+    qemu.configure_framebuffer(args.framebuffer)
     qemu.configure_cpus(args.cpus)
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
