@@ -65,6 +65,10 @@ class Qemu:
         else:
             self.opts += ["-nographic"]
 
+    def configure_uefi(self, uefi):
+        if uefi:
+            self.opts += ["-bios", "/usr/share/OVMF/OVMF_CODE.fd"]
+
     def configure_cpus(self, cpus):
         self.cpus = cpus
 
@@ -142,6 +146,8 @@ if __name__ == "__main__":
     parser.add_argument("image", help="OS image to run in a virtual machine")
     parser.add_argument("-f", "--framebuffer",
                         action="store_true", help="enable framebuffer")
+    parser.add_argument("-u", "--uefi",
+                        action="store_true", help="enable uefi")
     parser.add_argument("-c", "--cpus", type=int, default=1,
                         help="number of CPUs in the virtual machine")
     parser.add_argument("-n", "--network", type=str, default="user",
@@ -162,6 +168,7 @@ if __name__ == "__main__":
 
     qemu = Qemu(args.qemu_exec)
     qemu.configure_framebuffer(args.framebuffer)
+    qemu.configure_uefi(args.uefi)
     qemu.configure_cpus(args.cpus)
     qemu.configure_image(args.image)
     qemu.configure_publish(args.publish)
