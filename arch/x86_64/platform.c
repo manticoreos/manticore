@@ -114,6 +114,10 @@ static void parse_memory_map(struct tag *tag, void *data)
 		if (entry->type != MEMORY_TYPE_AVAILABLE) {
 			continue;
 		}
+		if (nr_mem_regions >= MAX_MEM_REGIONS) {
+			printf("WARNING: not registering region, increase MAX_MEM_REGIONS!");
+			continue;
+		}
 		struct memory_region *mem_region = &mem_regions[nr_mem_regions++];
 		mem_region->base = entry->base_addr;
 		mem_region->len = align_down(entry->length, PAGE_SIZE_SMALL);
