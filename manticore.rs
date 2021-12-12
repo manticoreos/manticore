@@ -43,7 +43,7 @@ pub extern "C" fn panic_handler(info: &PanicInfo) -> ! {
 #[cfg(not(test))]
 #[alloc_error_handler]
 #[no_mangle]
-pub extern "C" fn oom(_: ::core::alloc::Layout) -> ! {
+fn oom(_: core::alloc::Layout) -> ! {
     panic!("out of memory");
 }
 
