@@ -10,4 +10,5 @@ bitflags = { version = "1.0" }
 intrusive-collections = { version = "0.9.2", default-features = false, features = [ "nightly", "alloc" ]}
 null-terminated = { version = "0.3.9" }
 rlibc = { version = "1.0.0" }
+utf = { version = "0.1.5", optional = true }
 xmas-elf = { version = "0.6" }
