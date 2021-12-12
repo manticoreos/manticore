@@ -18,6 +18,7 @@ class GrubConfig:
             return """
 set timeout=0
 set default="0"
+insmod efi_gop
 menuentry "kernel" {
     multiboot2 %s
     module2 %s
@@ -27,6 +28,7 @@ menuentry "kernel" {
             return """
 set timeout=0
 set default="0"
+insmod efi_gop
 menuentry "kernel" {
     multiboot2 %s
 }
