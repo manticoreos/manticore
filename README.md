@@ -25,7 +25,7 @@
   * [Code Structure](#code-structure)
 * [Documentation](#documentation)
 * [Publications](#publications)
-* [Contributing](#contributing)
+* [Community and Contributing](#contributing)
 * [Authors](#authors)
 * [License](#license)
 
@@ -102,9 +102,9 @@ Manticore's code is structured into different directories as follows:
 
 * Pekka Enberg, Ashwin Rao, and Sasu Tarkoma. 2019. [I/O Is Faster Than the CPU – Let’s Partition Resources and Eliminate (Most) OS Abstractions](http://penberg.org/parakernel-hotos19.pdf). HotOS '19
 
-## Contributing
+## Community and Contributing
 
-Bug reports and pull requests are welcome!
+If you have questions or comments, please join the [Manticore Slack](https://join.slack.com/t/manticoreos/shared_invite/zt-10516cdkl-uXnQeqGXq8Lkz0Z0kp_LnQ)! Bug reports and pull requests are also welcome!
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms. See [Code of Coduct](code-of-conduct.md) for details.
 
