@@ -1,8 +1,9 @@
 #include <arch/vmem.h>
 
+#include <kernel/printf.h>
+
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 
 #define ACPI_RSDP_SIG "RSD PTR "
@@ -96,7 +97,7 @@ static void acpi_parse_madt(void *raw_madt)
 		}
 		off += len;
 	}
-	printf("Found %d CPUs via ACPI MADT\n", nr_cpus);
+	printf("Found %lu CPUs via ACPI MADT\n", nr_cpus);
 }
 
 /* Parse platform configuration from the given ACPI Root System Description
