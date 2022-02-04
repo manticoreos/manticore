@@ -134,7 +134,12 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
             let start = phdr.virtual_addr() as usize;
             let size = phdr.mem_size() as usize;
             let end = memory::align_up((start + size) as u64, memory::PAGE_SIZE_SMALL) as usize;
-            vmspace.allocate_fixed(start, end, prot).expect("allocate failed");
+            vmspace.allocate_fixed(start, end, prot).unwrap_or_else(|_| {
+                panic!(
+                    "Failed to allocate memory for ELF program header at {:#08x} - {:#08x}",
+                    start, end
+                )
+            });
             let image_start: u64 = unsafe { transmute(image_start) };
             let src_start: u64 = image_start + phdr.offset();
             let src_end = src_start + phdr.file_size();
