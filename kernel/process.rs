@@ -86,6 +86,8 @@ extern "C" {
     pub fn task_state_stack_top(task_state: TaskState) -> u64;
 }
 
+const ELF_MINIMUM_ALIGN: u64 = memory::PAGE_SIZE_SMALL;
+
 /// Create a new process.
 #[no_mangle]
 pub extern "C" fn process_spawn(image_start: *const u8, image_size: usize) -> i32 {
@@ -131,10 +133,12 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
     for phdr in ph_iter {
         if let program::Type::Load = phdr.get_type().unwrap() {
             let prot = elf_phdr_flags_to_prot(phdr.flags());
-            let start = phdr.virtual_addr() as usize;
-            let size = phdr.mem_size() as usize;
-            let end = memory::align_up((start + size) as u64, memory::PAGE_SIZE_SMALL) as usize;
-            vmspace.allocate_fixed(start, end, prot).unwrap_or_else(|_| {
+            let start = phdr.virtual_addr();
+            let size = phdr.mem_size();
+            let end = start + size;
+            let vm_start = memory::align_down(start, ELF_MINIMUM_ALIGN);
+            let vm_end = memory::align_up(end, ELF_MINIMUM_ALIGN);
+            vmspace.allocate_fixed(vm_start as usize, vm_end as usize, prot).unwrap_or_else(|_| {
                 panic!(
                     "Failed to allocate memory for ELF program header at {:#08x} - {:#08x}",
                     start, end
@@ -143,7 +147,7 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
             let image_start: u64 = unsafe { transmute(image_start) };
             let src_start: u64 = image_start + phdr.offset();
             let src_end = src_start + phdr.file_size();
-            vmspace.populate_from(start, end, start, src_start as usize, src_end as usize).expect("populate_from failed");
+            vmspace.populate_from(vm_start as usize, vm_end as usize, start as usize, src_start as usize, src_end as usize).expect("populate_from failed");
         }
     }
     if let Some(section) = elf_file.find_section_by_name(".bss") {
