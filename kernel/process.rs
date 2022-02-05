@@ -143,7 +143,7 @@ fn parse_elf_image(image_start: *const u8, image_size: usize, vmspace: &mut VMAd
             let image_start: u64 = unsafe { transmute(image_start) };
             let src_start: u64 = image_start + phdr.offset();
             let src_end = src_start + phdr.file_size();
-            vmspace.populate_from(start, end, src_start as usize, src_end as usize).expect("populate_from failed");
+            vmspace.populate_from(start, end, start, src_start as usize, src_end as usize).expect("populate_from failed");
         }
     }
     if let Some(section) = elf_file.find_section_by_name(".bss") {
