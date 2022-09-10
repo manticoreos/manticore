@@ -70,7 +70,15 @@ $ make -C usr/echod
 and launch it under QEMU with:
 
 ```
-$ ./scripts/run usr/echod/echod.iso
+$ ./scripts/run --publish 7777/udp usr/echod/echod.iso
+```
+
+You can now communicate with the echo server with:
+
+```
+$ nc -u4 localhost 7777
+hello
+hello
 ```
 
 ### Supported Hardware
