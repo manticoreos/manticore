@@ -1,14 +1,10 @@
-<p align="center">
-<img src="docs/images/manticore.png">
-<p>
+<img src="docs/images/manticore.png" width="200" align="right" />
 
-<p align="center">
+# Manticore
+
 <img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="MIT/Apache 2.0 License">
-</p>
 
-<p align="center">
-  Manticore is a research operating system to explore <a href="http://penberg.org/parakernel-hotos19.pdf"><i>parakernels</i></a>.
-</p>
+Manticore is a research operating system to explore <a href="http://penberg.org/parakernel-hotos19.pdf"><i>parakernels</i></a>.
 
 ## Table of Contents
 
