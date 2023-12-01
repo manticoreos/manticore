@@ -3,13 +3,7 @@
 <p>
 
 <p align="center">
-<a href="https://circleci.com/gh/manticoreos/manticore">
-  <img src="https://circleci.com/gh/manticoreos/manticore/tree/master.svg?style=svg" alt="Build Status">
-</a>
 <img src="https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg" alt="MIT/Apache 2.0 License">
-<a href="https://join.slack.com/t/manticoreos/shared_invite/zt-10516cdkl-uXnQeqGXq8Lkz0Z0kp_LnQ">
-  <img src="https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white" alt="Slack">
-</a>
 </p>
 
 <p align="center">
