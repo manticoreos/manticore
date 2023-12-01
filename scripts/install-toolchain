@@ -29,5 +29,3 @@ source $HOME/.cargo/env
 rustup install $toolchain
 rustup default $toolchain
 rustup component add rust-src
-
-cargo install --force xargo

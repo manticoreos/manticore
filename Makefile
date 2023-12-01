@@ -99,7 +99,7 @@ $(KERNEL_IMAGE): arch/$(ARCH)/kernel.ld $(objs) $(KERNEL_LIB) $(tests)
 
 $(KERNEL_LIB): $(KERNEL_LIB_SRC)
 	$(E) "  XARGO"
-	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) xargo build --release --target $(ARCH)-unknown-none
+	$(Q) CC=$(CROSS_PREFIX)gcc RUST_TARGET_PATH=$(PWD) cargo build --release --target $(ARCH)-unknown-none
 
 %.o: %.c
 	$(E) "  CC      " $@
